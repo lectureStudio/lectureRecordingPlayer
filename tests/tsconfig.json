@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.app.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "types": [
+      "vitest/globals",
+      "vitest/importMeta",
+      "node",
+      "jsdom"
+    ],
+    "paths": {
+      "@/*": ["src/*"],
+      "@types/*": ["src/types/*"],
+      "@schemas/*": ["src/schemas/*"]
+    }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx"
+  ]
+}

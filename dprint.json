@@ -1,0 +1,20 @@
+{
+  "typescript": {
+    "semiColons": "asi",
+    "quoteStyle": "alwaysSingle",
+    "useBraces": "always",
+    "nextControlFlowPosition": "nextLine"
+  },
+  "markup": {
+  },
+  "excludes": [
+    "**/node_modules"
+  ],
+  "includes": [
+    "src/**/*.{ts,tsx,js,jsx,json,vue}"
+  ],
+  "plugins": [
+    "https://plugins.dprint.dev/typescript-0.95.11.wasm",
+    "https://plugins.dprint.dev/g-plane/markup_fmt-v0.24.0.wasm"
+  ]
+}
