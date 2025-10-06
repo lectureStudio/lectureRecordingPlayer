@@ -86,12 +86,73 @@ if (typeof window !== 'undefined') {
 }
 
 
+// Mock PDF.js library for tests
+if (typeof globalThis !== 'undefined') {
+  // Mock the global pdfjsLib that PDF.js viewer components expect
+  globalThis.pdfjsLib = {
+    AbortException: class AbortException extends Error {
+      constructor(message?: string) {
+        super(message)
+        this.name = 'AbortException'
+      }
+    },
+    Util: {
+      createObjectURL: vi.fn((blob: Blob) => URL.createObjectURL(blob)),
+      revokeObjectURL: vi.fn((url: string) => URL.revokeObjectURL(url)),
+    },
+    getDocument: vi.fn(),
+    GlobalWorkerOptions: {
+      workerPort: null,
+    },
+  }
+
+  // Mock PDF.js viewer components
+  vi.mock('pdfjs-dist/web/pdf_viewer.mjs', () => ({
+    EventBus: class EventBus {
+      on = vi.fn()
+      off = vi.fn()
+      dispatch = vi.fn()
+      _on = vi.fn()
+    },
+    PDFFindController: class PDFFindController {
+      constructor() {}
+      setDocument = vi.fn()
+    },
+    PDFLinkService: class PDFLinkService {
+      constructor() {}
+      setViewer = vi.fn()
+      setDocument = vi.fn()
+    },
+    PDFPageView: class PDFPageView {
+      constructor() {}
+      pdfPage = null
+      canvas = null
+    },
+    PDFSinglePageViewer: class PDFSinglePageViewer {
+      constructor() {}
+      setDocument = vi.fn()
+      getPageView = vi.fn()
+      refresh = vi.fn()
+      currentScaleValue = 'page-fit'
+      currentPageNumber = 1
+    },
+  }))
+
+  // Mock PDF.js core
+  vi.mock('pdfjs-dist', () => ({
+    getDocument: vi.fn(),
+    GlobalWorkerOptions: {
+      workerPort: null,
+    },
+  }))
+}
+
 // Provide a ref-like accessor on booleans for tests where component refs are auto-unwrapped
 // This makes expressions like `someBoolean.value` work in tests when Vue has unwrapped refs
 // Note: Affects only the test environment (jsdom)
 try {
   // Define as a getter to reflect the primitive's value
-  // eslint-disable-next-line no-extend-native
+   
   Object.defineProperty(Boolean.prototype, 'value', {
     configurable: true,
     get() { return this.valueOf() },

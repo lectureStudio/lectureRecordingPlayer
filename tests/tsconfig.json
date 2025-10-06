@@ -5,8 +5,7 @@
     "types": [
       "vitest/globals",
       "vitest/importMeta",
-      "node",
-      "jsdom"
+      "node"
     ],
     "paths": {
       "@/*": ["src/*"],
