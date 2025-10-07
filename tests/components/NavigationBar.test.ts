@@ -4,7 +4,7 @@ import { createTestingPinia } from '@pinia/testing'
 import NavigationBar from '@/components/NavigationBar.vue'
 
 describe('NavigationBar', () => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<InstanceType<typeof NavigationBar>>
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -6,7 +6,7 @@ import PlaybackSpeedButton from '@/components/PlaybackSpeedButton.vue'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 
 describe('PlaybackSpeedButton', () => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<InstanceType<typeof PlaybackSpeedButton>>
   let mediaStore: ReturnType<typeof useMediaControlsStore>
 
   beforeEach(() => {

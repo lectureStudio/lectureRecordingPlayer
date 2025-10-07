@@ -6,11 +6,11 @@ describe('composables/useTimeFormat', () => {
 
   it('formats 0 and falsy values as 0:00 and 0:00:00', () => {
     expect(formatHMM(undefined)).toBe('0:00')
-    expect(formatHMM(null as any)).toBe('0:00')
-    expect(formatHMM(-5 as any)).toBe('0:00')
+    expect(formatHMM(null as unknown as number)).toBe('0:00')
+    expect(formatHMM(-5 as unknown as number)).toBe('0:00')
     expect(formatHHMMSS(undefined)).toBe('0:00:00')
-    expect(formatHHMMSS(null as any)).toBe('0:00:00')
-    expect(formatHHMMSS(-10 as any)).toBe('0:00:00')
+    expect(formatHHMMSS(null as unknown as number)).toBe('0:00:00')
+    expect(formatHHMMSS(-10 as unknown as number)).toBe('0:00:00')
   })
 
   it('formats under an hour correctly', () => {
@@ -28,7 +28,7 @@ describe('composables/useTimeFormat', () => {
 
   it('floors and clamps non-integer and infinite values', () => {
     expect(formatHHMMSS(61.9)).toBe('0:01:01')
-    expect(formatHHMMSS(Number.POSITIVE_INFINITY as any)).toBe('0:00:00')
-    expect(formatHMM(Number.NaN as any)).toBe('0:00')
+    expect(formatHHMMSS(Number.POSITIVE_INFINITY as unknown as number)).toBe('0:00:00')
+    expect(formatHMM(Number.NaN as unknown as number)).toBe('0:00')
   })
 })

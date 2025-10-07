@@ -6,7 +6,7 @@ import SpeakerButton from '@/components/SpeakerButton.vue'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 
 describe('SpeakerButton', () => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<InstanceType<typeof SpeakerButton>>
   let mediaStore: ReturnType<typeof useMediaControlsStore>
 
   beforeEach(() => {

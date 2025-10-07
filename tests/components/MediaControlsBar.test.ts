@@ -44,7 +44,7 @@ vi.mock('@/composables/useTimeFormat', () => ({
 }))
 
 describe('MediaControlsBar.vue', () => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<InstanceType<typeof MediaControlsBar>>
   let mediaStore: ReturnType<typeof useMediaControlsStore>
   let recordingStore: ReturnType<typeof useRecordingStore>
 
