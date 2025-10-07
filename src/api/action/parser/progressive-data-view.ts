@@ -13,7 +13,7 @@ class ProgressiveDataView {
   }
 
   skip(n: number): void {
-    if (this.offset + n >= this.dataView.byteLength) {
+    if (this.offset + n > this.dataView.byteLength) {
       throw new Error(`Out of bounds ${this.offset + n} exceeds length ${this.dataView.byteLength}`)
     }
 
