@@ -39,11 +39,6 @@ const handleProgressChange = (value: number) => {
   }
 
   media.currentTime = (value / 1000) * media.totalTime
-
-  // While seeking in fullscreen, keep controls visible and reset the hide timer
-  if (fullscreen.value) {
-    onUserActivity()
-  }
 }
 
 function onSeekStart() {
@@ -57,6 +52,13 @@ function onSeekStart() {
 function onSeekEnd() {
   media.stopSeeking()
 
+  if (fullscreen.value) {
+    onUserActivity()
+  }
+}
+
+function onSeekChange() {
+  // This is called when the user is actively dragging the slider
   if (fullscreen.value) {
     onUserActivity()
   }
@@ -225,6 +227,7 @@ onMounted(() => {
           @mouseup="onSeekEnd"
           @touchstart="onSeekStart"
           @touchend="onSeekEnd"
+          @user-interaction="onSeekChange"
           @update:model-value="handleProgressChange"
           :tooltip-formatter="(v: number) => formatHHMMSS((v / 1000) * media.totalTime)"
           show-tooltip-on-click
