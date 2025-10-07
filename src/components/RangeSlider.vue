@@ -13,6 +13,7 @@
       @pointerleave="onPointerUp"
       @touchend="onPointerUp"
       @blur="onPointerUp"
+      @input="onUserInput"
     />
     <div
       class="tooltip tooltip-top tabular-nums absolute pointer-events-none select-none z-50"
@@ -55,6 +56,7 @@ const emit = defineEmits<{
     e: 'range-change',
     payload: { min: number; max: number; value: number },
   ): void
+  (e: 'user-interaction', value: number): void
 }>()
 
 const value: Ref<number> = ref(props.modelValue)
@@ -122,6 +124,11 @@ function onPointerDown() {
 }
 function onPointerUp() {
   tooltipOpen.value = false
+}
+
+function onUserInput() {
+  // Emit user-interaction event when the user is actively dragging the slider
+  emit('user-interaction', value.value)
 }
 
 // Keep local value in sync with external modelValue
