@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { ref } from 'vue'
-import { useKeyboard, type KeyBinding } from '@/composables/useKeyboard'
+import { mount } from '@vue/test-utils'
+import { defineComponent } from 'vue'
+import { useKeyboard, type KeyBinding, type UseKeyboardOptions } from '@/composables/useKeyboard'
 
 describe('composables/useKeyboard', () => {
   let mockAddEventListener: ReturnType<typeof vi.fn>
@@ -29,30 +31,47 @@ describe('composables/useKeyboard', () => {
     vi.restoreAllMocks()
   })
 
+  // Helper function to test composable within a Vue component context
+  const testComposable = (bindings: KeyBinding[], options: UseKeyboardOptions = {}) => {
+    const TestComponent = defineComponent({
+      setup() {
+        return useKeyboard(bindings, options)
+      },
+      template: '<div></div>'
+    })
+    
+    const wrapper = mount(TestComponent)
+    return wrapper.vm
+  }
+
   describe('basic functionality', () => {
     it('returns enabled ref and scoping ref', () => {
       const bindings: KeyBinding[] = []
-      const result = useKeyboard(bindings)
+      const result = testComposable(bindings)
 
       expect(result).toHaveProperty('enabled')
       expect(result).toHaveProperty('onlyWhenTargetInside')
-      expect(typeof result.enabled.value).toBe('boolean')
+      // When using testComposable, the ref gets unwrapped by Vue's component system
+      expect(typeof result.enabled).toBe('boolean')
     })
 
     it('uses default enabled state', () => {
       const bindings: KeyBinding[] = []
-      const result = useKeyboard(bindings)
+      const result = testComposable(bindings)
 
-      expect(result.enabled.value).toBe(true)
+      // When using testComposable, the ref gets unwrapped by Vue's component system
+      expect(result.enabled).toBe(true)
     })
 
     it('accepts custom enabled ref', () => {
       const enabled = ref(false)
       const bindings: KeyBinding[] = []
-      const result = useKeyboard(bindings, { enabled })
+      const result = testComposable(bindings, { enabled })
 
-      expect(result.enabled).toBe(enabled)
-      expect(result.enabled.value).toBe(false)
+      // When using testComposable, the ref gets unwrapped by Vue's component system
+      // So we test the value directly instead of .value
+      expect(result.enabled).toBe(false)
+      expect(typeof result.enabled).toBe('boolean')
     })
   })
 
@@ -79,7 +98,7 @@ describe('composables/useKeyboard', () => {
       ]
 
       // Should not throw
-      expect(() => useKeyboard(bindings)).not.toThrow()
+      expect(() => testComposable(bindings)).not.toThrow()
     })
 
     it('accepts priority and when conditions', () => {
@@ -95,7 +114,7 @@ describe('composables/useKeyboard', () => {
       ]
 
       // Should not throw
-      expect(() => useKeyboard(bindings)).not.toThrow()
+      expect(() => testComposable(bindings)).not.toThrow()
     })
   })
 
@@ -103,24 +122,24 @@ describe('composables/useKeyboard', () => {
     it('accepts ignoreEditable option', () => {
       const bindings: KeyBinding[] = []
       
-      expect(() => useKeyboard(bindings, { ignoreEditable: true })).not.toThrow()
-      expect(() => useKeyboard(bindings, { ignoreEditable: false })).not.toThrow()
+      expect(() => testComposable(bindings, { ignoreEditable: true })).not.toThrow()
+      expect(() => testComposable(bindings, { ignoreEditable: false })).not.toThrow()
     })
 
     it('accepts capture option', () => {
       const bindings: KeyBinding[] = []
       
-      expect(() => useKeyboard(bindings, { capture: true })).not.toThrow()
-      expect(() => useKeyboard(bindings, { capture: false })).not.toThrow()
+      expect(() => testComposable(bindings, { capture: true })).not.toThrow()
+      expect(() => testComposable(bindings, { capture: false })).not.toThrow()
     })
 
     it('accepts onlyWhenTargetInside option', () => {
       const bindings: KeyBinding[] = []
       const element = document.createElement('div')
       
-      expect(() => useKeyboard(bindings, { onlyWhenTargetInside: element })).not.toThrow()
-      expect(() => useKeyboard(bindings, { onlyWhenTargetInside: ref(element) })).not.toThrow()
-      expect(() => useKeyboard(bindings, { onlyWhenTargetInside: null })).not.toThrow()
+      expect(() => testComposable(bindings, { onlyWhenTargetInside: element })).not.toThrow()
+      expect(() => testComposable(bindings, { onlyWhenTargetInside: ref(element) })).not.toThrow()
+      expect(() => testComposable(bindings, { onlyWhenTargetInside: null })).not.toThrow()
     })
   })
 
@@ -134,7 +153,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -149,7 +168,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -176,7 +195,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -195,7 +214,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -210,7 +229,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -229,7 +248,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -253,7 +272,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler1).not.toHaveBeenCalled()
@@ -271,8 +290,8 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings, { ignoreEditable: true })
-      useKeyboard(bindings, { ignoreEditable: false })
+      testComposable(bindings, { ignoreEditable: true })
+      testComposable(bindings, { ignoreEditable: false })
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -291,8 +310,8 @@ describe('composables/useKeyboard', () => {
 
       const scopedElement = document.createElement('div')
       
-      useKeyboard(bindings, { onlyWhenTargetInside: scopedElement })
-      useKeyboard(bindings, { onlyWhenTargetInside: ref(scopedElement) })
+      testComposable(bindings, { onlyWhenTargetInside: scopedElement })
+      testComposable(bindings, { onlyWhenTargetInside: ref(scopedElement) })
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()
@@ -319,7 +338,7 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings)
+      testComposable(bindings)
       
       // The composable should be created without errors
       expect(handler1).not.toHaveBeenCalled()
@@ -338,8 +357,8 @@ describe('composables/useKeyboard', () => {
         },
       ]
 
-      useKeyboard(bindings, { capture: true })
-      useKeyboard(bindings, { capture: false })
+      testComposable(bindings, { capture: true })
+      testComposable(bindings, { capture: false })
       
       // The composable should be created without errors
       expect(handler).not.toHaveBeenCalled()

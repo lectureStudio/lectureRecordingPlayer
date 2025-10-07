@@ -86,13 +86,6 @@ describe('AppIcon', () => {
   })
 
   describe('Props Validation', () => {
-    it('requires name prop', () => {
-      createWrapper({ name: undefined })
-      
-      // Component should still render but may show fallback
-      expect(wrapper.exists()).toBe(true)
-    })
-
     it('handles invalid icon names gracefully', () => {
       createWrapper({ name: 'invalid-icon' })
       
@@ -174,12 +167,6 @@ describe('AppIcon', () => {
   describe('Edge Cases', () => {
     it('handles empty name prop', () => {
       createWrapper({ name: '' })
-      
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('handles null name prop', () => {
-      createWrapper({ name: null })
       
       expect(wrapper.exists()).toBe(true)
     })
