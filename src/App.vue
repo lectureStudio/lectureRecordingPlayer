@@ -9,44 +9,24 @@ import AppLayout from './components/AppLayout.vue'
 import MediaControlsBar from './components/MediaControlsBar.vue'
 import PDFThumbnailBar from './components/PDFThumbnailBar.vue'
 import { usePdfStore } from './stores/pdf'
-import { fetchBase64 } from './utils/storage'
+import { loadRecordingWithFallback } from './utils/storage'
 
 const mediaStore = useMediaControlsStore()
 const pdfStore = usePdfStore()
 const recordingStore = useRecordingStore()
-
 const recording = '#{recording}'
 
-onMounted(() => {
-  // fetchBase64(recording)
-  fetch('/AAA.plr')
-    .then(async (res) => {
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch .plr file: ${res.status} ${res.statusText}`,
-        )
-      }
-
-      const blob = await res.blob()
-      const file = new File([blob], 'TEST.plr', {
-        type: blob.type || 'application/octet-stream',
-      })
-
-      return loadRecording(file)
+onMounted(async () => {
+  try {
+    await loadRecordingWithFallback(recording, '/test.plr', loadRecording, {
+      mediaStore,
+      recordingStore,
+      pdfStore,
     })
-    .then((recording) => {
-      if (!recording.document) {
-        throw new Error('Recording does not contain a document')
-      }
-
-      mediaStore.totalTime = recording.duration!
-      recordingStore.setRecording(recording)
-
-      void pdfStore.load(recording.document)
-    })
-    .catch((err) => {
-      console.error('Failed to load recording', err)
-    })
+  }
+  catch (error) {
+    console.error('Failed to load recording:', error)
+  }
 })
 
 onBeforeUnmount(() => {
