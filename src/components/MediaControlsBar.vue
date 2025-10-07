@@ -20,7 +20,8 @@ const recording = useRecordingStore()
 const audioEl = ref<HTMLAudioElement | null>(null)
 const objectUrl = ref<string | null>(null)
 
-const { fullscreen, controlsVisible, toggleFullscreen, onUserActivity } = useFullscreenControls()
+const { fullscreen, controlsVisible, toggleFullscreen, onUserActivity } =
+  useFullscreenControls()
 
 const { formatHHMMSS } = useTimeFormat()
 

@@ -174,7 +174,7 @@ describe('MediaControlsBar.vue', () => {
       mockFullscreenControls.fullscreen.value = true
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
-      await slider.vm.$emit('update:modelValue', 500)
+      await slider.vm.$emit('user-interaction', 500)
       
       expect(mockFullscreenControls.onUserActivity).toHaveBeenCalled()
     })
