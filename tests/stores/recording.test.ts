@@ -9,6 +9,7 @@ import { Page } from '@/api/model/page'
 vi.mock('@/api/model/page', () => ({
   Page: vi.fn().mockImplementation((pageNumber: number) => ({
     pageNumber,
+    getPageNumber: vi.fn().mockReturnValue(pageNumber),
     // Add other properties as needed for testing
   })),
 }))
@@ -46,14 +47,15 @@ describe('stores/recording', () => {
       const mockAudio = new Blob(['audio data'], { type: 'audio/wav' })
       const mockDocument = new Uint8Array([1, 2, 3, 4])
       const mockActions: RecordedPage[] = [
-        { pageNumber: 0, actions: [] },
-        { pageNumber: 1, actions: [] },
+        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
       ]
 
       const mockRecording: Recording = {
         audio: mockAudio,
         document: mockDocument,
         actions: mockActions,
+        duration: 100,
       }
 
       store.setRecording(mockRecording)
@@ -66,15 +68,16 @@ describe('stores/recording', () => {
 
     it('creates Page instances for each action', () => {
       const mockActions: RecordedPage[] = [
-        { pageNumber: 0, actions: [] },
-        { pageNumber: 1, actions: [] },
-        { pageNumber: 2, actions: [] },
+        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 2, staticActions: [], playbackActions: [], timestamp: 0 },
       ]
 
       const mockRecording: Recording = {
         audio: new Blob(),
         document: new Uint8Array(),
         actions: mockActions,
+        duration: 100,
       }
 
       store.setRecording(mockRecording)
@@ -90,8 +93,9 @@ describe('stores/recording', () => {
       const mockRecording: Recording = {
         audio: new Blob(),
         document: new Uint8Array(),
-        actions: [],
-      }
+      actions: [],
+      duration: 100,
+    }
 
       store.setRecording(mockRecording)
 
@@ -104,7 +108,8 @@ describe('stores/recording', () => {
       const mockRecording: Recording = {
         audio: new Blob(),
         document: new Uint8Array(),
-        actions: undefined as any,
+        actions: undefined as unknown as RecordedPage[],
+        duration: 100,
       }
 
       store.setRecording(mockRecording)
@@ -118,16 +123,18 @@ describe('stores/recording', () => {
       const firstRecording: Recording = {
         audio: new Blob(['first'], { type: 'audio/wav' }),
         document: new Uint8Array([1, 2]),
-        actions: [{ pageNumber: 0, actions: [] }],
+        actions: [{ pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 }],
+        duration: 100,
       }
 
       const secondRecording: Recording = {
         audio: new Blob(['second'], { type: 'audio/wav' }),
         document: new Uint8Array([3, 4, 5]),
         actions: [
-          { pageNumber: 0, actions: [] },
-          { pageNumber: 1, actions: [] },
+          { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+          { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
         ],
+        duration: 100,
       }
 
       store.setRecording(firstRecording)
@@ -147,22 +154,23 @@ describe('stores/recording', () => {
 
     it('returns correct count when pages are loaded', () => {
       const mockActions: RecordedPage[] = [
-        { pageNumber: 0, actions: [] },
-        { pageNumber: 1, actions: [] },
-        { pageNumber: 2, actions: [] },
+        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 2, staticActions: [], playbackActions: [], timestamp: 0 },
       ]
 
       store.setRecording({
         audio: new Blob(),
         document: new Uint8Array(),
         actions: mockActions,
+        duration: 100,
       })
 
       expect(store.getPageCount()).toBe(3)
     })
 
     it('returns 0 when pages is undefined', () => {
-      store.$patch({ pages: undefined as any })
+      store.$patch({ pages: undefined as unknown as Page[] })
       expect(store.getPageCount()).toBe(0)
     })
   })
@@ -170,34 +178,35 @@ describe('stores/recording', () => {
   describe('getPage', () => {
     beforeEach(() => {
       const mockActions: RecordedPage[] = [
-        { pageNumber: 0, actions: [] },
-        { pageNumber: 1, actions: [] },
-        { pageNumber: 2, actions: [] },
+        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 2, staticActions: [], playbackActions: [], timestamp: 0 },
       ]
 
       store.setRecording({
         audio: new Blob(),
         document: new Uint8Array(),
         actions: mockActions,
+        duration: 100,
       })
     })
 
     it('returns correct page for valid page number', () => {
       const page = store.getPage(1)
       expect(page).toBeDefined()
-      expect(page.pageNumber).toBe(1)
+      expect(page.getPageNumber()).toBe(1)
     })
 
     it('returns first page for page number 0', () => {
       const page = store.getPage(0)
       expect(page).toBeDefined()
-      expect(page.pageNumber).toBe(0)
+      expect(page.getPageNumber()).toBe(0)
     })
 
     it('returns last page for highest valid page number', () => {
       const page = store.getPage(2)
       expect(page).toBeDefined()
-      expect(page.pageNumber).toBe(2)
+      expect(page.getPageNumber()).toBe(2)
     })
 
     it('throws error for negative page number', () => {
@@ -209,21 +218,22 @@ describe('stores/recording', () => {
     })
 
     it('throws error when pages are not loaded', () => {
-      store.$patch({ pages: undefined as any })
+      store.$patch({ pages: undefined as unknown as Page[] })
       expect(() => store.getPage(0)).toThrow('Pages not loaded.')
     })
 
     it('handles non-integer page numbers', () => {
       // First set up the recording with some pages
       const mockActions: RecordedPage[] = [
-        { pageNumber: 0, actions: [] },
-        { pageNumber: 1, actions: [] },
-        { pageNumber: 2, actions: [] },
+        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
+        { pageNumber: 2, staticActions: [], playbackActions: [], timestamp: 0 },
       ]
       const mockRecording: Recording = {
         audio: new Blob(),
         document: new Uint8Array(),
         actions: mockActions,
+        duration: 100,
       }
       store.setRecording(mockRecording)
       
@@ -237,9 +247,10 @@ describe('stores/recording', () => {
   describe('Edge Cases', () => {
     it('handles recording with null values', () => {
       const mockRecording: Recording = {
-        audio: null as any,
-        document: null as any,
-        actions: null as any,
+        audio: null as unknown as Blob,
+        document: null as unknown as Uint8Array,
+        actions: null as unknown as RecordedPage[],
+        duration: 100,
       }
 
       expect(() => store.setRecording(mockRecording)).not.toThrow()
@@ -251,13 +262,16 @@ describe('stores/recording', () => {
     it('handles very large number of pages', () => {
       const mockActions: RecordedPage[] = Array.from({ length: 1000 }, (_, i) => ({
         pageNumber: i,
-        actions: [],
+        staticActions: [],
+        playbackActions: [],
+        timestamp: 0,
       }))
 
       const mockRecording: Recording = {
         audio: new Blob(),
         document: new Uint8Array(),
         actions: mockActions,
+        duration: 100,
       }
 
       store.setRecording(mockRecording)
@@ -269,7 +283,8 @@ describe('stores/recording', () => {
       const firstRecording: Recording = {
         audio: new Blob(),
         document: new Uint8Array(),
-        actions: [{ pageNumber: 0, actions: [] }],
+        actions: [{ pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 }],
+        duration: 100,
       }
 
       store.setRecording(firstRecording)
@@ -279,9 +294,10 @@ describe('stores/recording', () => {
         audio: new Blob(),
         document: new Uint8Array(),
         actions: [
-          { pageNumber: 0, actions: [] },
-          { pageNumber: 1, actions: [] },
+          { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+          { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
         ],
+        duration: 100,
       }
 
       store.setRecording(secondRecording)

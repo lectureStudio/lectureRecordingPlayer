@@ -5,29 +5,28 @@ describe('utils/fullscreen', () => {
   beforeEach(() => {
     document.documentElement.classList.remove('app-fullscreen')
     // Clean existing properties
-    // @ts-ignore
+    // @ts-expect-error - deleting non-standard fullscreen API properties for test cleanup
     delete document.documentElement.requestFullscreen
-    // @ts-ignore
+    // @ts-expect-error - deleting webkit-prefixed fullscreen API property for test cleanup
     delete document.documentElement.webkitRequestFullscreen
-    // @ts-ignore
+    // @ts-expect-error - deleting moz-prefixed fullscreen API property for test cleanup
     delete document.documentElement.mozRequestFullScreen
   })
 
   it('detects standard Fullscreen API if present', () => {
-    // @ts-ignore
     document.documentElement.requestFullscreen = () => Promise.resolve()
     expect(isFullscreenApiSupported()).toBe(true)
   })
 
   it('detects vendor-prefixed fullscreen methods', () => {
     expect(isFullscreenApiSupported()).toBe(false)
-    // @ts-ignore
+    // @ts-expect-error - adding webkit-prefixed fullscreen API method for testing
     document.documentElement.webkitRequestFullscreen = () => {}
     expect(isFullscreenApiSupported()).toBe(true)
     // reset and test moz
-    // @ts-ignore
+    // @ts-expect-error - deleting webkit-prefixed fullscreen API property for test reset
     delete document.documentElement.webkitRequestFullscreen
-    // @ts-ignore
+    // @ts-expect-error - adding moz-prefixed fullscreen API method for testing
     document.documentElement.mozRequestFullScreen = () => {}
     expect(isFullscreenApiSupported()).toBe(true)
   })

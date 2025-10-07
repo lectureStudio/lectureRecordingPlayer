@@ -12,13 +12,13 @@ config.global.stubs = {
 
 // Some components rely on CSS custom properties; make sure getComputedStyle is defined
 if (typeof window !== 'undefined' && !('getComputedStyle' in window)) {
-  // @ts-ignore
+  // @ts-expect-error - adding getComputedStyle mock for test environment
   window.getComputedStyle = () => ({ getPropertyValue: () => '' })
 }
 
 // JSDOM does not implement canvas, so we need to mock it.
 if (typeof window !== 'undefined' && 'HTMLCanvasElement' in window) {
-  // @ts-ignore
+  // @ts-expect-error - mocking HTMLCanvasElement.getContext for test environment
   HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
     fillRect: vi.fn(),
     clearRect: vi.fn(),
@@ -45,13 +45,13 @@ if (typeof window !== 'undefined' && 'HTMLCanvasElement' in window) {
 
 // pdf.js, a dependency, expects DOMMatrix to be available. It's not in JSDOM, so we mock it.
 if (typeof window !== 'undefined' && !('DOMMatrix' in window)) {
-  // @ts-ignore
+  // @ts-expect-error - adding DOMMatrix mock for test environment
   window.DOMMatrix = class DOMMatrix {}
 }
 
 // Mock for ResizeObserver
 if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
-  // @ts-ignore
+  // @ts-expect-error - adding ResizeObserver mock for test environment
   window.ResizeObserver = class ResizeObserver {
     observe = vi.fn()
     unobserve = vi.fn()
@@ -62,7 +62,7 @@ if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
 // In jsdom, some HTMLMediaElement methods exist but throw "Not implemented".
 // Always stub them in the test environment so components using <audio>/<video> don't crash.
 if (typeof window !== 'undefined') {
-  const proto = (window.HTMLMediaElement && window.HTMLMediaElement.prototype) as any
+  const proto = (window.HTMLMediaElement && window.HTMLMediaElement.prototype) as HTMLMediaElement
   if (proto) {
     try {
       vi.spyOn(proto, 'load').mockImplementation(() => {})
@@ -89,6 +89,7 @@ if (typeof window !== 'undefined') {
 // Mock PDF.js library for tests
 if (typeof globalThis !== 'undefined') {
   // Mock the global pdfjsLib that PDF.js viewer components expect
+  // @ts-expect-error - adding pdfjsLib mock to globalThis for test environment
   globalThis.pdfjsLib = {
     AbortException: class AbortException extends Error {
       constructor(message?: string) {

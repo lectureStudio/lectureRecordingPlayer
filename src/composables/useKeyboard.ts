@@ -147,8 +147,10 @@ function matchKey(e: KeyboardEvent, def: KeyDef): boolean {
 export function useKeyboard(bindings: KeyBinding[], options: UseKeyboardOptions = {}) {
   const enabled = options.enabled ?? ref(true)
   const ignoreEditable = options.ignoreEditable ?? true
-  const onlyInsideRef: Ref<HTMLElement | null> = (options.onlyWhenTargetInside as Ref<HTMLElement | null>)
-    ?? ref((options.onlyWhenTargetInside as HTMLElement | null) ?? null)
+  const onlyInsideRef: Ref<HTMLElement | null> = (options.onlyWhenTargetInside && 'value' in options.onlyWhenTargetInside)
+    ? (options.onlyWhenTargetInside as Ref<HTMLElement | null>)
+    : ref(options.onlyWhenTargetInside as HTMLElement | null)
+  
 
   const onKeyDown = (e: Event) => {
     if (!enabled.value) {

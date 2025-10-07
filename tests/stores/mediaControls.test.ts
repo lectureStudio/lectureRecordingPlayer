@@ -166,7 +166,7 @@ describe('stores/mediaControls', () => {
     })
 
     it('converts string values to numbers', () => {
-      store.setPlaybackSpeed('1.5' as any)
+      store.setPlaybackSpeed('1.5' as unknown as number)
       expect(store.playbackSpeed).toBe(1.5)
     })
 

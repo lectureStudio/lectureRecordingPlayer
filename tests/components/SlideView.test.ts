@@ -23,7 +23,7 @@ vi.mock('@/composables/usePlayerControls.ts', () => ({
 }))
 
 describe('SlideView', () => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<InstanceType<typeof SlideView>>
   let recordingStore: ReturnType<typeof useRecordingStore>
   let pdfStore: ReturnType<typeof usePdfStore>
 

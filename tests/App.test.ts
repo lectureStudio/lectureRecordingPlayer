@@ -20,7 +20,7 @@ vi.mock('@/stores/pdf', () => ({ usePdfStore: () => ({ load: vi.fn(async () => {
 describe('App', () => {
   beforeEach(() => {
     // prevent real network calls
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 404, statusText: 'Not Found' }) as any))
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 404, statusText: 'Not Found' }) as Response))
   })
 
   it('should mount without crashing', async () => {

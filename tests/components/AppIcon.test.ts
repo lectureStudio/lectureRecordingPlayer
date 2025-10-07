@@ -4,7 +4,7 @@ import { nextTick } from 'vue'
 import AppIcon from '@/components/AppIcon.vue'
 
 describe('AppIcon', () => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<InstanceType<typeof AppIcon>>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -87,7 +87,6 @@ describe('AppIcon', () => {
 
   describe('Props Validation', () => {
     it('requires name prop', () => {
-      // @ts-expect-error - Testing missing required prop
       createWrapper({ name: undefined })
       
       // Component should still render but may show fallback
@@ -180,7 +179,6 @@ describe('AppIcon', () => {
     })
 
     it('handles null name prop', () => {
-      // @ts-expect-error - Testing null prop
       createWrapper({ name: null })
       
       expect(wrapper.exists()).toBe(true)
