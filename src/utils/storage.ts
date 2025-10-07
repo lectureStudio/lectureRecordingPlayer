@@ -23,3 +23,15 @@ export function loadJSON(key: string): unknown | null {
   const raw = localStorage.getItem(key)
   return raw ? JSON.parse(raw) : null
 }
+
+/**
+ * Fetches a resource from a base64 encoded data URL.
+ *
+ * @param {string} b64Data - The base64 encoded data.
+ * @param {string} [mimeType='application/octet-stream'] - The MIME type of the data. Defaults to 'application/octet-stream'.
+ *
+ * @returns {Promise<Response>} A Promise that resolves to the Response to that request.
+ */
+export async function fetchBase64(b64Data: string, mimeType: string = 'application/octet-stream') {
+  return fetch(`data:${mimeType};base64,${b64Data}`)
+}

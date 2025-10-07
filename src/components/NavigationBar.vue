@@ -17,7 +17,7 @@ const props = withDefaults(
     title?: string
   }>(),
   {
-    title: 'lectureRecordingPlayer',
+    title: '#{title}',
   },
 )
 </script>
