@@ -9,7 +9,10 @@ const props = defineProps({
   },
 })
 
-const icon = computed(() => fluentIconMap[props.name] || null)
+const icon = computed(() => {
+  if (!props.name) return null
+  return fluentIconMap[props.name] || null
+})
 </script>
 
 <template>
