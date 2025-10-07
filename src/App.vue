@@ -18,7 +18,7 @@ const recordingStore = useRecordingStore()
 const recording = '#{recording}'
 
 onMounted(() => {
-  //fetchBase64(recording)
+  // fetchBase64(recording)
   fetch('/AAA.plr')
     .then(async (res) => {
       if (!res.ok) {

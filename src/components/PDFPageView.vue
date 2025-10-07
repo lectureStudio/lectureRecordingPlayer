@@ -36,6 +36,9 @@ const containerRef: Ref<HTMLDivElement | null> = ref(null)
  */
 const viewerRef: Ref<HTMLDivElement | null> = ref(null)
 
+const isRendering = ref(false)
+const currentRenderingPage = ref<number | null>(null)
+
 /**
  * Event bus for PDF viewer events communication.
  */
@@ -137,33 +140,45 @@ async function initViewer(): Promise<void> {
       }
     })
 
-    const onBeforeDraw = (
-      { pageNumber }: {
-        pageNumber: number
-      },
-    ) => {
-      const pageView: PDFPageView = singlePageViewer?.getPageView(
-        pageNumber - 1,
-      )
-      if (!pageView) {
-        return
-      }
+    eventBus.on(
+      'pagerender',
+      (
+        { pageNumber }: {
+          pageNumber: number
+        },
+      ) => {
+        isRendering.value = true
+        currentRenderingPage.value = pageNumber
 
-      const pdfPage = pageView.pdfPage
+        const pageView: PDFPageView = singlePageViewer?.getPageView(
+          pageNumber - 1,
+        )
+        if (!pageView) {
+          return
+        }
 
-      if (pageView && pageView.canvas) {
-        const canvas = pageView.canvas as HTMLCanvasElement
-        const ctx = canvas.getContext('2d')
+        const pdfPage = pageView.pdfPage
 
-        if (ctx && pdfPage) {
-          const { pageTransform } = pdfStore
-          if (pageTransform) {
-            ctx.setTransform(pageTransform)
+        if (pageView && pageView.canvas) {
+          const canvas = pageView.canvas as HTMLCanvasElement
+          const ctx = canvas.getContext('2d')
+
+          if (ctx && pdfPage) {
+            const { pageTransform } = pdfStore
+            if (pageTransform) {
+              ctx.setTransform(pageTransform)
+            }
           }
         }
+      },
+    )
+
+    eventBus.on('pagerendered', (evt: { pageNumber: number }) => {
+      if (currentRenderingPage.value === evt.pageNumber) {
+        isRendering.value = false
+        currentRenderingPage.value = null
       }
-    }
-    eventBus._on('pagerender', onBeforeDraw)
+    })
   }
 }
 
@@ -265,9 +280,18 @@ watch(
   },
 )
 
+/**
+ * Watches for changes to the page transform and updates the PDF viewer.
+ * Uses nextTick to ensure the update happens after the current render cycle,
+ * preventing flickering by avoiding immediate re-renders.
+ */
 watch(
   () => pdfStore.pageTransform,
   () => {
+    if (isRendering.value) {
+      return
+    }
+
     singlePageViewer?.refresh()
   },
 )
