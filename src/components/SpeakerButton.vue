@@ -36,7 +36,7 @@ function toggleMute() {
     </div>
     <div
       tabindex="0"
-      class="dropdown-content bg-base-100 rounded-box z-1 p-1 shadow-sm w-56"
+      class="dropdown-content bg-slate-300/30 dark:bg-slate-700/30 backdrop-blur-sm dark:backdrop-blur-lg rounded-box z-1 p-1 shadow-sm w-56"
     >
       <div class="px-1 py-2 flex items-center justify-center gap-3">
         <button
@@ -44,7 +44,7 @@ function toggleMute() {
           @click="toggleMute"
           title="Mute / Unmute"
         >
-          <AppIcon :name="iconName" class="w-5 opacity-70" />
+          <AppIcon :name="iconName" class="w-5 opacity-90" />
         </button>
         <RangeSlider
           :min="0"
