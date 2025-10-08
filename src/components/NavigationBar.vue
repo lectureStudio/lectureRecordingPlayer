@@ -26,9 +26,9 @@ const props = withDefaults(
   <div
     class="px-4 py-3 flex items-center flex-wrap gap-3 bg-base-100 border-b border-base-300"
     :class="fullscreen
-    ? 'fixed top-0 left-0 right-0 z-40 transform-gpu transition-all duration-200 ease-out '
+    ? 'fixed top-0 left-0 right-0 z-40 transform-gpu transition-all duration-400 ease-out bg-slate-100/95 dark:bg-gray-900/95 '
       + (controlsVisible
-        ? 'opacity-90 translate-y-0'
+        ? 'opacity-100 translate-y-0'
         : 'opacity-0 -translate-y-full pointer-events-none')
     : ''"
   >

@@ -206,9 +206,9 @@ onMounted(() => {
   <nav
     class="border-t border-base-300 bg-base-100 pt-1"
     :class="fullscreen
-    ? 'fixed bottom-0 left-0 right-0 z-40 transform-gpu transition-all duration-200 ease-out '
+    ? 'fixed bottom-0 left-0 right-0 z-40 transform-gpu transition-all duration-400 ease-out bg-slate-100/95 dark:bg-gray-900/95 '
       + (controlsVisible
-        ? 'opacity-90 translate-y-0'
+        ? 'opacity-100 translate-y-0'
         : 'opacity-0 translate-y-full pointer-events-none')
     : ''"
     role="navigation"

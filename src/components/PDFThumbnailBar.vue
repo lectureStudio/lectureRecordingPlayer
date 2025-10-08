@@ -215,7 +215,9 @@ async function renderPage(pageNum: number) {
   // Establish a per-canvas lock placeholder immediately to serialize operations
   const prev = canvasRenderPromiseMap.get(canvas)
   const deferred = createDeferred<void>()
+
   canvasRenderPromiseMap.set(canvas, deferred.promise)
+
   if (prev) {
     try {
       await prev
