@@ -1,4 +1,4 @@
-import type { Recording } from '@/api/model/recording.ts'
+import type { Recording } from '@/api/model/recording'
 import { FileActionParser } from '../action/parser/file-action.parser'
 import { ProgressiveDataView } from '../action/parser/progressive-data-view'
 import { RecordedPage } from '../model/recorded-page'

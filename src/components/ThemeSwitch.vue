@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSettingsStore } from '@/stores/settings'
-import type { Theme } from '@schemas/settings.ts'
+import type { Theme } from '@schemas/settings'
 import { computed, onMounted, watch } from 'vue'
 
 const settings = useSettingsStore()

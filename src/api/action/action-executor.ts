@@ -1,6 +1,6 @@
 import { PenPoint } from '@/api/geometry/pen-point'
 import { AtomicTool } from '@/api/tool/atomic.tool'
-import type { Tool } from '@/api/tool/tool.ts'
+import type { Tool } from '@/api/tool/tool'
 
 interface ActionExecutor {
   setOnSelectPageIndex(observer: (value: number) => void): void

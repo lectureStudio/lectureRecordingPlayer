@@ -1,5 +1,5 @@
-import { Brush } from '@/api/paint/brush.ts'
-import { Color } from '@/api/paint/color.ts'
+import { Brush } from '@/api/paint/brush'
+import { Color } from '@/api/paint/color'
 import { FormShape } from './form.shape'
 
 class ZoomShape extends FormShape {

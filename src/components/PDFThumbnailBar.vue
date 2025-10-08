@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePlayerControls } from '@/composables/usePlayerControls.ts'
+import { usePlayerControls } from '@/composables/usePlayerControls'
 import { RenderingCancelledException } from 'pdfjs-dist'
 import type { RenderTask } from 'pdfjs-dist/types/src/display/api'
 import type { ComponentPublicInstance } from 'vue'
@@ -451,11 +451,14 @@ async function computeThumbSize() {
  */
 function ensureInitializedFromDoc() {
   const doc = pdfStore.doc
-  if (doc && pageItems.value.length === 0) {
-    pageItems.value = Array.from({ length: doc.numPages }, (_, i) => ({
-      key: i + 1,
-      pageNumber: i + 1,
-    }))
+  if (doc) {
+
+    if (pageItems.value.length === 0) {
+      pageItems.value = Array.from({ length: doc.numPages }, (_, i) => ({
+        key: i + 1,
+        pageNumber: i + 1,
+      }))
+    }
   }
 }
 

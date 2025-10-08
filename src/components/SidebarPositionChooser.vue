@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSettingsStore } from '@/stores/settings'
-import type { SidebarPosition } from '@schemas/settings.ts'
+import type { SidebarPosition } from '@schemas/settings'
 import { computed } from 'vue'
 
 const settings = useSettingsStore()

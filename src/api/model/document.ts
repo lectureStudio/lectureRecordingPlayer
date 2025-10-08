@@ -1,9 +1,10 @@
 import { Page } from './page'
 
-abstract class SlideDocument {
-  protected pages: Page[] = []
+class SlideDocument {
+  private readonly pages: Page[]
 
-  constructor() {
+  constructor(pages: Page[]) {
+    this.pages = pages
   }
 
   getPageCount(): number {

@@ -2,8 +2,8 @@
 import AppIcon from '@/components/AppIcon.vue'
 import SearchField from '@/components/SearchField.vue'
 import ThemeSwitch from '@/components/ThemeSwitch.vue'
-import { useFullscreenControls } from '@/composables/useFullscreenControls.ts'
-import { useSettingsStore } from '@/stores/settings.ts'
+import { useFullscreenControls } from '@/composables/useFullscreenControls'
+import { useSettingsStore } from '@/stores/settings'
 import { computed } from 'vue'
 
 const settings = useSettingsStore()

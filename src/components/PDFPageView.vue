@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useKeyboard } from '@/composables/useKeyboard.ts'
-import { usePlayerControls } from '@/composables/usePlayerControls.ts'
+import { useKeyboard } from '@/composables/useKeyboard'
+import { usePlayerControls } from '@/composables/usePlayerControls'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import {
   EventBus,

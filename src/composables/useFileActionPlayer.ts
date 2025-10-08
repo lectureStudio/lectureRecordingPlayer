@@ -1,9 +1,9 @@
-import { FileActionPlayer } from '@/api/action/file-action-player.ts'
-import type { SlideDocument } from '@/api/model/document'
+import { FileActionPlayer } from '@/api/action/file-action-player'
+import { SlideDocument } from '@/api/model/document'
 import type { Page } from '@/api/model/page'
 import { RenderController } from '@/api/render/render-controller'
-import { RenderSurface } from '@/api/render/render-surface.ts'
-import { useMediaControlsStore } from '@/stores/mediaControls.ts'
+import { RenderSurface } from '@/api/render/render-surface'
+import { useMediaControlsStore } from '@/stores/mediaControls'
 import { useRecordingStore } from '@/stores/recording'
 import { storeToRefs } from 'pinia'
 import { markRaw, readonly, shallowRef, watch } from 'vue'
@@ -38,18 +38,18 @@ export function useFileActionPlayer() {
       return
     }
 
-    const renderSurface = markRaw(new RenderSurface(actionCanvas))
-    const volatileRenderSurface = markRaw(new RenderSurface(volatileCanvas))
-
-    renderController = markRaw(new RenderController(renderSurface, volatileRenderSurface))
-
-    player.value = markRaw(new FileActionPlayer(documentAdapter, renderController))
-
     const recordingStore = useRecordingStore()
     const mediaStore = useMediaControlsStore()
     const { actions } = storeToRefs(recordingStore)
 
+    const renderSurface = markRaw(new RenderSurface(actionCanvas))
+    const volatileRenderSurface = markRaw(new RenderSurface(volatileCanvas))
+
     let initialized = false
+
+    renderController = markRaw(new RenderController(renderSurface, volatileRenderSurface))
+
+    player.value = markRaw(new FileActionPlayer(documentAdapter, renderController))
 
     // Load recorded pages into the player and initialize once available
     watch(

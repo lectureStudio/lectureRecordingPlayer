@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PDFPageView from '@/components/PDFPageView.vue'
-import { useFileActionPlayer } from '@/composables/useFileActionPlayer.ts'
+import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { usePdfStore } from '@/stores/pdf'
 import type { EventBus } from 'pdfjs-dist/web/pdf_viewer.mjs'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'

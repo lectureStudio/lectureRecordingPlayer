@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import NavigationBar from '@/components/NavigationBar.vue'
 import SlideView from '@/components/SlideView.vue'
-import { loadRecording } from '@/services/recordingLoader.ts'
-import { useMediaControlsStore } from '@/stores/mediaControls.ts'
-import { useRecordingStore } from '@/stores/recording.ts'
+import { loadRecording } from '@/services/recordingLoader'
+import { useMediaControlsStore } from '@/stores/mediaControls'
+import { useRecordingStore } from '@/stores/recording'
 import { onBeforeUnmount, onMounted, watch } from 'vue'
 import AppLayout from './components/AppLayout.vue'
 import MediaControlsBar from './components/MediaControlsBar.vue'
