@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { SimpleActionExecutor } from "@/api/action/simple-action-executor.ts";
+import { SlideDocument } from "@/api/model/document";
+import { Page } from "@/api/model/page";
 import { usePlayerControls } from '@/composables/usePlayerControls'
 import { RenderingCancelledException } from 'pdfjs-dist'
 import type { RenderTask } from 'pdfjs-dist/types/src/display/api'
@@ -452,6 +455,9 @@ async function computeThumbSize() {
 function ensureInitializedFromDoc() {
   const doc = pdfStore.doc
   if (doc) {
+    const pages = Array.from({ length: doc.numPages }, (_, i) => (new Page(i)))
+    const slideDocument = new SlideDocument(pages)
+    const actionExecutor = new SimpleActionExecutor(slideDocument)
 
     if (pageItems.value.length === 0) {
       pageItems.value = Array.from({ length: doc.numPages }, (_, i) => ({
