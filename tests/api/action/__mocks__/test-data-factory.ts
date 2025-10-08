@@ -181,15 +181,17 @@ export class TestDataFactory {
    */
   static createScreenActionBuffer(videoOffset: number = 0, videoLength: number = 1000, fileName: string = 'test.mp4'): ArrayBuffer {
     const fileNameBytes = new TextEncoder().encode(fileName)
-    const buffer = new ArrayBuffer(12 + fileNameBytes.length)
+    const buffer = new ArrayBuffer(20 + fileNameBytes.length)
     const view = new DataView(buffer)
     
     view.setInt32(0, videoOffset)
     view.setInt32(4, videoLength)
-    view.setInt32(8, fileNameBytes.length)
+    view.setInt32(8, 1024)
+    view.setInt32(12, 720)
+    view.setInt32(16, fileNameBytes.length)
     
     // Copy file name bytes
-    const uint8View = new Uint8Array(buffer, 12)
+    const uint8View = new Uint8Array(buffer, 20)
     uint8View.set(fileNameBytes)
     
     return buffer
