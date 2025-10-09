@@ -4,21 +4,44 @@ import { Rectangle } from '../geometry/rectangle'
 import { Shape } from '../model/shape/shape'
 import type { ShapeRenderer } from './shape.renderer'
 
+/**
+ * RenderSurface is responsible for rendering PDF pages and shapes onto a canvas element.
+ * It manages the rendering context, transformations, and delegates shape rendering to
+ * specialized renderers.
+ */
 class RenderSurface {
+  /** The HTML canvas element used for rendering */
   protected readonly canvas: HTMLCanvasElement
 
+  /** The 2D rendering context for the canvas */
   protected canvasContext: CanvasRenderingContext2D | null
 
+  /** Map of shape names to their specialized renderers */
   protected readonly renderers: Map<string, ShapeRenderer>
 
+  /** Transformation matrix for rendering operations */
   private transform: DOMMatrix
 
+  /** Current PDF rendering task, or null if no rendering is in progress */
   protected renderTask: RenderTask | null = null
+
+  /** Last rendered PDF page number */
   protected lastRenderedPage: number | undefined
+
+  /** Last rendered scale factor */
   protected lastRenderedScale: number | undefined
+
+  /** Last rendered X translation */
   protected lastRenderedX: number | undefined
+
+  /** Last rendered Y translation */
   protected lastRenderedY: number | undefined
 
+  /**
+   * Creates a new render surface associated with the given canvas.
+   *
+   * @param canvas - The HTML canvas element to render on.
+   */
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
     this.canvasContext = canvas.getContext('2d')
@@ -26,34 +49,65 @@ class RenderSurface {
     this.transform = new DOMMatrix()
   }
 
+  /**
+   * Gets the HTML canvas element used for drawing.
+   *
+   * @returns The canvas element.
+   */
   getDrawableCanvas(): HTMLCanvasElement {
     return this.canvas
   }
 
+  /**
+   * Presents the current render state. This is a no-op for non-buffered surfaces.
+   */
   present(): void {
     // No-op for non-buffered surface
   }
 
+  /**
+   * Clears the canvas and resets the rendering state.
+   */
   clear(): void {
     this.canvasContext?.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.lastRenderedPage = undefined
     this.lastRenderedScale = undefined
   }
 
+  /**
+   * Releases resources associated with this surface. This is a no-op for non-buffered surfaces.
+   */
   destroy(): void {
     // No-op for non-buffered surface
   }
 
+  /**
+   * Registers a renderer for a specific shape type.
+   *
+   * @param shapeName - The name of the shape class.
+   * @param render - The renderer implementation for the shape.
+   */
   registerRenderer(shapeName: string, render: ShapeRenderer): void {
     this.renderers.set(shapeName, render)
   }
 
+  /**
+   * Renders an array of shapes.
+   *
+   * @param shapes - Array of shapes to render.
+   */
   renderShapes(shapes: Shape[]): void {
     for (const shape of shapes) {
       this.renderShape(shape)
     }
   }
 
+  /**
+   * Renders a single shape with appropriate transformations.
+   *
+   * @param shape - The shape to render.
+   * @param dirtyRegion - Optional region that needs updating.
+   */
   renderShape(shape: Shape, dirtyRegion?: Rectangle): void {
     const renderer = this.renderers.get(shape.constructor.name)
 
@@ -62,6 +116,7 @@ class RenderSurface {
       const tx = this.transform.m41 * s
       const ty = this.transform.m42 * s
 
+      this.canvasContext.setTransform(1, 0, 0, 1, 0, 0)
       this.canvasContext.save()
       this.canvasContext.translate(-tx, -ty)
       this.canvasContext.scale(s, s)
@@ -72,7 +127,16 @@ class RenderSurface {
     }
   }
 
-  async renderPdfPage(page: PDFPageProxy, _pageRect: Rectangle | undefined): Promise<void> {
+  /**
+   * Renders a PDF page onto the canvas with the appropriate scaling and transformation.
+   * Optimizes rendering by skipping already rendered pages with the same parameters.
+   * Cancels any ongoing render task before starting a new one.
+   *
+   * @param page - The PDF page proxy object to render.
+   *
+   * @returns A promise that resolves when rendering is complete.
+   */
+  async renderPdfPage(page: PDFPageProxy): Promise<void> {
     if (!this.canvasContext) {
       return
     }
@@ -128,12 +192,12 @@ class RenderSurface {
     }
   }
 
-  renderSurface(surface: RenderSurface): void {
-    if (this.canvasContext) {
-      this.canvasContext.drawImage(surface.canvas, 0, 0)
-    }
-  }
-
+  /**
+   * Sets the transformation matrix used for rendering operations.
+   * Creates a copy of the provided matrix to avoid reference issues.
+   *
+   * @param transform - The transformation matrix to apply.
+   */
   setTransform(transform: DOMMatrix): void {
     this.transform = DOMMatrix.fromMatrix(transform)
   }

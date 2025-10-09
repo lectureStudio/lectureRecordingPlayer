@@ -2,7 +2,10 @@
 import { SimpleActionExecutor } from "@/api/action/simple-action-executor.ts";
 import { SlideDocument } from "@/api/model/document";
 import { Page } from "@/api/model/page";
+import { BufferedRenderSurface } from "@/api/render/buffered-render-surface.ts";
+import { StaticRenderController } from "@/api/render/static-render-controller.ts";
 import { usePlayerControls } from '@/composables/usePlayerControls'
+import { useRecordingStore } from "@/stores/recording.ts";
 import { RenderingCancelledException } from 'pdfjs-dist'
 import type { RenderTask } from 'pdfjs-dist/types/src/display/api'
 import type { ComponentPublicInstance } from 'vue'
@@ -16,6 +19,12 @@ import { usePdfStore } from '../stores/pdf'
  * Used throughout the component to interact with the PDF document.
  */
 const pdfStore = usePdfStore()
+
+/**
+ * Store instance providing access to recording-related state and operations.
+ * Used to manage and track recording sessions and their data.
+ */
+const recordingStore = useRecordingStore()
 
 const { selectPage } = usePlayerControls()
 
@@ -41,6 +50,18 @@ const canvasMap = ref(new Map<number, HTMLCanvasElement>())
  * entries are garbage-collected when canvases are removed.
  */
 const canvasRenderPromiseMap = new WeakMap<HTMLCanvasElement, Promise<void>>()
+
+/**
+ * Caches which pages have had their shapes loaded into the action executor.
+ * Ensures loadAllShapes() is invoked at most once per page per document.
+ */
+const shapesLoadedPages = new Set<number>()
+
+/**
+ * Remembers what was last rendered into a given canvas to avoid redundant
+ * rendering when the same page at the same size is requested again.
+ */
+const canvasRenderSignature = new WeakMap<HTMLCanvasElement, { pageNum: number; width: number; height: number }>()
 
 /**
  * Reference to the thumbnail bar DOM element.
@@ -69,6 +90,13 @@ const measuredHeight = ref<number>(0)
  * Value: PDF.js RenderTask for that page
  */
 const renderTaskMap = new Map<number, RenderTask>()
+
+/**
+ * Executor instance used to handle slide document actions for the current PDF.
+ * Initialized when a PDF document is loaded and used to manage page-level operations.
+ * Set to null when no document is loaded or when the component is cleaning up.
+ */
+let actionExecutor: SimpleActionExecutor | null = null
 
 /**
  * ResizeObserver instance used to monitor thumbnail bar size changes.
@@ -216,14 +244,14 @@ async function renderPage(pageNum: number) {
   }
 
   // Establish a per-canvas lock placeholder immediately to serialize operations
-  const prev = canvasRenderPromiseMap.get(canvas)
+  const prevPromise = canvasRenderPromiseMap.get(canvas)
   const deferred = createDeferred<void>()
 
   canvasRenderPromiseMap.set(canvas, deferred.promise)
 
-  if (prev) {
+  if (prevPromise) {
     try {
-      await prev
+      await prevPromise
     }
     catch {}
   }
@@ -250,123 +278,34 @@ async function renderPage(pageNum: number) {
     // Account for HiDPI (DPR)
     const dpr = window.devicePixelRatio || 1
 
-    // Prefer OffscreenCanvas to render off-main-thread buffer to avoid flicker
-    if (typeof OffscreenCanvas !== 'undefined') {
-      const offscreen = new OffscreenCanvas(
-        Math.floor(viewport.width * dpr),
-        Math.floor(viewport.height * dpr),
-      )
+    // Set the canvas intrinsic bitmap size and CSS size
+    canvas.style.width = `${Math.floor(viewport.width)}px`
+    canvas.style.height = `${Math.floor(viewport.height)}px`
+    const targetW = Math.floor(viewport.width * dpr)
+    const targetH = Math.floor(viewport.height * dpr)
 
-      const offCtx = offscreen.getContext('2d', { alpha: false })
-      if (!offCtx) {
-        return
-      }
-
-      // Reset and scale for DPR
-      offCtx.setTransform(1, 0, 0, 1, 0, 0)
-      offCtx.scale(dpr, dpr)
-
-      const renderTask: RenderTask = page.render({
-        canvasContext: offCtx as unknown as CanvasRenderingContext2D,
-        canvas: null,
-        viewport,
-      })
-      renderTaskMap.set(pageNum, renderTask)
-
-      try {
-        await renderTask.promise
-
-        // Swap the freshly rendered bitmap into the visible canvas atomically
-        const bitmap = offscreen.transferToImageBitmap()
-
-        // Update CSS size (does not clear) first
-        canvas.style.width = `${Math.floor(viewport.width)}px`
-        canvas.style.height = `${Math.floor(viewport.height)}px`
-
-        // Only then update the intrinsic size to match the bitmap
-        const targetW = Math.floor(viewport.width * dpr)
-        const targetH = Math.floor(viewport.height * dpr)
-
-        if (canvas.width !== targetW || canvas.height !== targetH) {
-          canvas.width = targetW
-          canvas.height = targetH
-        }
-
-        // Try ImageBitmapRenderingContext for zero-copy transfer
-        const bmpCtx = canvas.getContext('bitmaprenderer')
-        if (bmpCtx) {
-          bmpCtx.transferFromImageBitmap(bitmap)
-
-          try {
-            bitmap.close()
-          }
-          catch {}
-        }
-        else {
-          const ctx2d = canvas.getContext('2d')
-          if (!ctx2d) {
-            return
-          }
-
-          ctx2d.setTransform(1, 0, 0, 1, 0, 0)
-          ctx2d.clearRect(0, 0, canvas.width, canvas.height)
-          ctx2d.drawImage(bitmap, 0, 0)
-
-          try {
-            bitmap.close()
-          }
-          catch {}
-        }
-      }
-      finally {
-        // Clear only if it's the same task
-        const current = renderTaskMap.get(pageNum)
-        if (current === renderTask) {
-          renderTaskMap.delete(pageNum)
-        }
-      }
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW
+      canvas.height = targetH
     }
-    else {
-      // Fallback to direct rendering on the visible canvas
-      const ctx = canvas.getContext('2d')
-      if (!ctx) {
-        return
-      }
 
-      // Set the canvas intrinsic bitmap size and CSS size
-      canvas.style.width = `${Math.floor(viewport.width)}px`
-      canvas.style.height = `${Math.floor(viewport.height)}px`
-      const targetW = Math.floor(viewport.width * dpr)
-      const targetH = Math.floor(viewport.height * dpr)
-
-      if (canvas.width !== targetW || canvas.height !== targetH) {
-        canvas.width = targetW
-        canvas.height = targetH
-      }
-
-      // Reset transform before applying DPR scale
-      ctx.setTransform?.(1, 0, 0, 1, 0, 0)
-      ctx.scale(dpr, dpr)
-
-      const renderTask: RenderTask = page.render({
-        canvasContext: ctx,
-        canvas,
-        viewport,
-      })
-
-      renderTaskMap.set(pageNum, renderTask)
-
-      try {
-        await renderTask.promise
-      }
-      finally {
-        // Clear only if it's the same task
-        const current = renderTaskMap.get(pageNum)
-        if (current === renderTask) {
-          renderTaskMap.delete(pageNum)
-        }
-      }
+    // Skip if this canvas already has the same page rendered at the same size
+    const sig = canvasRenderSignature.get(canvas)
+    if (sig && sig.pageNum === pageNum && sig.width === targetW && sig.height === targetH) {
+      return
     }
+
+    // Ensure we only load shapes once per page
+    if (!shapesLoadedPages.has(pageNum)) {
+      actionExecutor?.loadAllShapes(recordingStore.actions[pageNum - 1])
+      shapesLoadedPages.add(pageNum)
+    }
+
+    const renderController = new StaticRenderController(new BufferedRenderSurface(canvas))
+    await renderController.renderPage(actionExecutor?.getPage(pageNum - 1))
+
+    // Update the signature after successful render
+    canvasRenderSignature.set(canvas, { pageNum, width: targetW, height: targetH })
   }
   catch (e: unknown) {
     // Ignore cancellation, log others
@@ -456,8 +395,7 @@ function ensureInitializedFromDoc() {
   const doc = pdfStore.doc
   if (doc) {
     const pages = Array.from({ length: doc.numPages }, (_, i) => (new Page(i)))
-    const slideDocument = new SlideDocument(pages)
-    const actionExecutor = new SimpleActionExecutor(slideDocument)
+    actionExecutor = new SimpleActionExecutor(new SlideDocument(pages))
 
     if (pageItems.value.length === 0) {
       pageItems.value = Array.from({ length: doc.numPages }, (_, i) => ({
@@ -490,6 +428,9 @@ watch(
       c.style.height = ''
       void cancelRender(pageNum)
     })
+
+    // Reset per-document caches
+    shapesLoadedPages.clear()
 
     ensureInitializedFromDoc()
 

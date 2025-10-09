@@ -346,34 +346,9 @@ class FileActionPlayer extends ActionPlayer {
       page.clear()
     }
 
-    this.loadStaticShapes(this.recordedPages[pageNumber])
+    this.simpleExecutor.loadStaticShapes(this.recordedPages[pageNumber])
 
     page.getSlideShape().setPageRect(new Rectangle(0, 0, 1, 1))
-  }
-
-  private loadStaticShapes(recPage: RecordedPage | undefined): void {
-    if (!recPage) {
-      return
-    }
-
-    const staticActions = recPage.staticActions
-    const actionCount = staticActions.length
-
-    if (actionCount < 1) {
-      return
-    }
-
-    // Select the page to which to add static shapes.
-    this.simpleExecutor.setPageNumber(recPage.pageNumber)
-
-    for (const action of staticActions) {
-      try {
-        action.execute(this.simpleExecutor)
-      }
-      catch (e) {
-        console.error(e)
-      }
-    }
   }
 }
 
