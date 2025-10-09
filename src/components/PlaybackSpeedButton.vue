@@ -43,7 +43,7 @@ function setSpeed(speed: number) {
     </div>
     <div
       tabindex="0"
-      class="dropdown-content bg-slate-300/30 dark:bg-slate-700/30 backdrop-blur-sm dark:backdrop-blur-lg rounded-box z-1 p-2 shadow-sm w-30"
+      class="dropdown-content bg-slate-50/30 dark:bg-slate-700/30 backdrop-blur-sm dark:backdrop-blur-lg rounded-box z-1 p-2 shadow-sm w-30"
     >
       <span class="text-sm">Playback Speed</span>
       <ul class="steps steps-vertical">
@@ -69,6 +69,7 @@ function setSpeed(speed: number) {
 }
 .steps .step::before {
   width: 0.25rem;
+
 }
 .steps .step > .step-icon,
 .steps .step:not(:has(.step-icon)):after {
@@ -83,4 +84,5 @@ function setSpeed(speed: number) {
   background-repeat: no-repeat;
   background-position: center;
 }
+
 </style>

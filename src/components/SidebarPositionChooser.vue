@@ -20,7 +20,7 @@ const position = computed<SidebarPosition>({
     </div>
     <ul
       tabindex="0"
-      class="dropdown-content menu bg-slate-300/30 dark:bg-slate-700/30 backdrop-blur-sm dark:backdrop-blur-lg rounded-box z-1 w-40 p-2 shadow-sm"
+      class="dropdown-content menu bg-slate-50/30 dark:bg-slate-700/30 backdrop-blur-sm dark:backdrop-blur-lg rounded-box z-1 w-40 p-2 shadow-sm"
     >
       <li>
         <a
