@@ -69,7 +69,6 @@ function setSpeed(speed: number) {
 }
 .steps .step::before {
   width: 0.25rem;
-
 }
 .steps .step > .step-icon,
 .steps .step:not(:has(.step-icon)):after {
@@ -84,5 +83,4 @@ function setSpeed(speed: number) {
   background-repeat: no-repeat;
   background-position: center;
 }
-
 </style>

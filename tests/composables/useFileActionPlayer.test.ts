@@ -246,7 +246,7 @@ describe('composables/useFileActionPlayer', () => {
       expect(actionPlayer.value).toBeNull()
 
       // Populate pages so the player gets created
-      mockRecordingStore.pages.value = [{ pageNumber: 0 } as any]
+      mockRecordingStore.pages.value = [{ pageNumber: 0 }]
 
       initializePlayer(mockActionCanvas, mockVolatileCanvas)
 

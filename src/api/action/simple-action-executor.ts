@@ -1,6 +1,6 @@
-import { Action } from "@/api/action/action.ts";
-import type { Page } from "@/api/model/page.ts";
-import { RecordedPage } from "@/api/model/recorded-page.ts";
+import { Action } from '@/api/action/action.ts'
+import type { Page } from '@/api/model/page.ts'
+import { RecordedPage } from '@/api/model/recorded-page.ts'
 import { PenPoint } from '../geometry/pen-point'
 import { SlideDocument } from '../model/document'
 import { AtomicTool } from '../tool/atomic.tool'

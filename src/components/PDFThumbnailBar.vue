@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { SimpleActionExecutor } from "@/api/action/simple-action-executor.ts";
-import { SlideDocument } from "@/api/model/document";
-import { Page } from "@/api/model/page";
-import { BufferedRenderSurface } from "@/api/render/buffered-render-surface.ts";
-import { StaticRenderController } from "@/api/render/static-render-controller.ts";
+import { SimpleActionExecutor } from '@/api/action/simple-action-executor.ts'
+import { SlideDocument } from '@/api/model/document'
+import { Page } from '@/api/model/page'
+import { BufferedRenderSurface } from '@/api/render/buffered-render-surface.ts'
+import { StaticRenderController } from '@/api/render/static-render-controller.ts'
 import { usePlayerControls } from '@/composables/usePlayerControls'
-import { useRecordingStore } from "@/stores/recording.ts";
+import { useRecordingStore } from '@/stores/recording.ts'
 import { type PDFPageProxy, RenderingCancelledException } from 'pdfjs-dist'
 import type { RenderTask } from 'pdfjs-dist/types/src/display/api'
 import type { ComponentPublicInstance } from 'vue'
@@ -61,7 +61,10 @@ const shapesLoadedPages = new Set<number>()
  * Remembers what was last rendered into a given canvas to avoid redundant
  * rendering when the same page at the same size is requested again.
  */
-const canvasRenderSignature = new WeakMap<HTMLCanvasElement, { pageNum: number; width: number; height: number }>()
+const canvasRenderSignature = new WeakMap<
+  HTMLCanvasElement,
+  { pageNum: number; width: number; height: number }
+>()
 
 /**
  * Reference to the thumbnail bar DOM element.
@@ -305,7 +308,10 @@ async function renderPage(pageNum: number) {
 
     // Skip if this canvas already has the same page rendered at the same size
     const sig = canvasRenderSignature.get(canvas)
-    if (sig && sig.pageNum === pageNum && sig.width === targetW && sig.height === targetH) {
+    if (
+      sig && sig.pageNum === pageNum && sig.width === targetW
+      && sig.height === targetH
+    ) {
       return
     }
 
@@ -315,11 +321,17 @@ async function renderPage(pageNum: number) {
       shapesLoadedPages.add(pageNum)
     }
 
-    const renderController = new StaticRenderController(new BufferedRenderSurface(canvas))
+    const renderController = new StaticRenderController(
+      new BufferedRenderSurface(canvas),
+    )
     await renderController.renderPage(actionExecutor?.getPage(pageNum - 1))
 
     // Update the signature after a successful render
-    canvasRenderSignature.set(canvas, { pageNum, width: targetW, height: targetH })
+    canvasRenderSignature.set(canvas, {
+      pageNum,
+      width: targetW,
+      height: targetH,
+    })
   }
   catch (e: unknown) {
     // Ignore cancellation, log others
