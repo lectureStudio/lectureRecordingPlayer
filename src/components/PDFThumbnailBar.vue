@@ -6,7 +6,7 @@ import { BufferedRenderSurface } from "@/api/render/buffered-render-surface.ts";
 import { StaticRenderController } from "@/api/render/static-render-controller.ts";
 import { usePlayerControls } from '@/composables/usePlayerControls'
 import { useRecordingStore } from "@/stores/recording.ts";
-import { RenderingCancelledException } from 'pdfjs-dist'
+import { type PDFPageProxy, RenderingCancelledException } from 'pdfjs-dist'
 import type { RenderTask } from 'pdfjs-dist/types/src/display/api'
 import type { ComponentPublicInstance } from 'vue'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -221,6 +221,42 @@ function canvasVNodeRefFactory(page: number) {
 }
 
 /**
+ * Resizes a canvas element to fit a PDF page thumbnail within its container.
+ *
+ * @param canvas - The HTMLCanvasElement to resize.
+ * @param page - The pdf-js page object.
+ *
+ * @returns The target width and height of the canvas bitmap.
+ */
+function sizeCanvasForPage(canvas: HTMLCanvasElement, page: PDFPageProxy) {
+  const initialViewport = page.getViewport({ scale: 1 })
+
+  // Determine available CSS width from the canvas parent (fallback to computed width)
+  const parent = canvas.parentElement as HTMLElement | null
+  const availableWidth = Math.max(1, parent?.offsetWidth || 1)
+
+  // Compute viewport scaled to the available CSS width
+  const scale = availableWidth / initialViewport.width
+  const viewport = page.getViewport({ scale })
+
+  // Account for HiDPI (DPR)
+  const dpr = window.devicePixelRatio || 1
+
+  // Set the canvas intrinsic bitmap size and CSS size
+  canvas.style.width = `${Math.floor(viewport.width)}px`
+  canvas.style.height = `${Math.floor(viewport.height)}px`
+  const targetW = Math.floor(viewport.width * dpr)
+  const targetH = Math.floor(viewport.height * dpr)
+
+  if (canvas.width !== targetW || canvas.height !== targetH) {
+    canvas.width = targetW
+    canvas.height = targetH
+  }
+
+  return { targetW, targetH }
+}
+
+/**
  * Renders a specific PDF page to its corresponding canvas element.
  *
  * This function handles the complete page rendering process, including
@@ -265,29 +301,7 @@ async function renderPage(pageNum: number) {
       return
     }
 
-    const initialViewport = page.getViewport({ scale: 1 })
-
-    // Determine available CSS width from the canvas parent (fallback to computed width)
-    const parent = canvas.parentElement as HTMLElement | null
-    const availableWidth = Math.max(1, parent?.offsetWidth || 1)
-
-    // Compute viewport scaled to the available CSS width
-    const scale = availableWidth / initialViewport.width
-    const viewport = page.getViewport({ scale })
-
-    // Account for HiDPI (DPR)
-    const dpr = window.devicePixelRatio || 1
-
-    // Set the canvas intrinsic bitmap size and CSS size
-    canvas.style.width = `${Math.floor(viewport.width)}px`
-    canvas.style.height = `${Math.floor(viewport.height)}px`
-    const targetW = Math.floor(viewport.width * dpr)
-    const targetH = Math.floor(viewport.height * dpr)
-
-    if (canvas.width !== targetW || canvas.height !== targetH) {
-      canvas.width = targetW
-      canvas.height = targetH
-    }
+    const { targetW, targetH } = sizeCanvasForPage(canvas, page)
 
     // Skip if this canvas already has the same page rendered at the same size
     const sig = canvasRenderSignature.get(canvas)
@@ -304,7 +318,7 @@ async function renderPage(pageNum: number) {
     const renderController = new StaticRenderController(new BufferedRenderSurface(canvas))
     await renderController.renderPage(actionExecutor?.getPage(pageNum - 1))
 
-    // Update the signature after successful render
+    // Update the signature after a successful render
     canvasRenderSignature.set(canvas, { pageNum, width: targetW, height: targetH })
   }
   catch (e: unknown) {

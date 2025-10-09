@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="viewer-wrapper" ref="wrapperRef">
+  <div class="viewer-wrapper overflow-hidden" ref="wrapperRef">
     <PDFPageView class="h-full" />
     <canvas ref="actionCanvasRef" class="action-canvas"></canvas>
     <canvas ref="volatileCanvasRef" class="volatile-canvas"></canvas>
