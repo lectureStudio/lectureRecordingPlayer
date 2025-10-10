@@ -1,5 +1,5 @@
-import { RecordingFileReader } from '@/api/io/recording-file-reader.ts'
-import type { Recording } from '@/api/model/recording.ts'
+import { RecordingFileReader } from '@/api/io/recording-file-reader'
+import type { Recording } from '@/api/model/recording'
 
 /**
  * Loads a recording from a file and returns a hydrated Recording object.

@@ -1,6 +1,6 @@
-import { Page } from '@/api/model/page.ts'
-import { RecordedPage } from '@/api/model/recorded-page.ts'
-import type { Recording } from '@/api/model/recording.ts'
+import { Page } from '@/api/model/page'
+import { RecordedPage } from '@/api/model/recorded-page'
+import type { Recording } from '@/api/model/recording'
 import { defineStore } from 'pinia'
 import { markRaw } from 'vue'
 

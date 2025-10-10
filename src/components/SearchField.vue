@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useKeyboard } from '@/composables/useKeyboard.ts'
+import { useKeyboard } from '@/composables/useKeyboard'
 import { usePdfStore } from '@/stores/pdf'
 import { type Ref, ref, watch } from 'vue'
 

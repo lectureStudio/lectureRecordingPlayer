@@ -1,6 +1,6 @@
 import type { AppSettings } from '@/schemas/settings'
-import { loadJSON, saveJSON } from '@/utils/storage.ts'
-import { AppSettingsSchema } from '@schemas/settings.ts'
+import { loadJSON, saveJSON } from '@/utils/storage'
+import { AppSettingsSchema } from '@schemas/settings'
 import { defineStore } from 'pinia'
 
 const STORAGE_KEY = 'app:settings'

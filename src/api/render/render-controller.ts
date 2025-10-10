@@ -200,7 +200,7 @@ class RenderController {
     this.lastShape = shape
   }
 
-  public setPdfPageTransform(transform: DOMMatrix): void {
+  private setPdfPageTransform(transform: DOMMatrix): void {
     const pdfStore = usePdfStore()
 
     if (!pdfStore.doc || !this.page) {

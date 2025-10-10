@@ -26,6 +26,7 @@ interface MockRenderController {
 interface MockRecordingStore {
   getPage: ReturnType<typeof vi.fn>
   actions: ReturnType<typeof ref>
+  pages: ReturnType<typeof ref>
 }
 
 interface MockMediaControlsStore {
@@ -67,7 +68,7 @@ vi.mock('pinia', async () => {
     ...actual,
     storeToRefs: vi.fn((store) => {
       if (store === mockRecordingStore) {
-        return { actions: mockRecordingStore.actions }
+        return { actions: mockRecordingStore.actions, pages: mockRecordingStore.pages }
       }
       return {}
     }),
@@ -86,6 +87,7 @@ describe('composables/useFileActionPlayer', () => {
     mockRecordingStore = {
       getPage: vi.fn(),
       actions: ref([]),
+      pages: ref([]),
     }
     
     mockMediaStore = {
@@ -242,6 +244,9 @@ describe('composables/useFileActionPlayer', () => {
       const mockVolatileCanvas = document.createElement('canvas')
 
       expect(actionPlayer.value).toBeNull()
+
+      // Populate pages so the player gets created
+      mockRecordingStore.pages.value = [{ pageNumber: 0 }]
 
       initializePlayer(mockActionCanvas, mockVolatileCanvas)
 

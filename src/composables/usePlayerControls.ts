@@ -1,6 +1,6 @@
 import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { useMediaControlsStore } from '@/stores/mediaControls'
-import { usePdfStore } from '@/stores/pdf.ts'
+import { usePdfStore } from '@/stores/pdf'
 import { watch } from 'vue'
 
 export function usePlayerControls() {

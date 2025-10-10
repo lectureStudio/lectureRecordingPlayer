@@ -1,4 +1,4 @@
-import { usePdfStore } from '@/stores/pdf.ts'
+import { usePdfStore } from '@/stores/pdf'
 import { PenPoint } from '../geometry/pen-point'
 import { SlideDocument } from '../model/document'
 import { RenderController } from '../render/render-controller'
