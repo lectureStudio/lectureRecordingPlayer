@@ -95,6 +95,9 @@ onMounted(() => {
   const el = audioEl.value
   if (!el) { return }
 
+  // Register the togglePlayPause function with the media store
+  media.setTogglePlayPauseCallback(togglePlayPause)
+
   // Provide the audio element directly to the action player
   actionPlayer.value?.setAudioElement(el)
 
@@ -201,6 +204,9 @@ onMounted(() => {
     el.removeEventListener('error', onError)
     el.removeEventListener('timeupdate', onTimeUpdate)
     el.removeEventListener('loadedmetadata', onLoadedMetadata)
+
+    // Unregister the togglePlayPause callback
+    media.setTogglePlayPauseCallback(null)
 
     // stop watchers
     stopWatchMediaControls()

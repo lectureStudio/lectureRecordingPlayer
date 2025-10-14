@@ -10,6 +10,7 @@ export const useMediaControlsStore = defineStore('mediaControls', {
     totalTime: 0 as number, // In milliseconds
     playbackState: 'paused' as 'paused' | 'playing' | 'ended' | 'error',
     seeking: false as boolean,
+    togglePlayPauseCallback: null as (() => void) | null,
   }),
   getters: {
     /**
@@ -81,6 +82,27 @@ export const useMediaControlsStore = defineStore('mediaControls', {
      */
     stopSeeking() {
       this.seeking = false
+    },
+    /**
+     * Registers a callback function to handle play/pause toggling.
+     * This should be called by components that have access to the audio element.
+     *
+     * @param callback - The function to call when togglePlayPause is invoked.
+     */
+    setTogglePlayPauseCallback(callback: (() => void) | null) {
+      this.togglePlayPauseCallback = callback
+    },
+    /**
+     * Toggles the playback state between playing and paused.
+     * Calls the registered callback function if available.
+     */
+    togglePlayPause() {
+      if (this.togglePlayPauseCallback) {
+        this.togglePlayPauseCallback()
+      }
+      else {
+        console.warn('togglePlayPause called but no callback registered - ensure MediaControlsBar is mounted')
+      }
     },
   },
 })

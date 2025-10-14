@@ -19,6 +19,18 @@ export const usePdfStore = defineStore('pdf', {
     matchesCurrent: 0 as number,
     pageTransform: new DOMMatrix() as DOMMatrix,
   }),
+  getters: {
+    /**
+     * Returns the total number of pages in the loaded PDF document.
+     *
+     * @param state - The store state object.
+     *
+     * @returns The number of pages in the document, or 0 if no document is loaded.
+     */
+    pageCount(state): number {
+      return state.doc?.numPages ?? 0
+    },
+  },
   actions: {
     /**
      * Loads a PDF document from the given source URL or file path.

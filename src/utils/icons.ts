@@ -4,6 +4,7 @@ import searchPrev from '@fluentui/svg-icons/icons/chevron_up_24_regular.svg?raw'
 import dismiss from '@fluentui/svg-icons/icons/dismiss_24_filled.svg?raw'
 import fullscreenMaximize from '@fluentui/svg-icons/icons/full_screen_maximize_24_filled.svg?raw'
 import fullscreenMinimize from '@fluentui/svg-icons/icons/full_screen_minimize_24_filled.svg?raw'
+import keyboard from '@fluentui/svg-icons/icons/keyboard_24_regular.svg?raw'
 import navigation from '@fluentui/svg-icons/icons/navigation_24_filled.svg?raw'
 import next from '@fluentui/svg-icons/icons/next_24_regular.svg?raw'
 import sidebarLeft from '@fluentui/svg-icons/icons/panel_left_24_regular.svg?raw'
@@ -21,7 +22,10 @@ import speakerMute from '@fluentui/svg-icons/icons/speaker_mute_24_regular.svg?r
 import darkMode from '@fluentui/svg-icons/icons/weather_moon_24_regular.svg?raw'
 import lightMode from '@fluentui/svg-icons/icons/weather_sunny_24_regular.svg?raw'
 
-// Register all used icons
+/**
+ * Map of all Fluent UI icons used in the application.
+ * Each icon is imported as raw SVG content and can be rendered via v-html.
+ */
 export const fluentIconMap = {
   'dark-mode': darkMode,
   'light-mode': lightMode,
@@ -45,6 +49,11 @@ export const fluentIconMap = {
   'speaker-low': speakerLow,
   'speaker-medium': speakerMedium,
   'speaker-high': speakerHigh,
+  'keyboard': keyboard,
 }
 
+/**
+ * Type definition for valid Fluent icon names.
+ * Ensures type safety when using icons in components.
+ */
 export type FluentIconName = keyof typeof fluentIconMap

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useKeyboard } from '@/composables/useKeyboard'
 import { usePlayerControls } from '@/composables/usePlayerControls'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import {
@@ -9,7 +8,7 @@ import {
   PDFPageView,
   PDFSinglePageViewer,
 } from 'pdfjs-dist/web/pdf_viewer.mjs'
-import { computed, type Ref } from 'vue'
+import { type Ref } from 'vue'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { usePdfStore } from '../stores/pdf'
 
@@ -18,13 +17,7 @@ import { usePdfStore } from '../stores/pdf'
  */
 const pdfStore = usePdfStore()
 
-const { selectPrevPage, selectNextPage, setupPdfPageSync } = usePlayerControls()
-
-/**
- * Computed property that indicates whether PDF navigation is possible.
- * Returns true when a PDF document is loaded in the store.
- */
-const canNavigate = computed(() => !!pdfStore.doc)
+const { setupPdfPageSync } = usePlayerControls()
 
 /**
  * Reference to the container element that holds the PDF viewer.
@@ -229,30 +222,6 @@ function setupResize(): void {
     resizeObs.observe(containerRef.value)
   }
 }
-
-/**
- * Sets up keyboard shortcuts for PDF navigation.
- * Configures arrow key bindings to navigate between pages when a PDF document is loaded.
- * Left/Up arrows go to the previous page, Right/Down arrows go to the next page.
- * Shortcuts are ignored when editing in form fields or text inputs.
- */
-useKeyboard(
-  [
-    {
-      keys: [{ key: 'ArrowLeft' }, { key: 'ArrowUp' }],
-      handler: () => selectPrevPage(),
-      when: () => canNavigate.value,
-      description: 'Previous page',
-    },
-    {
-      keys: [{ key: 'ArrowRight' }, { key: 'ArrowDown' }],
-      handler: () => selectNextPage(),
-      when: () => canNavigate.value,
-      description: 'Next page',
-    },
-  ],
-  { ignoreEditable: true },
-)
 
 /**
  * Watches for changes to the PDF document in the store.

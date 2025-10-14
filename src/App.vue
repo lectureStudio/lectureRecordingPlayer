@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import KeyboardShortcutsDialog from '@/components/KeyboardShortcutsDialog.vue'
 import NavigationBar from '@/components/NavigationBar.vue'
 import SlideView from '@/components/SlideView.vue'
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts.ts'
 import { loadRecording } from '@/services/recordingLoader'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { useRecordingStore } from '@/stores/recording'
-import { onBeforeUnmount, onMounted, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppLayout from './components/AppLayout.vue'
 import MediaControlsBar from './components/MediaControlsBar.vue'
 import PDFThumbnailBar from './components/PDFThumbnailBar.vue'
@@ -24,6 +26,21 @@ const {
   releaseWakeLock,
   handleVisibilityChange,
 } = useScreenWakeLock()
+
+// Reference to the global keyboard shortcuts dialog
+const keyboardShortcutsDialog = ref<{ showShortcutsDialog: () => void } | null>(
+  null,
+)
+
+// Handle show shortcuts event from the navigation bar
+const handleShowShortcuts = () => {
+  keyboardShortcutsDialog.value?.showShortcutsDialog()
+}
+
+// Initialize keyboard shortcuts with the show dialog function
+useKeyboardShortcuts(() => {
+  keyboardShortcutsDialog.value?.showShortcutsDialog()
+})
 
 onMounted(async () => {
   try {
@@ -78,7 +95,7 @@ onMounted(async () => {
 <template>
   <AppLayout>
     <template #top>
-      <NavigationBar />
+      <NavigationBar @show-shortcuts="handleShowShortcuts" />
     </template>
     <template #sidebar>
       <PDFThumbnailBar />
@@ -88,4 +105,7 @@ onMounted(async () => {
     </template>
     <SlideView />
   </AppLayout>
+
+  <!-- Global keyboard shortcuts dialog - always accessible -->
+  <KeyboardShortcutsDialog ref="keyboardShortcutsDialog" />
 </template>
