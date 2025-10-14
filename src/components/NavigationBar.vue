@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppIcon from '@/components/AppIcon.vue'
+import KeyboardShortcutsButton from '@/components/KeyboardShortcutsButton.vue'
 import SearchField from '@/components/SearchField.vue'
 import ThemeSwitch from '@/components/ThemeSwitch.vue'
 import { useFullscreenControls } from '@/composables/useFullscreenControls'
@@ -8,9 +9,23 @@ import { computed } from 'vue'
 
 const settings = useSettingsStore()
 
+/**
+ * Determines whether the sidebar should be shown based on settings.
+ */
 const showSidebar = computed(() => settings.sidebarPosition !== 'none')
 
 const { fullscreen, controlsVisible } = useFullscreenControls()
+
+// Handle button click to show dialog - this will be handled by the global dialog in App.vue
+const handleShowShortcuts = () => {
+  // Emit event to parent to show the global dialog
+  emit('show-shortcuts')
+}
+
+// Define emits
+const emit = defineEmits<{
+  'show-shortcuts': []
+}>()
 
 const props = withDefaults(
   defineProps<{
@@ -49,6 +64,7 @@ const props = withDefaults(
     <div class="flex-1" />
 
     <SearchField class="sm:w-[18rem] order-last sm:order-none" />
+    <KeyboardShortcutsButton :on-click="handleShowShortcuts" />
     <ThemeSwitch class="opacity-70" />
   </div>
 </template>

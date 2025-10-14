@@ -239,4 +239,41 @@ describe('stores/mediaControls', () => {
       })
     })
   })
+
+  describe('Toggle Play/Pause Callback', () => {
+    it('initializes with null callback', () => {
+      expect(store.togglePlayPauseCallback).toBe(null)
+    })
+
+    it('can set and clear the callback', () => {
+      const mockCallback = vi.fn()
+      
+      store.setTogglePlayPauseCallback(mockCallback)
+      expect(store.togglePlayPauseCallback).toBe(mockCallback)
+      
+      store.setTogglePlayPauseCallback(null)
+      expect(store.togglePlayPauseCallback).toBe(null)
+    })
+
+    it('calls the registered callback when togglePlayPause is invoked', () => {
+      const mockCallback = vi.fn()
+      store.setTogglePlayPauseCallback(mockCallback)
+      
+      store.togglePlayPause()
+      
+      expect(mockCallback).toHaveBeenCalledOnce()
+    })
+
+    it('logs warning when togglePlayPause is called without callback', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      
+      store.togglePlayPause()
+      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'togglePlayPause called but no callback registered - ensure MediaControlsBar is mounted'
+      )
+      
+      consoleSpy.mockRestore()
+    })
+  })
 })
