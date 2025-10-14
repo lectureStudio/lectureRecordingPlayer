@@ -137,18 +137,18 @@ describe('MediaControlsBar.vue', () => {
     it('computes progress percentage correctly', async () => {
       createWrapper()
       
-      mediaStore.totalTime = 200
-      mediaStore.currentTime = 50
+      mediaStore.totalTime = 200000 // 200 seconds in milliseconds
+      mediaStore.currentTime = 50000 // 50 seconds in milliseconds
       
       await wrapper.vm.$nextTick()
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
-      expect(slider.props('modelValue')).toBeCloseTo(250, 1) // 50/200 * 1000
+      expect(slider.props('modelValue')).toBeCloseTo(250, 1) // 50000/200000 * 1000
     })
 
     it('handles zero total time gracefully', () => {
       mediaStore.totalTime = 0
-      mediaStore.currentTime = 50
+      mediaStore.currentTime = 50000 // 50 seconds in milliseconds
       createWrapper()
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
@@ -158,19 +158,19 @@ describe('MediaControlsBar.vue', () => {
     it('updates current time on progress change', async () => {
       createWrapper()
       
-      mediaStore.totalTime = 200
+      mediaStore.totalTime = 200000 // 200 seconds in milliseconds
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
       await slider.vm.$emit('update:modelValue', 500) // 50%
       
-      // The handler calculates: (500 / 1000) * 200 = 100
-      expect(mediaStore.currentTime).toBe(100)
+      // The handler calculates: (500 / 1000) * 200000 = 100000
+      expect(mediaStore.currentTime).toBe(100000)
     })
 
     it('triggers user activity in fullscreen mode', async () => {
       createWrapper()
       
-      mediaStore.totalTime = 200
+      mediaStore.totalTime = 200000 // 200 seconds in milliseconds
       mockFullscreenControls.fullscreen.value = true
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })

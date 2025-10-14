@@ -53,6 +53,13 @@ function onSeekStart() {
 function onSeekEnd() {
   media.stopSeeking()
 
+  // Sync the audio element to the store's current time after seeking
+  const audio = audioEl.value
+  if (audio && media.totalTime > 0) {
+    const timeInSeconds = media.currentTime / 1000
+    audio.currentTime = timeInSeconds
+  }
+
   if (fullscreen.value) {
     onUserActivity()
   }
@@ -112,8 +119,10 @@ onMounted(() => {
       // If the audio element's current time is significantly different from the store's time, update it.
       // This is to avoid a feedback loop where 'timeupdate' events from the audio element
       // update the store, which then tries to update the audio element back.
-      if (Math.abs(audio.currentTime - time) > 1) {
-        audio.currentTime = time
+      // Convert milliseconds to seconds for audio element
+      const timeInSeconds = time / 1000
+      if (Math.abs(audio.currentTime - timeInSeconds) > 1) {
+        audio.currentTime = timeInSeconds
       }
 
       audio.volume = Math.max(0, Math.min(1, (volume ?? 0) / 100))
@@ -163,13 +172,17 @@ onMounted(() => {
   }
   const onTimeUpdate = () => {
     if (el.duration && isFinite(el.duration)) {
-      media.totalTime = el.duration
-      media.currentTime = el.currentTime
+      media.totalTime = el.duration * 1000 // Convert seconds to milliseconds
+      // Only update currentTime if not currently seeking to avoid overriding user's seek position
+      // This prevents the slider from jumping back during seek operations
+      if (!media.seeking) {
+        media.currentTime = el.currentTime * 1000 // Convert seconds to milliseconds
+      }
     }
   }
   const onLoadedMetadata = () => {
     if (el.duration && isFinite(el.duration)) {
-      media.totalTime = el.duration
+      media.totalTime = el.duration * 1000 // Convert seconds to milliseconds
     }
   }
 

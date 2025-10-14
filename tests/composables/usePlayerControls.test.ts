@@ -95,7 +95,7 @@ describe('composables/usePlayerControls', () => {
       selectPrevPage()
 
       expect(mockFileActionPlayer.actionPlayer.value!.selectPreviousPage).toHaveBeenCalled()
-      expect(mockMediaStore.currentTime).toBe(5) // 5000ms / 1000
+      expect(mockMediaStore.currentTime).toBe(5000) // 5000ms
     })
 
     it('does not update media time when selectPreviousPage returns -1', () => {
@@ -142,7 +142,7 @@ describe('composables/usePlayerControls', () => {
       selectNextPage()
 
       expect(mockFileActionPlayer.actionPlayer.value!.selectNextPage).toHaveBeenCalled()
-      expect(mockMediaStore.currentTime).toBe(10) // 10000ms / 1000
+      expect(mockMediaStore.currentTime).toBe(10000) // 10000ms
     })
 
     it('does not update media time when selectNextPage returns -1', () => {
@@ -178,7 +178,7 @@ describe('composables/usePlayerControls', () => {
       selectPage(3) // 1-based page number
 
       expect(mockFileActionPlayer.actionPlayer.value!.seekByPage).toHaveBeenCalledWith(2) // 0-based
-      expect(mockMediaStore.currentTime).toBe(15) // 15000ms / 1000
+      expect(mockMediaStore.currentTime).toBe(15000) // 15000ms
     })
 
     it('does not update media time when seekByPage returns -1', () => {
@@ -247,7 +247,7 @@ describe('composables/usePlayerControls', () => {
       watchCallback?.(3, 2, () => {})
 
       expect(mockFileActionPlayer.actionPlayer.value!.seekByPage).toHaveBeenCalledWith(2) // 0-based (3-1)
-      expect(mockMediaStore.currentTime).toBe(20) // 20000ms / 1000
+      expect(mockMediaStore.currentTime).toBe(20000) // 20000ms
     })
 
     it('watcher gets current page from PDF store', () => {
@@ -298,7 +298,7 @@ describe('composables/usePlayerControls', () => {
 
       selectPage(1)
 
-      expect(mockMediaStore.currentTime).toBe(3600) // 1 hour in seconds
+      expect(mockMediaStore.currentTime).toBe(3600000) // 1 hour in milliseconds
     })
 
     it('handles fractional time values', () => {
@@ -308,7 +308,7 @@ describe('composables/usePlayerControls', () => {
 
       selectPage(1)
 
-      expect(mockMediaStore.currentTime).toBe(1.5)
+      expect(mockMediaStore.currentTime).toBe(1500) // 1.5 seconds in milliseconds
     })
   })
 
@@ -323,13 +323,13 @@ describe('composables/usePlayerControls', () => {
 
       // Test all functions
       selectPrevPage()
-      expect(mockMediaStore.currentTime).toBe(1)
+      expect(mockMediaStore.currentTime).toBe(1000) // 1 second in milliseconds
 
       selectNextPage()
-      expect(mockMediaStore.currentTime).toBe(2)
+      expect(mockMediaStore.currentTime).toBe(2000) // 2 seconds in milliseconds
 
       selectPage(5)
-      expect(mockMediaStore.currentTime).toBe(3)
+      expect(mockMediaStore.currentTime).toBe(3000) // 3 seconds in milliseconds
 
       setupPdfPageSync()
       expect(vi.mocked(watch)).toHaveBeenCalled()

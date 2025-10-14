@@ -206,12 +206,12 @@ describe('stores/mediaControls', () => {
 
   describe('State Management', () => {
     it('allows direct state modification', () => {
-      store.currentTime = 120
-      store.totalTime = 300
+      store.currentTime = 120000 // 120 seconds in milliseconds
+      store.totalTime = 300000 // 300 seconds in milliseconds
       store.playbackState = 'playing'
 
-      expect(store.currentTime).toBe(120)
-      expect(store.totalTime).toBe(300)
+      expect(store.currentTime).toBe(120000)
+      expect(store.totalTime).toBe(300000)
       expect(store.playbackState).toBe('playing')
     })
 

@@ -69,7 +69,7 @@ export function useFileActionPlayer() {
       { immediate: true },
     )
 
-    // Keep the action player's clock in sync with the audio's current time (seconds -> ms)
+    // Keep the action player's clock in sync with the audio's current time (ms -> ms)
     watch(
       () => mediaStore.currentTime,
       (t) => {
@@ -77,7 +77,7 @@ export function useFileActionPlayer() {
           const time = t ?? 0
 
           if (mediaStore.seeking) {
-            player.value.seekByTime(time * 1000)
+            player.value.seekByTime(time)
           }
         }
       },

@@ -300,7 +300,7 @@ describe('composables/useFileActionPlayer', () => {
       initializePlayer(mockActionCanvas, mockVolatileCanvas)
 
       // Simulate time change
-      mockMediaStore.currentTime = 120
+      mockMediaStore.currentTime = 120000 // 120 seconds in milliseconds
       mockMediaStore.seeking = true
 
       // The watcher should call seekByTime (this is tested indirectly)
