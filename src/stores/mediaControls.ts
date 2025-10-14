@@ -6,8 +6,8 @@ export const useMediaControlsStore = defineStore('mediaControls', {
     playbackSpeed: 1.0 as number,
     muted: false as boolean,
     prevVolume: 100 as number, // To restore volume when unmuting
-    currentTime: 0 as number, // In seconds
-    totalTime: 0 as number, // In seconds
+    currentTime: 0 as number, // In milliseconds
+    totalTime: 0 as number, // In milliseconds
     playbackState: 'paused' as 'paused' | 'playing' | 'ended' | 'error',
     seeking: false as boolean,
   }),

@@ -18,7 +18,7 @@ export function usePlayerControls() {
   const selectPrevPage = (): void => {
     const time = actionPlayer.value?.selectPreviousPage() ?? -1
     if (time >= 0) {
-      media.currentTime = time / 1000
+      media.currentTime = time
     }
   }
 
@@ -32,7 +32,7 @@ export function usePlayerControls() {
   const selectNextPage = (): void => {
     const time = actionPlayer.value?.selectNextPage() ?? -1
     if (time >= 0) {
-      media.currentTime = time / 1000
+      media.currentTime = time
     }
   }
 
@@ -49,7 +49,7 @@ export function usePlayerControls() {
     // page is 1-based from UI, but player is likely 0-based
     const time = actionPlayer.value?.seekByPage(page - 1) ?? -1
     if (time >= 0) {
-      media.currentTime = time / 1000
+      media.currentTime = time
     }
   }
 
