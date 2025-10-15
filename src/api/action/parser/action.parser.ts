@@ -230,14 +230,14 @@ class ActionParser {
   }
 
   private static screenAction(dataView: ProgressiveDataView): ScreenAction {
-    /* const videoOffset = */ dataView.getInt32()
-    /* const videoLength = */ dataView.getInt32()
-    /* const contentWidth = */ dataView.getInt32()
-    /* const contentHeight = */ dataView.getInt32()
+    const videoOffset = dataView.getInt32()
+    const videoLength = dataView.getInt32()
+    const contentWidth = dataView.getInt32()
+    const contentHeight = dataView.getInt32()
     const dataLength = dataView.getInt32()
-    /* const fileName = */ dataView.getString(dataLength)
+    const fileName = dataView.getString(dataLength)
 
-    return new ScreenAction()
+    return new ScreenAction(videoOffset, videoLength, contentWidth, contentHeight, fileName)
   }
 
   private static toolDragAction<T>(dataView: ProgressiveDataView, type: { new(point: PenPoint): T }): T {
