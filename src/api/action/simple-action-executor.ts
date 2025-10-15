@@ -159,6 +159,31 @@ class SimpleActionExecutor implements ActionExecutor {
   }
 
   /**
+   * Plays a recorded video.
+   *
+   * @param startTimestamp - The timestamp when the video starts.
+   * @param videoOffset - The offset of the video in the recorded actions.
+   * @param videoLength - The length of the video in the recorded actions.
+   * @param contentWidth - The width of the content of the video.
+   * @param contentHeight - The height of the content of the video.
+   * @param fileName - The name of the video file.
+   */
+  playVideo(
+    _startTimestamp: number,
+    _videoOffset: number,
+    _videoLength: number,
+    _contentWidth: number,
+    _contentHeight: number,
+    _fileName: string,
+  ): void {
+    // No-op
+  }
+
+  stopVideo(): void {
+    // No-op
+  }
+
+  /**
    * Loads all shapes (both static and playback) from a recorded page.
    *
    * @param recPage The recorded page containing shapes to load.

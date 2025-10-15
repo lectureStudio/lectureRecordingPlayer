@@ -11,6 +11,7 @@ const { initializePlayer } = useFileActionPlayer()
 const wrapperRef = ref<HTMLDivElement | null>(null)
 const actionCanvasRef = ref<HTMLCanvasElement | null>(null)
 const volatileCanvasRef = ref<HTMLCanvasElement | null>(null)
+const videoRef = ref<HTMLVideoElement | null>(null)
 
 // Manage EventBus subscriptions to keep overlay sizes in sync with PDF.js events
 const detachHandlers: Array<() => void> = []
@@ -95,9 +96,10 @@ watch(() => pdfStore.eventBus, (bus) => attachBus(bus), { immediate: true })
 onMounted(() => {
   const action = actionCanvasRef.value
   const volatile = volatileCanvasRef.value
+  const video = videoRef.value
 
-  if (action && volatile) {
-    initializePlayer(action, volatile)
+  if (action && volatile && video) {
+    initializePlayer(action, volatile, video)
   }
 })
 
@@ -111,6 +113,7 @@ onBeforeUnmount(() => {
     <PDFPageView class="h-full" />
     <canvas ref="actionCanvasRef" class="action-canvas"></canvas>
     <canvas ref="volatileCanvasRef" class="volatile-canvas"></canvas>
+    <video ref="videoRef"></video>
   </div>
 </template>
 
@@ -132,5 +135,17 @@ onBeforeUnmount(() => {
   z-index: 1; /* base overlay layer */
   pointer-events: none; /* allow interactions to pass through to PDF if needed */
   mix-blend-mode: multiply;
+}
+
+/* Video element positioning - initially hidden */
+.viewer-wrapper video {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2; /* above canvases */
+  display: none; /* initially hidden */
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>

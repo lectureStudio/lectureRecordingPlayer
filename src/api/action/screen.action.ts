@@ -18,8 +18,15 @@ class ScreenAction extends Action {
     this.fileName = fileName
   }
 
-  execute(_executor: ActionExecutor): void {
-    // Ignore. Rendering will take place in other components, e.g., VideoReader.
+  execute(executor: ActionExecutor): void {
+    executor.playVideo(
+      this.timestamp,
+      this.videoOffset,
+      this.videoLength,
+      this.contentWidth,
+      this.contentHeight,
+      this.fileName,
+    )
   }
 }
 
