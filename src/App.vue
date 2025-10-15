@@ -44,7 +44,7 @@ useKeyboardShortcuts(() => {
 
 onMounted(async () => {
   try {
-    await loadRecordingWithFallback(recording, '/test.plr', loadRecording, {
+    await loadRecordingWithFallback(recording, '/dev.plr', loadRecording, {
       mediaStore,
       recordingStore,
       pdfStore,
