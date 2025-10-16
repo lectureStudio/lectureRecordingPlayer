@@ -42,6 +42,9 @@ useKeyboardShortcuts(() => {
   keyboardShortcutsDialog.value?.showShortcutsDialog()
 })
 
+// Handle visibility change events
+let handleVisibilityChangeEvent: (() => void) | null = null
+
 onMounted(async () => {
   try {
     await loadRecordingWithFallback(recording, '/dev.plr', loadRecording, {
@@ -73,22 +76,21 @@ onMounted(async () => {
   )
 
   // Handle visibility change events
-  const handleVisibilityChangeEvent = () => {
+  handleVisibilityChangeEvent = () => {
     const shouldBeActive = mediaStore.playbackState === 'playing'
     handleVisibilityChange(shouldBeActive)
   }
 
   document.addEventListener('visibilitychange', handleVisibilityChangeEvent)
+})
 
-  // Cleanup visibility change listener on unmount
-  onBeforeUnmount(() => {
-    document.removeEventListener(
-      'visibilitychange',
-      handleVisibilityChangeEvent,
-    )
-    // Dispose resources
-    pdfStore.dispose()
-  })
+// Cleanup visibility change listener on unmount
+onBeforeUnmount(() => {
+  if (handleVisibilityChangeEvent) {
+    document.removeEventListener('visibilitychange', handleVisibilityChangeEvent)
+  }
+  // Dispose resources
+  pdfStore.dispose()
 })
 </script>
 
