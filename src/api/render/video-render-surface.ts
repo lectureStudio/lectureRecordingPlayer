@@ -23,19 +23,32 @@ class VideoRenderSurface {
   /** Whether the video is currently playing */
   private isPlaying: boolean = false
 
-  /** Whether the video is currently seeking */
-  private isSeeking: boolean = false
-
   /** Media controls store for time synchronization */
   private mediaStore = useMediaControlsStore()
+
+  /** Callback to notify when video should be hidden */
+  private onVideoShouldHide?: () => void
+
+  /** Callback to notify when video should be shown */
+  private onVideoShouldShow?: () => void
+
+  /** Whether the video is currently visible */
+  private isVideoVisible: boolean = false
+
+  /** Flag to prevent cyclic updates during seeking */
+  private isSeeking: boolean = false
 
   /**
    * Creates a new video render surface associated with the given video element.
    *
    * @param video - The HTML video element to control.
+   * @param onVideoShouldHide - Optional callback when video should be hidden
+   * @param onVideoShouldShow - Optional callback when video should be shown
    */
-  constructor(video: HTMLVideoElement) {
+  constructor(video: HTMLVideoElement, onVideoShouldHide?: () => void, onVideoShouldShow?: () => void) {
     this.video = video
+    this.onVideoShouldHide = onVideoShouldHide
+    this.onVideoShouldShow = onVideoShouldShow
     this.setupVideoEventListeners()
   }
 
@@ -95,8 +108,6 @@ class VideoRenderSurface {
     contentWidth: number,
     contentHeight: number,
   ): void {
-    fileName = 'dev.mp4'
-
     // Only reload video if it's a different file or not already loaded
     const needsReload = this.currentFileName !== fileName || this.video.src === ''
 
@@ -108,32 +119,12 @@ class VideoRenderSurface {
     if (needsReload) {
       // Set video source only if needed
       this.video.src = `/${fileName}`
-      console.log('Video loaded:', {
-        fileName,
-        startTimestamp,
-        videoOffset,
-        videoLength,
-        contentWidth,
-        contentHeight,
-      })
-    }
-    else {
-      console.log('Video already loaded, updating parameters:', {
-        fileName,
-        startTimestamp,
-        videoOffset,
-        videoLength,
-        contentWidth,
-        contentHeight,
-      })
-    }
 
-    // Always update video dimensions
-    this.video.style.width = `${contentWidth}px`
-    this.video.style.height = `${contentHeight}px`
-
-    // Set initial time to video offset
-    this.video.currentTime = videoOffset / 1000 // Convert ms to seconds
+      // Update video dimensions and initial time
+      this.video.style.width = `${contentWidth}px`
+      this.video.style.height = `${contentHeight}px`
+      this.video.currentTime = this.videoOffset / 1000 // Convert ms to seconds
+    }
   }
 
   /**
@@ -174,9 +165,11 @@ class VideoRenderSurface {
 
   /**
    * Seeks the video to a specific time based on the media store's current time.
+   * During seeking operations: updates video time and visibility
+   * During normal playback: only updates visibility (show/hide video)
    */
   seekToMediaTime(): void {
-    if (!this.currentFileName || this.isSeeking) {
+    if (!this.currentFileName) {
       return
     }
 
@@ -184,18 +177,41 @@ class VideoRenderSurface {
     const relativeTime = mediaTime - this.startTimestamp
 
     if (relativeTime >= 0 && relativeTime <= this.videoLength) {
-      const videoTime = (this.videoOffset + relativeTime) / 1000 // Convert ms to seconds
-
-      // Only update video time if it's significantly different to avoid unnecessary seeking
-      const currentVideoTime = this.video.currentTime
-      if (Math.abs(currentVideoTime - videoTime) > 0.1) { // 100ms threshold
+      // We're in a video section - show the video if not already visible
+      if (!this.isVideoVisible) {
+        this.show()
+        this.isVideoVisible = true
+        if (this.onVideoShouldShow) {
+          this.onVideoShouldShow()
+        }
+      }
+      
+      // Only update video time during seeking operations to prevent cyclic dependency
+      if (this.mediaStore.seeking && !this.isSeeking) {
         this.isSeeking = true
-        this.video.currentTime = videoTime
+        
+        const videoTime = (this.videoOffset + relativeTime) / 1000 // Convert ms to seconds
 
-        // Reset seeking flag after a short delay
+        // Only update video time if it's significantly different to avoid unnecessary seeking
+        const currentVideoTime = this.video.currentTime
+        if (Math.abs(currentVideoTime - videoTime) > 0.1) { // 100ms threshold
+          this.video.currentTime = videoTime
+        }
+
+        // Reset seeking flag after a short delay to allow video to update
         setTimeout(() => {
           this.isSeeking = false
-        }, 100)
+        }, 50)
+      }
+    } else {
+      // Current time is outside the video section, hide the video and show slides
+      if (this.isVideoVisible) {
+        this.hide()
+        this.isVideoVisible = false
+        this.pause() // Pause the video to prevent timeupdate events
+        if (this.onVideoShouldHide) {
+          this.onVideoShouldHide()
+        }
       }
     }
   }
@@ -230,19 +246,30 @@ class VideoRenderSurface {
 
   /**
    * Synchronizes the video's current time with the media store.
+   * This should only be called during seeking operations to prevent cyclic dependency.
    */
   private syncVideoTimeToMediaStore(): void {
-    if (!this.currentFileName || !this.isPlaying) {
+    if (!this.currentFileName || !this.isPlaying || this.isSeeking) {
+      return
+    }
+
+    // Only sync video time if we're currently in a video section
+    const mediaTime = this.mediaStore.currentTime || 0
+    const relativeTime = mediaTime - this.startTimestamp
+    
+    if (relativeTime < 0 || relativeTime > this.videoLength) {
+      // We're outside the video section, don't sync video time back to media store
       return
     }
 
     const videoTimeMs = this.video.currentTime * 1000 // Convert seconds to ms
-    const relativeTime = videoTimeMs - this.videoOffset
-    const mediaTime = this.startTimestamp + relativeTime
+    const videoRelativeTime = videoTimeMs - this.videoOffset
+    const calculatedMediaTime = this.startTimestamp + videoRelativeTime
 
-    // Update media store time if it's significantly different
-    if (Math.abs((this.mediaStore.currentTime || 0) - mediaTime) > 100) {
-      this.mediaStore.currentTime = mediaTime
+    // Only update media store time during seeking operations to prevent cyclic dependency
+    // During normal playback, the media store should be the source of truth
+    if (this.mediaStore.seeking && Math.abs(mediaTime - calculatedMediaTime) > 100) {
+      this.mediaStore.currentTime = calculatedMediaTime
     }
   }
 
@@ -251,6 +278,7 @@ class VideoRenderSurface {
    */
   show(): void {
     this.video.style.display = 'block'
+    this.isVideoVisible = true
   }
 
   /**
@@ -258,6 +286,7 @@ class VideoRenderSurface {
    */
   hide(): void {
     this.video.style.display = 'none'
+    this.isVideoVisible = false
   }
 
   /**
@@ -296,6 +325,7 @@ class VideoRenderSurface {
     this.videoOffset = 0
     this.videoLength = 0
     this.isPlaying = false
+    this.isVideoVisible = false
     this.isSeeking = false
     this.video.src = ''
     this.video.currentTime = 0

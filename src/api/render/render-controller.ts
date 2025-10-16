@@ -96,11 +96,7 @@ class RenderController {
     // Load the video
     this.videoRenderSurface.loadVideo(fileName, startTimestamp, videoOffset, videoLength, contentWidth, contentHeight)
 
-    // Hide PDF and canvas elements, show video
-    this.hidePdfAndCanvas()
-    this.videoRenderSurface.show()
-
-    // Sync video time with current media time
+    // Sync video time with current media time (this will handle showing/hiding video and slides)
     this.videoRenderSurface.seekToMediaTime()
 
     // Update video playback state based on media store
@@ -119,7 +115,7 @@ class RenderController {
   /**
    * Hides PDF and canvas elements when video is playing.
    */
-  private hidePdfAndCanvas(): void {
+  hidePdfAndCanvas(): void {
     const pdfViewer = document.querySelector('.pdfViewer')
     const actionCanvas = this.actionRenderSurface.getDrawableCanvas()
     const volatileCanvas = this.volatileRenderSurface.getDrawableCanvas()
@@ -138,7 +134,7 @@ class RenderController {
   /**
    * Shows PDF and canvas elements when video is not playing.
    */
-  private showPdfAndCanvas(): void {
+  showPdfAndCanvas(): void {
     const pdfViewer = document.querySelector('.pdfViewer')
     const actionCanvas = this.actionRenderSurface.getDrawableCanvas()
     const volatileCanvas = this.volatileRenderSurface.getDrawableCanvas()

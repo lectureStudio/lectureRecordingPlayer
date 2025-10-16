@@ -47,7 +47,18 @@ export function useFileActionPlayer() {
 
     const renderSurface = markRaw(new RenderSurface(actionCanvas))
     const volatileRenderSurface = markRaw(new RenderSurface(volatileCanvas))
-    const videoRenderSurface = markRaw(new VideoRenderSurface(videoElement))
+    // Create video render surface with callbacks to show/hide slides when video should be shown/hidden
+    const videoRenderSurface = markRaw(new VideoRenderSurface(
+      videoElement, 
+      () => {
+        // Hide video, show slides
+        renderController?.showPdfAndCanvas()
+      },
+      () => {
+        // Show video, hide slides
+        renderController?.hidePdfAndCanvas()
+      }
+    ))
 
     let initialized = false
 
@@ -85,8 +96,10 @@ export function useFileActionPlayer() {
           }
         }
 
-        // Update video synchronization only when not seeking
-        if (renderController && !mediaStore.seeking) {
+        // Update video synchronization during seeking and normal playback
+        // During seeking: full sync including time updates
+        // During normal playback: only visibility changes (show/hide video)
+        if (renderController) {
           renderController.updateVideoSync()
         }
       },

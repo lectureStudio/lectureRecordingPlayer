@@ -235,7 +235,8 @@ class ActionParser {
     const contentWidth = dataView.getInt32()
     const contentHeight = dataView.getInt32()
     const dataLength = dataView.getInt32()
-    const fileName = dataView.getString(dataLength)
+    // Convert the bytes to a UTF-8 string
+    const fileName = new TextDecoder('utf-8').decode(dataView.getBytes(dataLength))
 
     return new ScreenAction(videoOffset, videoLength, contentWidth, contentHeight, fileName)
   }
