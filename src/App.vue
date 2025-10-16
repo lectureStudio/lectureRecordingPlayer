@@ -12,12 +12,18 @@ import MediaControlsBar from './components/MediaControlsBar.vue'
 import PDFThumbnailBar from './components/PDFThumbnailBar.vue'
 import { useScreenWakeLock } from './composables/useScreenWakeLock'
 import { usePdfStore } from './stores/pdf'
+import { useVideoMappingStore } from './stores/videoMapping'
 import { loadRecordingWithFallback } from './utils/storage'
 
 const mediaStore = useMediaControlsStore()
 const pdfStore = usePdfStore()
 const recordingStore = useRecordingStore()
+const videoMappingStore = useVideoMappingStore()
+
+// base64 encoded recording used in production
 const recording = '#{recording}'
+// json string of video mapping (string to base64 encoded video) used in production
+const videoMapping = '#{videoMapping}'
 
 // Initialize screen wake lock
 const {
@@ -47,6 +53,9 @@ let handleVisibilityChangeEvent: (() => void) | null = null
 
 onMounted(async () => {
   try {
+    // Load video mapping first
+    videoMappingStore.setVideoMapping(videoMapping)
+
     await loadRecordingWithFallback(recording, '/dev.plr', loadRecording, {
       mediaStore,
       recordingStore,

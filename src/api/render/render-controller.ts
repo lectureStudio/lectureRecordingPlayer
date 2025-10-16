@@ -94,8 +94,6 @@ class RenderController {
     contentHeight: number,
     fileName: string,
   ) {
-    console.log('playVideo', startTimestamp, videoOffset, videoLength, contentWidth, contentHeight, fileName)
-
     // Load the video
     this.videoRenderSurface.loadVideo(fileName, startTimestamp, videoOffset, videoLength, contentWidth, contentHeight)
 

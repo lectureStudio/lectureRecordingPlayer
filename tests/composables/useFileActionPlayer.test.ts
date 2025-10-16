@@ -68,6 +68,12 @@ vi.mock('@/stores/mediaControls', () => ({
   useMediaControlsStore: vi.fn(),
 }))
 
+vi.mock('@/stores/videoMapping', () => ({
+  useVideoMappingStore: vi.fn().mockReturnValue({
+    getVideoData: vi.fn().mockReturnValue(null),
+  }),
+}))
+
 // Mock storeToRefs
 vi.mock('pinia', async () => {
   const actual = await vi.importActual('pinia')

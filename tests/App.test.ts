@@ -16,6 +16,7 @@ vi.mock('@/services/recordingLoader.ts', () => ({ loadRecording: vi.fn(async () 
 vi.mock('@/stores/mediaControls.ts', () => ({ useMediaControlsStore: () => reactive({ totalTime: 0 }) }))
 vi.mock('@/stores/recording.ts', () => ({ useRecordingStore: () => ({ setRecording: vi.fn() }) }))
 vi.mock('@/stores/pdf', () => ({ usePdfStore: () => ({ load: vi.fn(async () => {}), dispose: vi.fn() }) }))
+vi.mock('@/stores/videoMapping.ts', () => ({ useVideoMappingStore: () => ({ setVideoMapping: vi.fn() }) }))
 
 describe('App', () => {
   beforeEach(() => {

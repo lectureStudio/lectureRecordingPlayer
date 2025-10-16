@@ -1,4 +1,5 @@
 import { useMediaControlsStore } from '@/stores/mediaControls'
+import { useVideoMappingStore } from '@/stores/videoMapping'
 
 /**
  * VideoRenderSurface manages video playback and synchronization with the media controls store.
@@ -38,6 +39,9 @@ class VideoRenderSurface {
   /** Media controls store for time synchronization */
   private mediaStore = useMediaControlsStore()
 
+  /** Video mapping store for production use */
+  private videoMappingStore = useVideoMappingStore()
+
   /** Whether the video is currently visible */
   private isVideoVisible: boolean = false
 
@@ -54,7 +58,11 @@ class VideoRenderSurface {
    * @param onVideoShouldHide - Optional callback when video should be hidden
    * @param onVideoShouldShow - Optional callback when video should be shown
    */
-  constructor(video: HTMLVideoElement, onVideoShouldHide?: () => void, onVideoShouldShow?: () => void) {
+  constructor(
+    video: HTMLVideoElement,
+    onVideoShouldHide?: () => void,
+    onVideoShouldShow?: () => void,
+  ) {
     this.video = video
     this.onVideoShouldHide = onVideoShouldHide
     this.onVideoShouldShow = onVideoShouldShow
@@ -141,8 +149,16 @@ class VideoRenderSurface {
     this.contentHeight = contentHeight
 
     if (needsReload) {
-      // Set video source only if needed
-      this.video.src = `/${fileName}`
+      // Set video source - use video mapping in production, file path in development
+      const videoData = this.videoMappingStore.getVideoData(fileName)
+      if (videoData) {
+        // Production: use base64 data from video mapping
+        this.video.src = `data:video/mp4;base64,${videoData}`
+      }
+      else {
+        // Development: use file path
+        this.video.src = `/${fileName}`
+      }
 
       // Apply cropping styles when metadata is loaded
       this.video.addEventListener('loadedmetadata', () => {
