@@ -87,7 +87,10 @@ onMounted(async () => {
 // Cleanup visibility change listener on unmount
 onBeforeUnmount(() => {
   if (handleVisibilityChangeEvent) {
-    document.removeEventListener('visibilitychange', handleVisibilityChangeEvent)
+    document.removeEventListener(
+      'visibilitychange',
+      handleVisibilityChangeEvent,
+    )
   }
   // Dispose resources
   pdfStore.dispose()

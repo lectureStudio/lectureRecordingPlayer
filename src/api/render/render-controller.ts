@@ -37,6 +37,8 @@ class RenderController {
 
   private readonly videoRenderSurface: VideoRenderSurface
 
+  private readonly pdfStore: ReturnType<typeof usePdfStore>
+
   private page: Page | undefined
 
   private lastShape: Shape | null = null
@@ -47,6 +49,7 @@ class RenderController {
     this.actionRenderSurface = actionSurface
     this.volatileRenderSurface = volatileSurface
     this.videoRenderSurface = videoSurface
+    this.pdfStore = usePdfStore()
 
     this.registerShapeRenderers(this.actionRenderSurface)
     this.registerShapeRenderers(this.volatileRenderSurface)
@@ -129,6 +132,9 @@ class RenderController {
     if (volatileCanvas) {
       volatileCanvas.style.display = 'none'
     }
+
+    // Update PDF store visibility state
+    this.pdfStore.setVisibility(false)
   }
 
   /**
@@ -148,6 +154,9 @@ class RenderController {
     if (volatileCanvas) {
       volatileCanvas.style.display = 'block'
     }
+
+    // Update PDF store visibility state
+    this.pdfStore.setVisibility(true)
   }
 
   /**

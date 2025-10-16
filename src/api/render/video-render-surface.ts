@@ -159,7 +159,7 @@ class VideoRenderSurface {
 
   /**
    * Calculates the display dimensions for the video using object-fit: cover.
-   * 
+   *
    * @param containerWidth - Available container width
    * @param containerHeight - Available container height
    * @returns Object with computed width and height
@@ -171,7 +171,7 @@ class VideoRenderSurface {
     if (this.contentWidth === 0 || this.contentHeight === 0) {
       return {
         width: containerWidth,
-        height: containerHeight
+        height: containerHeight,
       }
     }
 
@@ -186,7 +186,8 @@ class VideoRenderSurface {
       // Content is wider - fit to width
       displayWidth = containerWidth
       displayHeight = containerWidth / contentAspectRatio
-    } else {
+    }
+    else {
       // Content is taller - fit to height
       displayHeight = containerHeight
       displayWidth = containerHeight * contentAspectRatio
@@ -194,7 +195,7 @@ class VideoRenderSurface {
 
     return {
       width: displayWidth,
-      height: displayHeight
+      height: displayHeight,
     }
   }
 
@@ -284,11 +285,11 @@ class VideoRenderSurface {
           this.onVideoShouldShow()
         }
       }
-      
+
       // Only update video time during seeking operations to prevent cyclic dependency
       if (this.mediaStore.seeking && !this.isSeeking) {
         this.isSeeking = true
-        
+
         const videoTime = (this.videoOffset + relativeTime) / 1000 // Convert ms to seconds
 
         // Only update video time if it's significantly different to avoid unnecessary seeking
@@ -302,7 +303,8 @@ class VideoRenderSurface {
           this.isSeeking = false
         }, 50)
       }
-    } else {
+    }
+    else {
       // Current time is outside the video section, hide the video and show slides
       if (this.isVideoVisible) {
         this.hide()
@@ -355,7 +357,7 @@ class VideoRenderSurface {
     // Only sync video time if we're currently in a video section
     const mediaTime = this.mediaStore.currentTime || 0
     const relativeTime = mediaTime - this.startTimestamp
-    
+
     if (relativeTime < 0 || relativeTime > this.videoLength) {
       // We're outside the video section, don't sync video time back to media store
       return
@@ -448,7 +450,7 @@ class VideoRenderSurface {
    */
   destroy(): void {
     this.clear()
-    
+
     // Clean up ResizeObserver
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()

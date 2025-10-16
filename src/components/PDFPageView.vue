@@ -213,7 +213,7 @@ function setupResize(): void {
     return
   }
   resizeObs = new ResizeObserver(() => {
-    if (singlePageViewer) {
+    if (singlePageViewer && pdfStore.isVisible) {
       // Re-apply scale to fit width on resize
       singlePageViewer.currentScaleValue = 'page-fit'
     }
@@ -243,7 +243,7 @@ watch(
 watch(
   () => pdfStore.currentPage,
   (pageNumber) => {
-    if (singlePageViewer) {
+    if (singlePageViewer && pdfStore.isVisible) {
       singlePageViewer.currentPageNumber = pageNumber
     }
   },
@@ -264,6 +264,23 @@ watch(
     singlePageViewer?.refresh()
   },
 )
+
+/**
+ * Watches for changes to the PDF viewer visibility state.
+ * When the viewer becomes visible again, refreshes the display to ensure
+ * proper rendering after being hidden.
+ */
+/*
+watch(
+  () => pdfStore.isVisible,
+  (isVisible) => {
+    if (isVisible && singlePageViewer && !isRendering.value) {
+      // Refresh the viewer when it becomes visible to ensure proper rendering
+      singlePageViewer.refresh()
+    }
+  },
+)
+*/
 
 onMounted(async () => {
   await applyDocument()
