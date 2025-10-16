@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useFullscreenControls } from '@/composables/useFullscreenControls'
 import { isFullscreenApiSupported, isSimulatedActive } from '@/utils/fullscreen'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { onUnmounted } from 'vue'
 
 // Mock the fullscreen utilities
@@ -92,7 +92,7 @@ Object.defineProperty(window, 'removeEventListener', {
 describe('composables/useFullscreenControls', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Reset DOM state
     Object.defineProperty(document, 'fullscreenElement', {
       value: null,
@@ -101,7 +101,7 @@ describe('composables/useFullscreenControls', () => {
     })
     document.documentElement.classList.add = vi.fn()
     document.documentElement.classList.remove = vi.fn()
-    
+
     // Reset mocks
     mockSetTimeout.mockReturnValue(123) // Mock timer ID
     mockClearTimeout.mockReturnValue(undefined)
@@ -113,9 +113,9 @@ describe('composables/useFullscreenControls', () => {
     // Clean up any remaining consumers by calling unmount callbacks
     const unmountedCallbacks = vi.mocked(onUnmounted).mock.calls
     unmountedCallbacks.forEach(call => {
-      if (call[0]) call[0]()
+      if (call[0]) { call[0]() }
     })
-    
+
     vi.restoreAllMocks()
   })
 
@@ -142,10 +142,10 @@ describe('composables/useFullscreenControls', () => {
 
     it('removes global listeners when last consumer unmounts', () => {
       useFullscreenControls()
-      
+
       // Get the unmount callback from the mocked onUnmounted
       const onUnmountedCallback = vi.mocked(onUnmounted).mock.calls[0]?.[0]
-      
+
       // Simulate unmount
       if (onUnmountedCallback) {
         onUnmountedCallback()
@@ -218,7 +218,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -229,7 +229,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('adds fullscreen class when entering fullscreen', () => {
       const { fullscreen } = useFullscreenControls()
-      
+
       // Simulate fullscreen change event to trigger side effects
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -237,7 +237,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -249,7 +249,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('removes fullscreen class when exiting fullscreen', () => {
       const { fullscreen } = useFullscreenControls()
-      
+
       // First enter fullscreen
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -257,13 +257,13 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
         eventHandler(new Event('fullscreenchange'))
         expect(fullscreen.value).toBe(true)
-        
+
         // Then exit fullscreen
         Object.defineProperty(document, 'fullscreenElement', {
           value: null,
@@ -280,7 +280,7 @@ describe('composables/useFullscreenControls', () => {
   describe('controls visibility', () => {
     it('shows controls when entering fullscreen', () => {
       const { fullscreen, controlsVisible } = useFullscreenControls()
-      
+
       // Simulate fullscreen change event
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -288,7 +288,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -300,7 +300,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('schedules hiding controls after entering fullscreen', () => {
       const { fullscreen } = useFullscreenControls()
-      
+
       // Simulate fullscreen change event
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -308,7 +308,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -320,7 +320,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('hides controls after timeout', () => {
       const { controlsVisible } = useFullscreenControls()
-      
+
       // Simulate timeout callback
       const timeoutCallback = mockSetTimeout.mock.calls[0]?.[0]
       if (timeoutCallback) {
@@ -331,7 +331,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('clears hide timer when exiting fullscreen', () => {
       const { fullscreen } = useFullscreenControls()
-      
+
       // Enter fullscreen (sets timer)
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -339,7 +339,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -361,7 +361,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('shows controls and reschedules hide on user activity', () => {
       const { onUserActivity, controlsVisible } = useFullscreenControls()
-      
+
       // First enter fullscreen to enable activity handling
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -369,12 +369,12 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
         eventHandler(new Event('fullscreenchange'))
-        
+
         // Now simulate user activity
         onUserActivity()
 
@@ -387,7 +387,7 @@ describe('composables/useFullscreenControls', () => {
   describe('activity listeners', () => {
     it('attaches activity listeners when entering fullscreen', () => {
       const { fullscreen } = useFullscreenControls()
-      
+
       // Simulate fullscreen change event
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -395,7 +395,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -409,7 +409,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('detaches activity listeners when exiting fullscreen', () => {
       const { fullscreen } = useFullscreenControls()
-      
+
       // Enter fullscreen (attaches listeners)
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -417,13 +417,13 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
         eventHandler(new Event('fullscreenchange'))
         expect(fullscreen.value).toBe(true)
-        
+
         // Exit fullscreen (detaches listeners)
         Object.defineProperty(document, 'fullscreenElement', {
           value: null,
@@ -440,7 +440,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('does not attach listeners multiple times', () => {
       useFullscreenControls()
-      
+
       // Enter fullscreen multiple times
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -448,7 +448,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -458,7 +458,7 @@ describe('composables/useFullscreenControls', () => {
 
         // Should only attach listeners once
         const mousemoveCalls = mockWindowAddEventListener.mock.calls.filter(
-          call => call[0] === 'mousemove'
+          call => call[0] === 'mousemove',
         )
         expect(mousemoveCalls).toHaveLength(1)
       }
@@ -466,7 +466,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('does not detach listeners multiple times', () => {
       useFullscreenControls()
-      
+
       // Enter and exit fullscreen multiple times
       Object.defineProperty(document, 'fullscreenElement', {
         value: document.documentElement,
@@ -474,7 +474,7 @@ describe('composables/useFullscreenControls', () => {
         configurable: true,
       })
       const eventHandler = mockAddEventListener.mock.calls.find(
-        call => call[0] === 'fullscreenchange'
+        call => call[0] === 'fullscreenchange',
       )?.[1]
 
       if (eventHandler) {
@@ -489,10 +489,10 @@ describe('composables/useFullscreenControls', () => {
         eventHandler(new Event('fullscreenchange'))
         // Enter fullscreen again
         Object.defineProperty(document, 'fullscreenElement', {
-        value: document.documentElement,
-        writable: true,
-        configurable: true,
-      })
+          value: document.documentElement,
+          writable: true,
+          configurable: true,
+        })
         eventHandler(new Event('fullscreenchange'))
         // Exit fullscreen again
         Object.defineProperty(document, 'fullscreenElement', {
@@ -504,7 +504,7 @@ describe('composables/useFullscreenControls', () => {
 
         // Should only detach listeners when actually attached
         const mousemoveCalls = mockWindowRemoveEventListener.mock.calls.filter(
-          call => call[0] === 'mousemove'
+          call => call[0] === 'mousemove',
         )
         expect(mousemoveCalls).toHaveLength(2) // Once for each exit
       }
@@ -552,7 +552,7 @@ describe('composables/useFullscreenControls', () => {
 
     it('handles negative consumer count gracefully', () => {
       useFullscreenControls()
-      
+
       // Unmount multiple times
       const onUnmountedCallback = vi.mocked(onUnmounted).mock.calls[0]?.[0]
       if (onUnmountedCallback) {
@@ -566,6 +566,112 @@ describe('composables/useFullscreenControls', () => {
     })
   })
 
+  describe('timeout pause/resume', () => {
+    it('pauses timeout when pauseTimeout is called', () => {
+      const { pauseTimeout, fullscreen } = useFullscreenControls()
+
+      // Enter fullscreen to enable timeout
+      Object.defineProperty(document, 'fullscreenElement', {
+        value: document.documentElement,
+        writable: true,
+        configurable: true,
+      })
+      const eventHandler = mockAddEventListener.mock.calls.find(
+        call => call[0] === 'fullscreenchange',
+      )?.[1]
+
+      if (eventHandler) {
+        eventHandler(new Event('fullscreenchange'))
+        expect(fullscreen.value).toBe(true)
+        expect(mockSetTimeout).toHaveBeenCalled()
+
+        // Clear the mock to track new calls
+        mockSetTimeout.mockClear()
+        mockClearTimeout.mockClear()
+
+        // Pause timeout
+        pauseTimeout()
+        expect(mockClearTimeout).toHaveBeenCalled()
+      }
+    })
+
+    it('resumes timeout when resumeTimeout is called', () => {
+      const { pauseTimeout, resumeTimeout, fullscreen } = useFullscreenControls()
+
+      // Enter fullscreen to enable timeout
+      Object.defineProperty(document, 'fullscreenElement', {
+        value: document.documentElement,
+        writable: true,
+        configurable: true,
+      })
+      const eventHandler = mockAddEventListener.mock.calls.find(
+        call => call[0] === 'fullscreenchange',
+      )?.[1]
+
+      if (eventHandler) {
+        eventHandler(new Event('fullscreenchange'))
+        expect(fullscreen.value).toBe(true)
+
+        // Clear the mock to track new calls
+        mockSetTimeout.mockClear()
+        mockClearTimeout.mockClear()
+
+        // Pause timeout
+        pauseTimeout()
+        // clearHideTimer may or may not be called depending on whether there's an active timer
+        // The important thing is that the timeout is paused
+
+        // Resume timeout
+        resumeTimeout()
+        expect(mockSetTimeout).toHaveBeenCalledWith(expect.any(Function), 2500)
+      }
+    })
+
+    it('does not schedule timeout when paused', () => {
+      const { pauseTimeout, onUserActivity, fullscreen } = useFullscreenControls()
+
+      // Enter fullscreen to enable timeout
+      Object.defineProperty(document, 'fullscreenElement', {
+        value: document.documentElement,
+        writable: true,
+        configurable: true,
+      })
+      const eventHandler = mockAddEventListener.mock.calls.find(
+        call => call[0] === 'fullscreenchange',
+      )?.[1]
+
+      if (eventHandler) {
+        eventHandler(new Event('fullscreenchange'))
+        expect(fullscreen.value).toBe(true)
+
+        // Clear the mock to track new calls
+        mockSetTimeout.mockClear()
+
+        // Pause timeout
+        pauseTimeout()
+
+        // Simulate user activity while paused
+        onUserActivity()
+
+        // Should not schedule new timeout when paused
+        expect(mockSetTimeout).not.toHaveBeenCalled()
+      }
+    })
+
+    it('does not resume timeout when not in fullscreen', () => {
+      const { resumeTimeout } = useFullscreenControls()
+
+      // Clear the mock to track new calls
+      mockSetTimeout.mockClear()
+
+      // Resume timeout while not in fullscreen
+      resumeTimeout()
+
+      // Should not schedule timeout when not in fullscreen
+      expect(mockSetTimeout).not.toHaveBeenCalled()
+    })
+  })
+
   describe('return values', () => {
     it('returns reactive refs and functions', () => {
       const result = useFullscreenControls()
@@ -574,9 +680,13 @@ describe('composables/useFullscreenControls', () => {
       expect(result).toHaveProperty('controlsVisible')
       expect(result).toHaveProperty('toggleFullscreen')
       expect(result).toHaveProperty('onUserActivity')
+      expect(result).toHaveProperty('pauseTimeout')
+      expect(result).toHaveProperty('resumeTimeout')
 
       expect(typeof result.toggleFullscreen).toBe('function')
       expect(typeof result.onUserActivity).toBe('function')
+      expect(typeof result.pauseTimeout).toBe('function')
+      expect(typeof result.resumeTimeout).toBe('function')
     })
   })
 })

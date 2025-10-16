@@ -11,7 +11,8 @@
     "**/node_modules"
   ],
   "includes": [
-    "src/**/*.{ts,tsx,js,jsx,json,vue}"
+    "src/**/*.{ts,tsx,js,jsx,json,vue}",
+    "tests/**/*.{ts,tsx,js,jsx,json,vue}"
   ],
   "plugins": [
     "https://plugins.dprint.dev/typescript-0.95.11.wasm",

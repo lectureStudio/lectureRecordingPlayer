@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the dependencies
 vi.mock('@/stores/mediaControls', () => ({
@@ -40,11 +40,11 @@ vi.mock('@/composables/useKeyboard', () => ({
   })),
 }))
 
+import { useFullscreenControls } from '@/composables/useFullscreenControls'
+import { useKeyboard } from '@/composables/useKeyboard'
+import { usePlayerControls } from '@/composables/usePlayerControls'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { usePdfStore } from '@/stores/pdf'
-import { useFullscreenControls } from '@/composables/useFullscreenControls'
-import { usePlayerControls } from '@/composables/usePlayerControls'
-import { useKeyboard } from '@/composables/useKeyboard'
 
 describe('useKeyboardShortcuts', () => {
   let mockMediaStore: ReturnType<typeof useMediaControlsStore>
@@ -54,7 +54,7 @@ describe('useKeyboardShortcuts', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockMediaStore = {
       togglePlayPause: vi.fn(),
       setTogglePlayPauseCallback: vi.fn(),
@@ -93,7 +93,7 @@ describe('useKeyboardShortcuts', () => {
         expect.any(Array),
         {
           ignoreEditable: true,
-        }
+        },
       )
     })
 
@@ -115,9 +115,7 @@ describe('useKeyboardShortcuts', () => {
         description: string
       }>
 
-      const spaceShortcut = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === ' ')
-      )
+      const spaceShortcut = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === ' '))
 
       expect(spaceShortcut).toBeDefined()
       expect(spaceShortcut?.description).toBe('Play/Pause video')
@@ -132,9 +130,7 @@ describe('useKeyboardShortcuts', () => {
         description: string
       }>
 
-      const kShortcut = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === 'k')
-      )
+      const kShortcut = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === 'k'))
 
       expect(kShortcut).toBeDefined()
       expect(kShortcut?.description).toBe('Play/Pause video')
@@ -148,9 +144,7 @@ describe('useKeyboardShortcuts', () => {
         handler: () => void
       }>
 
-      const spaceShortcut = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === ' ')
-      )
+      const spaceShortcut = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === ' '))
 
       spaceShortcut?.handler()
 
@@ -343,15 +337,9 @@ describe('useKeyboardShortcuts', () => {
         description: string
       }>
 
-      const increaseSpeed = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === '>')
-      )
-      const decreaseSpeed = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === '<')
-      )
-      const normalSpeed = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === '0' || k.key === '=')
-      )
+      const increaseSpeed = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === '>'))
+      const decreaseSpeed = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === '<'))
+      const normalSpeed = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === '0' || k.key === '='))
 
       expect(increaseSpeed).toBeDefined()
       expect(increaseSpeed?.description).toBe('Increase playback speed')
@@ -370,9 +358,7 @@ describe('useKeyboardShortcuts', () => {
         handler: () => void
       }>
 
-      const increaseSpeed = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === '>')
-      )
+      const increaseSpeed = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === '>'))
 
       increaseSpeed?.handler()
 
@@ -388,9 +374,7 @@ describe('useKeyboardShortcuts', () => {
         handler: () => void
       }>
 
-      const decreaseSpeed = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === '<')
-      )
+      const decreaseSpeed = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === '<'))
 
       decreaseSpeed?.handler()
 
@@ -405,9 +389,7 @@ describe('useKeyboardShortcuts', () => {
         handler: () => void
       }>
 
-      const normalSpeed = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === '0' || k.key === '=')
-      )
+      const normalSpeed = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === '0' || k.key === '='))
 
       normalSpeed?.handler()
 
@@ -423,9 +405,7 @@ describe('useKeyboardShortcuts', () => {
         handler: () => void
       }>
 
-      const increaseSpeed = shortcuts.find(s => 
-        Array.isArray(s.keys) && s.keys.some(k => k.key === '>')
-      )
+      const increaseSpeed = shortcuts.find(s => Array.isArray(s.keys) && s.keys.some(k => k.key === '>'))
 
       increaseSpeed?.handler()
 

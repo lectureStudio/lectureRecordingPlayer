@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import type { RecordedPage } from '@/api/model/recorded-page'
 import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { useRecordingStore } from '@/stores/recording'
-import type { RecordedPage } from '@/api/model/recorded-page'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Types are used for mocking, so we keep them
-import { ref, nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 
 // Define proper mock interfaces
 interface MockFileActionPlayer {
@@ -82,14 +82,14 @@ describe('composables/useFileActionPlayer', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    
+
     // Create mock stores
     mockRecordingStore = {
       getPage: vi.fn(),
       actions: ref([]),
       pages: ref([]),
     }
-    
+
     mockMediaStore = {
       currentTime: 0,
       playbackState: 'paused',
@@ -107,7 +107,7 @@ describe('composables/useFileActionPlayer', () => {
       suspend: vi.fn(),
       stop: vi.fn(),
     }
-    
+
     // Assign the mock instance to the global variable
     mockFileActionPlayerInstance = mockFileActionPlayer
 
@@ -115,13 +115,15 @@ describe('composables/useFileActionPlayer', () => {
     mockRenderController = {
       destroy: vi.fn(),
     }
-    
+
     // Assign the mock instance to the global variable
     mockRenderControllerInstance = mockRenderController
 
     // Setup mocks
     vi.mocked(useRecordingStore).mockReturnValue(mockRecordingStore as unknown as ReturnType<typeof useRecordingStore>)
-    vi.mocked(useMediaControlsStore).mockReturnValue(mockMediaStore as unknown as ReturnType<typeof useMediaControlsStore>)
+    vi.mocked(useMediaControlsStore).mockReturnValue(
+      mockMediaStore as unknown as ReturnType<typeof useMediaControlsStore>,
+    )
   })
 
   afterEach(() => {
@@ -147,10 +149,10 @@ describe('composables/useFileActionPlayer', () => {
 
       // First initialization
       initializePlayer(mockActionCanvas, mockVolatileCanvas)
-      
+
       // Second initialization should not create new player
       initializePlayer(mockActionCanvas, mockVolatileCanvas)
-      
+
       // The player should still be the same instance
       expect(mockFileActionPlayer).toBeDefined()
     })
@@ -179,14 +181,14 @@ describe('composables/useFileActionPlayer', () => {
 
       // Initialize first
       initializePlayer(mockActionCanvas, mockVolatileCanvas)
-      
+
       // Wait for initialization to complete
       await nextTick()
-      
+
       // Get the actual player instance from the composable
       const actualPlayer = actionPlayer.value
       expect(actualPlayer).toBeDefined()
-      
+
       // Mock the actual player instance methods
       if (actualPlayer) {
         vi.mocked(actualPlayer.started).mockReturnValue(true)
@@ -215,14 +217,14 @@ describe('composables/useFileActionPlayer', () => {
       const mockVolatileCanvas = document.createElement('canvas')
 
       initializePlayer(mockActionCanvas, mockVolatileCanvas)
-      
+
       // Wait for initialization to complete
       await nextTick()
-      
+
       // Get the actual player instance from the composable
       const actualPlayer = actionPlayer.value
       expect(actualPlayer).toBeDefined()
-      
+
       // Mock the actual player instance methods
       if (actualPlayer) {
         vi.mocked(actualPlayer.started).mockReturnValue(false)
@@ -255,7 +257,7 @@ describe('composables/useFileActionPlayer', () => {
 
     it('prevents direct assignment to actionPlayer', () => {
       const { actionPlayer, destroyPlayer } = useFileActionPlayer()
-      
+
       // Clean up any existing player from previous tests
       destroyPlayer()
 
@@ -263,7 +265,7 @@ describe('composables/useFileActionPlayer', () => {
       // Instead, we test that the ref exists and has the expected initial value
       expect(actionPlayer).toBeDefined()
       expect(actionPlayer.value).toBeNull()
-      
+
       // Test that the ref is readonly by checking it's a ref
       expect(actionPlayer).toHaveProperty('value')
     })

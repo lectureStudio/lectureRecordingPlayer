@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { isFullscreenApiSupported, isSimulatedActive } from '@/utils/fullscreen'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('utils/fullscreen', () => {
   beforeEach(() => {

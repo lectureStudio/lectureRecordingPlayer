@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock navigator.wakeLock
 const mockWakeLock = {
@@ -22,13 +22,13 @@ describe('useScreenWakeLock', () => {
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks()
-    
+
     // Mock global objects
     Object.defineProperty(global, 'navigator', {
       value: mockNavigator,
       writable: true,
     })
-    
+
     Object.defineProperty(global, 'document', {
       value: mockDocument,
       writable: true,
@@ -106,11 +106,11 @@ describe('useScreenWakeLock', () => {
     const mockSentinel = {
       addEventListener: vi.fn(),
     }
-    
+
     // Simulate adding a release event listener
     const releaseHandler = vi.fn()
     mockSentinel.addEventListener('release', releaseHandler)
-    
+
     expect(mockSentinel.addEventListener).toHaveBeenCalledWith('release', releaseHandler)
   })
 })

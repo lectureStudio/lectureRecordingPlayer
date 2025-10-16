@@ -40,7 +40,7 @@ if (typeof window !== 'undefined' && 'HTMLCanvasElement' in window) {
     rotate: vi.fn(),
     arc: vi.fn(),
     fill: vi.fn(),
-  }));
+  }))
 }
 
 // pdf.js, a dependency, expects DOMMatrix to be available. It's not in JSDOM, so we mock it.
@@ -84,7 +84,6 @@ if (typeof window !== 'undefined') {
     }
   }
 }
-
 
 // Mock PDF.js library for tests
 if (typeof globalThis !== 'undefined') {
@@ -153,10 +152,12 @@ if (typeof globalThis !== 'undefined') {
 // Note: Affects only the test environment (jsdom)
 try {
   // Define as a getter to reflect the primitive's value
-   
+
   Object.defineProperty(Boolean.prototype, 'value', {
     configurable: true,
-    get() { return this.valueOf() },
+    get() {
+      return this.valueOf()
+    },
   })
 }
 catch {

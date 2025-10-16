@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { useTimeFormat } from '@/composables/useTimeFormat'
+import { describe, expect, it } from 'vitest'
 
 describe('useTimeFormat', () => {
   const { formatHMM, formatHHMMSS } = useTimeFormat()
@@ -90,7 +90,7 @@ describe('useTimeFormat', () => {
       const time = 3661000 // 1 hour 1 minute 1 second
       const hmm = formatHMM(time)
       const hhmmss = formatHHMMSS(time)
-      
+
       // Both should show 1:01 for the hour:minute part
       expect(hmm).toBe('1:01')
       expect(hhmmss).toBe('1:01:01')
@@ -104,7 +104,7 @@ describe('useTimeFormat', () => {
     it('should handle null/undefined consistently', () => {
       expect(formatHMM(null)).toBe('00')
       expect(formatHHMMSS(null)).toBe('0:00')
-      
+
       expect(formatHMM(undefined)).toBe('00')
       expect(formatHHMMSS(undefined)).toBe('0:00')
     })
@@ -115,11 +115,11 @@ describe('useTimeFormat', () => {
       // 5 minutes 30 seconds
       expect(formatHMM(330000)).toBe('05')
       expect(formatHHMMSS(330000)).toBe('5:30')
-      
+
       // 1 hour 23 minutes 45 seconds
       expect(formatHMM(5025000)).toBe('1:23')
       expect(formatHHMMSS(5025000)).toBe('1:23:45')
-      
+
       // 2 hours 15 minutes 30 seconds
       expect(formatHMM(8130000)).toBe('2:15')
       expect(formatHHMMSS(8130000)).toBe('2:15:30')
@@ -129,11 +129,11 @@ describe('useTimeFormat', () => {
       // 45 minutes (typical lecture)
       expect(formatHMM(2700000)).toBe('45')
       expect(formatHHMMSS(2700000)).toBe('45:00')
-      
+
       // 1 hour 30 minutes (longer lecture)
       expect(formatHMM(5400000)).toBe('1:30')
       expect(formatHHMMSS(5400000)).toBe('1:30:00')
-      
+
       // 3 hours 15 minutes 20 seconds (very long lecture)
       expect(formatHMM(11720000)).toBe('3:15')
       expect(formatHHMMSS(11720000)).toBe('3:15:20')

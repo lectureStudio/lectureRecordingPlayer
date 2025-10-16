@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
 import RangeSlider from '@/components/RangeSlider.vue'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 function mockSize(el: HTMLElement, { width, height }: { width: number; height: number }) {
   Object.defineProperty(el, 'offsetWidth', { value: width, configurable: true })
