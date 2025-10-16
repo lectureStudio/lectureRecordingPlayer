@@ -1,7 +1,7 @@
 import type { ActionExecutor } from '@/api/action/action-executor'
-import type { Tool } from '@/api/tool/tool'
 import { PenPoint } from '@/api/geometry/pen-point'
 import { AtomicTool } from '@/api/tool/atomic.tool'
+import type { Tool } from '@/api/tool/tool'
 
 export class MockActionExecutor implements ActionExecutor {
   public onSelectPageIndexObserver: ((value: number) => void) | null = null

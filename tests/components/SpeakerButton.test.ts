@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
-import { createTestingPinia } from '@pinia/testing'
-import { nextTick } from 'vue'
 import SpeakerButton from '@/components/SpeakerButton.vue'
 import { useMediaControlsStore } from '@/stores/mediaControls'
+import { createTestingPinia } from '@pinia/testing'
+import { mount, VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 describe('SpeakerButton', () => {
   let wrapper: VueWrapper<InstanceType<typeof SpeakerButton>>
@@ -46,14 +46,14 @@ describe('SpeakerButton', () => {
   describe('Rendering', () => {
     it('renders speaker button', () => {
       createWrapper()
-      
+
       expect(wrapper.find('button').exists()).toBe(true)
       expect(wrapper.findComponent({ name: 'AppIcon' }).exists()).toBe(true)
     })
 
     it('has correct button attributes', () => {
       createWrapper()
-      
+
       const button = wrapper.find('[role="button"]')
       expect(button.exists()).toBe(true)
       expect(button.attributes('tabindex')).toBe('0')
@@ -65,7 +65,7 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 80
       mediaStore.muted = false
       createWrapper()
-      
+
       const icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -74,7 +74,7 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 30
       mediaStore.muted = false
       createWrapper()
-      
+
       const icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -83,7 +83,7 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 80
       mediaStore.muted = true
       createWrapper()
-      
+
       const icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -92,7 +92,7 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 0
       mediaStore.muted = false
       createWrapper()
-      
+
       const icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -102,21 +102,21 @@ describe('SpeakerButton', () => {
     it('toggles mute when clicked', async () => {
       mediaStore.muted = false
       createWrapper()
-      
+
       const button = wrapper.find('button')
       await button.trigger('click')
-      
+
       expect(mediaStore.toggleMute).toHaveBeenCalled()
     })
 
     it('handles multiple clicks', async () => {
       mediaStore.muted = false
       createWrapper()
-      
+
       const button = wrapper.find('button')
       await button.trigger('click')
       await button.trigger('click')
-      
+
       expect(mediaStore.toggleMute).toHaveBeenCalledTimes(2)
     })
   })
@@ -127,24 +127,24 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 80
       mediaStore.muted = false
       createWrapper()
-      
+
       let muteButton = wrapper.find('button[title]')
       expect(muteButton.attributes('title')).toContain('Mute / Unmute')
-      
+
       // Muted
       mediaStore.muted = true
       createWrapper()
-      
+
       muteButton = wrapper.find('button[title]')
       expect(muteButton.attributes('title')).toContain('Mute / Unmute')
     })
 
     it('supports keyboard navigation', async () => {
       createWrapper()
-      
+
       const button = wrapper.find('button')
       await button.trigger('keydown', { key: 'Enter' })
-      
+
       // Button should be focusable and clickable
       expect(button.attributes('tabindex')).toBeUndefined() // Should be focusable by default
     })
@@ -155,14 +155,14 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 80
       mediaStore.muted = false
       createWrapper()
-      
+
       let icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
-      
+
       // Change to low volume
       mediaStore.volume = 30
       await nextTick()
-      
+
       icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -171,14 +171,14 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 80
       mediaStore.muted = false
       createWrapper()
-      
+
       let icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
-      
+
       // Toggle mute
       mediaStore.muted = true
       await nextTick()
-      
+
       icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -187,7 +187,7 @@ describe('SpeakerButton', () => {
   describe('Styling', () => {
     it('applies correct CSS classes', () => {
       createWrapper()
-      
+
       const button = wrapper.find('button')
       expect(button.classes()).toContain('btn')
       expect(button.classes()).toContain('btn-ghost')
@@ -195,7 +195,7 @@ describe('SpeakerButton', () => {
 
     it('has proper button dimensions', () => {
       createWrapper()
-      
+
       const button = wrapper.find('[role="button"]')
       expect(button.classes()).toContain('w-10')
       expect(button.classes()).toContain('h-10')
@@ -209,14 +209,14 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 0
       mediaStore.muted = false
       createWrapper()
-      
+
       let icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
-      
+
       // Volume at 100
       mediaStore.volume = 100
       createWrapper()
-      
+
       icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -225,7 +225,7 @@ describe('SpeakerButton', () => {
       mediaStore.volume = -10
       mediaStore.muted = false
       createWrapper()
-      
+
       const icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -234,7 +234,7 @@ describe('SpeakerButton', () => {
       mediaStore.volume = 150
       mediaStore.muted = false
       createWrapper()
-      
+
       const icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })
@@ -243,7 +243,7 @@ describe('SpeakerButton', () => {
   describe('Store Integration', () => {
     it('integrates with media controls store', () => {
       createWrapper()
-      
+
       expect(mediaStore).toBeDefined()
       expect(mediaStore.volume).toBe(100)
       expect(mediaStore.muted).toBe(false)
@@ -251,12 +251,12 @@ describe('SpeakerButton', () => {
 
     it('responds to store state changes', async () => {
       createWrapper()
-      
+
       // Change store state
       mediaStore.volume = 50
       mediaStore.muted = true
       await nextTick()
-      
+
       const icon = wrapper.findComponent({ name: 'AppIcon' })
       expect(icon.exists()).toBe(true)
     })

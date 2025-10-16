@@ -1,9 +1,19 @@
 <script setup lang="ts">
+import { useFullscreenControls } from '@/composables/useFullscreenControls'
 import { useKeyboard } from '@/composables/useKeyboard'
 import { usePdfStore } from '@/stores/pdf'
-import { type Ref, ref, watch } from 'vue'
+import { computed, type Ref, ref, watch } from 'vue'
+
+// Platform detection for keyboard shortcut display
+function isMac(): boolean {
+  return typeof navigator !== 'undefined'
+    && /Mac|iPhone|iPad/.test(navigator.platform)
+}
+
+const modifierKey = computed(() => isMac() ? '⌘' : 'Ctrl')
 
 const pdfStore = usePdfStore()
+const { pauseTimeout, resumeTimeout } = useFullscreenControls()
 
 const searchRootRef: Ref<HTMLElement | null> = ref(null)
 // Keep a ref to the actual input to focus it from a global shortcut
@@ -83,6 +93,14 @@ function triggerSearch() {
     pdfStore.search(q)
   }
 }
+
+function onSearchFocus() {
+  pauseTimeout()
+}
+
+function onSearchBlur() {
+  resumeTimeout()
+}
 </script>
 
 <template>
@@ -95,9 +113,11 @@ function triggerSearch() {
         placeholder="Search"
         v-model="searchText"
         @keydown.enter.prevent="triggerSearch"
+        @focus="onSearchFocus"
+        @blur="onSearchBlur"
       />
       <span v-if="!pdfStore.lastQuery" class="font-mono opacity-60 space-x-0.5">
-        <kbd class="kbd kbd-sm">⌘</kbd>
+        <kbd class="kbd kbd-sm">{{ modifierKey }}</kbd>
         <kbd class="kbd kbd-sm">K</kbd>
       </span>
       <div v-else class="flex items-center gap-1 ms-1">

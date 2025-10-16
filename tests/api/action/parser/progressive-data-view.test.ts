@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { ProgressiveDataView } from '@/api/action/parser/progressive-data-view'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('ProgressiveDataView', () => {
   let buffer: ArrayBuffer
@@ -9,7 +9,7 @@ describe('ProgressiveDataView', () => {
     // Create a test buffer with various data types
     buffer = new ArrayBuffer(100)
     const view = new DataView(buffer)
-    
+
     // Write test data (non-overlapping positions)
     view.setInt8(0, 127)
     view.setInt16(2, 32000)
@@ -20,13 +20,13 @@ describe('ProgressiveDataView', () => {
     view.setUint32(20, 4000000000)
     view.setFloat32(24, 3.14159)
     view.setFloat64(28, 2.718281828459045)
-    
+
     // Write string data (null-terminated)
     const textEncoder = new TextEncoder()
     const textBytes = textEncoder.encode('Hello\0World\0')
     const textView = new Uint8Array(buffer, 34)
     textView.set(textBytes)
-    
+
     dataView = new ProgressiveDataView(buffer)
   })
 
@@ -50,7 +50,7 @@ describe('ProgressiveDataView', () => {
   describe('byteOffset getter', () => {
     it('should return current offset', () => {
       expect(dataView.byteOffset).toBe(0)
-      
+
       dataView.skip(5)
       expect(dataView.byteOffset).toBe(5)
     })
@@ -59,17 +59,17 @@ describe('ProgressiveDataView', () => {
   describe('skip', () => {
     it('should advance offset by specified amount', () => {
       expect(dataView.byteOffset).toBe(0)
-      
+
       dataView.skip(10)
       expect(dataView.byteOffset).toBe(10)
-      
+
       dataView.skip(5)
       expect(dataView.byteOffset).toBe(15)
     })
 
     it('should throw error when skipping beyond buffer bounds', () => {
       dataView.skip(95) // Near end of buffer
-      
+
       expect(() => {
         dataView.skip(10) // This should exceed buffer length
       }).toThrow('Out of bounds')
@@ -77,7 +77,7 @@ describe('ProgressiveDataView', () => {
 
     it('should throw error when skipping exactly at buffer end', () => {
       dataView.skip(100) // At end of buffer
-      
+
       expect(() => {
         dataView.skip(1) // This should exceed buffer length
       }).toThrow('Out of bounds')
@@ -112,7 +112,7 @@ describe('ProgressiveDataView', () => {
       const littleEndianView = new DataView(littleEndianBuffer)
       littleEndianView.setInt8(0, 127)
       littleEndianView.setInt16(1, 32000, true) // Write with little-endian
-      
+
       const littleEndianDataView = new ProgressiveDataView(littleEndianBuffer)
       littleEndianDataView.skip(1) // Skip first byte
       const value = littleEndianDataView.getInt16(true)
@@ -135,7 +135,7 @@ describe('ProgressiveDataView', () => {
       littleEndianView.setInt8(0, 127)
       littleEndianView.setInt16(1, 32000)
       littleEndianView.setInt32(3, 2000000000, true) // Write with little-endian
-      
+
       const littleEndianDataView = new ProgressiveDataView(littleEndianBuffer)
       littleEndianDataView.skip(3)
       const value = littleEndianDataView.getInt32(true)
@@ -159,7 +159,7 @@ describe('ProgressiveDataView', () => {
       littleEndianView.setInt16(1, 32000)
       littleEndianView.setInt32(3, 2000000000)
       littleEndianView.setBigInt64(7, BigInt('9000000000000000000'), true) // Write with little-endian
-      
+
       const littleEndianDataView = new ProgressiveDataView(littleEndianBuffer)
       littleEndianDataView.skip(7)
       const value = littleEndianDataView.getBigInt64(true)
@@ -194,7 +194,7 @@ describe('ProgressiveDataView', () => {
       littleEndianView.setBigInt64(7, BigInt('9000000000000000000'))
       littleEndianView.setUint8(15, 255)
       littleEndianView.setUint16(16, 65000, true) // Write with little-endian
-      
+
       const littleEndianDataView = new ProgressiveDataView(littleEndianBuffer)
       littleEndianDataView.skip(16)
       const value = littleEndianDataView.getUint16(true)
@@ -221,7 +221,7 @@ describe('ProgressiveDataView', () => {
       littleEndianView.setUint8(15, 255)
       littleEndianView.setUint16(16, 65000)
       littleEndianView.setUint32(18, 4000000000, true) // Write with little-endian
-      
+
       const littleEndianDataView = new ProgressiveDataView(littleEndianBuffer)
       littleEndianDataView.skip(18)
       const value = littleEndianDataView.getUint32(true)
@@ -249,7 +249,7 @@ describe('ProgressiveDataView', () => {
       littleEndianView.setUint16(16, 65000)
       littleEndianView.setUint32(18, 4000000000)
       littleEndianView.setFloat32(22, 3.14159, true) // Write with little-endian
-      
+
       const littleEndianDataView = new ProgressiveDataView(littleEndianBuffer)
       littleEndianDataView.skip(22)
       const value = littleEndianDataView.getFloat32(true)
@@ -270,7 +270,7 @@ describe('ProgressiveDataView', () => {
       const littleEndianBuffer = new ArrayBuffer(100)
       const littleEndianView = new DataView(littleEndianBuffer)
       littleEndianView.setFloat64(26, 2.718281828459045, true) // Write with little-endian
-      
+
       const littleEndianDataView = new ProgressiveDataView(littleEndianBuffer)
       littleEndianDataView.skip(26)
       const value = littleEndianDataView.getFloat64(true)
@@ -297,7 +297,7 @@ describe('ProgressiveDataView', () => {
       const emptyBuffer = new ArrayBuffer(1)
       new DataView(emptyBuffer).setUint8(0, 0)
       const emptyView = new ProgressiveDataView(emptyBuffer)
-      
+
       const value = emptyView.getString(1)
       expect(value).toBe('')
     })
@@ -307,7 +307,7 @@ describe('ProgressiveDataView', () => {
       const testView = new Uint8Array(testBuffer)
       testView.set([72, 101, 108, 108, 111]) // "Hello"
       const view = new ProgressiveDataView(testBuffer)
-      
+
       const value = view.getString(5)
       expect(value).toBe('Hello')
     })
@@ -317,7 +317,7 @@ describe('ProgressiveDataView', () => {
       const testView = new Uint8Array(testBuffer)
       testView.set([72, 101, 0, 108, 108, 111, 0, 0]) // "He\0llo\0\0"
       const view = new ProgressiveDataView(testBuffer)
-      
+
       const value = view.getString(8)
       expect(value).toBe('He')
     })
@@ -327,7 +327,7 @@ describe('ProgressiveDataView', () => {
       const testView = new Uint8Array(testBuffer)
       testView.set([0, 0, 0])
       const view = new ProgressiveDataView(testBuffer)
-      
+
       const value = view.getString(3)
       expect(value).toBe('')
     })
@@ -338,7 +338,7 @@ describe('ProgressiveDataView', () => {
       const smallBuffer = new ArrayBuffer(4)
       new DataView(smallBuffer).setInt32(0, 12345)
       const view = new ProgressiveDataView(smallBuffer)
-      
+
       const value = view.getInt32()
       expect(value).toBe(12345)
       expect(view.byteOffset).toBe(4)
@@ -347,7 +347,7 @@ describe('ProgressiveDataView', () => {
     it('should handle zero-length buffer', () => {
       const emptyBuffer = new ArrayBuffer(0)
       const view = new ProgressiveDataView(emptyBuffer)
-      
+
       expect(view.byteOffset).toBe(0)
       expect(() => view.skip(1)).toThrow('Out of bounds')
     })
@@ -356,11 +356,11 @@ describe('ProgressiveDataView', () => {
       const testBuffer = new ArrayBuffer(4)
       const testView = new DataView(testBuffer)
       testView.setInt32(0, 0x12345678, true) // little endian
-      
+
       const view = new ProgressiveDataView(testBuffer)
       const littleEndianValue = view.getInt32(true)
       expect(littleEndianValue).toBe(0x12345678)
-      
+
       // Reset and read as big endian
       const view2 = new ProgressiveDataView(testBuffer)
       const bigEndianValue = view2.getInt32(false)
@@ -375,9 +375,9 @@ describe('ProgressiveDataView', () => {
       testView.setInt32(0, 100)
       testView.setFloat32(4, 3.14)
       testView.setInt32(8, 200)
-      
+
       const view = new ProgressiveDataView(testBuffer)
-      
+
       expect(view.getInt32()).toBe(100)
       expect(view.getFloat32()).toBeCloseTo(3.14, 2)
       expect(view.getInt32()).toBe(200)
@@ -393,9 +393,9 @@ describe('ProgressiveDataView', () => {
       testView.setFloat64(7, 2.718)
       testView.setUint8(15, 255)
       testView.setUint32(16, 4000000000)
-      
+
       const view = new ProgressiveDataView(testBuffer)
-      
+
       expect(view.getInt8()).toBe(42)
       expect(view.getInt16()).toBe(1000)
       expect(view.getInt32()).toBe(100000)

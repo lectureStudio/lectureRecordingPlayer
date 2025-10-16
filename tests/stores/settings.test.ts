@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, afterEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import { type AppSettings, AppSettingsSchema } from '@/schemas/settings'
 import { useSettingsStore } from '@/stores/settings'
 import { loadJSON, saveJSON } from '@/utils/storage'
-import { AppSettingsSchema, type AppSettings } from '@/schemas/settings'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ZodError } from 'zod'
 
 // Mock the storage utilities
@@ -25,7 +25,7 @@ describe('stores/settings', () => {
     setActivePinia(createPinia())
     store = useSettingsStore()
     vi.clearAllMocks()
-    
+
     // Reset saveJSON mock to not throw by default
     vi.mocked(saveJSON).mockImplementation(() => {})
   })
@@ -52,7 +52,6 @@ describe('stores/settings', () => {
       store.setTheme('dark')
       expect(store.theme).toBe('dark')
     })
-
   })
 
   describe('loadFromStorage', () => {
@@ -179,7 +178,7 @@ describe('stores/settings', () => {
     it('resets to default values and persists', () => {
       // Reset saveJSON mock to not throw
       vi.mocked(saveJSON).mockImplementation(() => {})
-      
+
       // Set non-default values
       store.sidebarPosition = 'right'
       store.theme = 'dark'
@@ -197,7 +196,7 @@ describe('stores/settings', () => {
     it('works when already at default values', () => {
       // Reset saveJSON mock to not throw
       vi.mocked(saveJSON).mockImplementation(() => {})
-      
+
       store.resetToDefaults()
 
       expect(store.sidebarPosition).toBe('left')
@@ -210,7 +209,7 @@ describe('stores/settings', () => {
     it('loads and saves settings correctly', () => {
       // Reset saveJSON mock to not throw
       vi.mocked(saveJSON).mockImplementation(() => {})
-      
+
       const mockSettings = {
         sidebarPosition: 'right' as const,
         theme: 'dark' as const,
@@ -243,7 +242,7 @@ describe('stores/settings', () => {
     it('handles complete workflow', () => {
       // Reset saveJSON mock to not throw
       vi.mocked(saveJSON).mockImplementation(() => {})
-      
+
       // Start with defaults
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
@@ -330,7 +329,7 @@ describe('stores/settings', () => {
     it('accepts valid theme values', () => {
       // Reset saveJSON mock to not throw
       vi.mocked(saveJSON).mockImplementation(() => {})
-      
+
       const validThemes = ['light', 'dark'] as const
 
       validThemes.forEach(theme => {
@@ -342,7 +341,7 @@ describe('stores/settings', () => {
     it('accepts valid sidebar position values', () => {
       // Reset saveJSON mock to not throw
       vi.mocked(saveJSON).mockImplementation(() => {})
-      
+
       const validPositions = ['left', 'right'] as const
 
       validPositions.forEach(position => {

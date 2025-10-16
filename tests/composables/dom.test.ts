@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { sumParentsBoxModel, parsePx } from '@/composables/dom'
+import { parsePx, sumParentsBoxModel } from '@/composables/dom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock getComputedStyle
 const mockGetComputedStyle = vi.fn()

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
-import { createTestingPinia } from '@pinia/testing'
 import NavigationBar from '@/components/NavigationBar.vue'
+import { createTestingPinia } from '@pinia/testing'
+import { mount, VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('NavigationBar', () => {
   let wrapper: VueWrapper<InstanceType<typeof NavigationBar>>
@@ -35,14 +35,14 @@ describe('NavigationBar', () => {
   describe('Rendering', () => {
     it('renders the navigation bar with correct structure', () => {
       createWrapper()
-      
+
       expect(wrapper.find('div').exists()).toBe(true)
       expect(wrapper.find('h1').exists()).toBe(true)
     })
 
     it('displays the application title', () => {
       createWrapper()
-      
+
       const title = wrapper.find('h1')
       expect(title.exists()).toBe(true)
       expect(title.text()).toBeTruthy()
@@ -50,7 +50,7 @@ describe('NavigationBar', () => {
 
     it('has proper structure', () => {
       createWrapper()
-      
+
       const container = wrapper.find('div')
       expect(container.exists()).toBe(true)
       expect(container.classes()).toContain('px-4')
@@ -61,7 +61,7 @@ describe('NavigationBar', () => {
   describe('Styling', () => {
     it('applies correct CSS classes', () => {
       createWrapper()
-      
+
       const container = wrapper.find('div')
       expect(container.exists()).toBe(true)
       expect(container.classes()).toContain('px-4')
