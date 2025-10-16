@@ -22,7 +22,7 @@ describe('stores/settings', () => {
   let store: ReturnType<typeof useSettingsStore>
 
   // Helper function to setup successful load mock
-  const setupSuccessfulLoad = (settings: any) => {
+  const setupSuccessfulLoad = (settings: AppSettings) => {
     vi.mocked(loadJSON).mockReturnValue(settings)
     vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
       success: true,
@@ -31,7 +31,7 @@ describe('stores/settings', () => {
   }
 
   // Helper function to setup failed load mock
-  const setupFailedLoad = (data: any, error: Error) => {
+  const setupFailedLoad = (data: unknown | null | undefined, error: Error) => {
     vi.mocked(loadJSON).mockReturnValue(data)
     vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
       success: false,
@@ -274,7 +274,7 @@ describe('stores/settings', () => {
 
     edgeCases.forEach(({ data, expectedResult, description }) => {
       it(`handles ${description} in storage`, () => {
-        if (data === {}) {
+        if (description === 'empty object') {
           setupSuccessfulLoad({ sidebarPosition: 'left', theme: 'light' })
         } else {
           vi.mocked(loadJSON).mockReturnValue(data)

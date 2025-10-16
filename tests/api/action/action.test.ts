@@ -39,12 +39,13 @@ import { LatexFontAction } from '@/api/action/latex-font.action'
 import { ExtendViewAction } from '@/api/action/extend-view.action'
 import { RubberActionExt } from '@/api/action/rubber.action-ext'
 import { ScreenAction } from '@/api/action/screen.action'
+import type { Action } from '@/api/action/action'
 
 describe('Action Classes', () => {
   let mockExecutor: MockActionExecutor
 
   // Helper function to test atomic action execution
-  const testAtomicAction = (ActionClass: new () => any, expectedToolName: string) => {
+  const testAtomicAction = (ActionClass: new () => Action, expectedToolName: string) => {
     const action = new ActionClass()
     action.execute(mockExecutor)
     
@@ -53,7 +54,7 @@ describe('Action Classes', () => {
   }
 
   // Helper function to test action default properties
-  const testActionDefaults = (ActionClass: new () => any) => {
+  const testActionDefaults = (ActionClass: new () => Action) => {
     const action = new ActionClass()
     expect(action.keyEvent).toBeNull()
     expect(action.timestamp).toBe(0)

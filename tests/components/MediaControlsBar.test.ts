@@ -49,7 +49,13 @@ describe('MediaControlsBar.vue', () => {
   let recordingStore: ReturnType<typeof useRecordingStore>
 
   // Helper function to create wrapper with default state
-  const createWrapper = (props = {}, initialState: any = {}) => {
+  const createWrapper = (
+    props: Record<string, unknown> = {},
+    initialState: {
+      mediaControls?: Partial<ReturnType<typeof useMediaControlsStore>['$state']>,
+      recording?: Partial<ReturnType<typeof useRecordingStore>['$state']>
+    } = {}
+  ) => {
     const pinia = createTestingPinia({
       createSpy: vi.fn,
       initialState: {
