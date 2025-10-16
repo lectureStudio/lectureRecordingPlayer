@@ -8,6 +8,12 @@ class VideoRenderSurface {
   /** The HTML video element used for playback */
   private readonly video: HTMLVideoElement
 
+  /** Callback to notify when the video should be hidden */
+  private readonly onVideoShouldHide?: () => void
+
+  /** Callback to notify when the video should be shown */
+  private readonly onVideoShouldShow?: () => void
+
   /** Current video file name */
   private currentFileName: string | null = null
 
@@ -23,20 +29,23 @@ class VideoRenderSurface {
   /** Whether the video is currently playing */
   private isPlaying: boolean = false
 
+  /** Content width without borders */
+  private contentWidth: number = 0
+
+  /** Content height without borders */
+  private contentHeight: number = 0
+
   /** Media controls store for time synchronization */
   private mediaStore = useMediaControlsStore()
-
-  /** Callback to notify when video should be hidden */
-  private onVideoShouldHide?: () => void
-
-  /** Callback to notify when video should be shown */
-  private onVideoShouldShow?: () => void
 
   /** Whether the video is currently visible */
   private isVideoVisible: boolean = false
 
   /** Flag to prevent cyclic updates during seeking */
   private isSeeking: boolean = false
+
+  /** ResizeObserver to detect container size changes */
+  private resizeObserver: ResizeObserver | null = null
 
   /**
    * Creates a new video render surface associated with the given video element.
@@ -50,6 +59,7 @@ class VideoRenderSurface {
     this.onVideoShouldHide = onVideoShouldHide
     this.onVideoShouldShow = onVideoShouldShow
     this.setupVideoEventListeners()
+    this.setupResizeObserver()
   }
 
   /**
@@ -60,7 +70,7 @@ class VideoRenderSurface {
     this.video.muted = true
     this.video.volume = 0
 
-    // Sync video time with media store when seeking
+    // Sync video time with the media store when seeking
     this.video.addEventListener('seeking', () => {
       this.syncVideoTimeToMediaStore()
     })
@@ -81,13 +91,25 @@ class VideoRenderSurface {
       this.isPlaying = false
     })
 
-    // Handle video load
-    this.video.addEventListener('loadedmetadata', () => {
-      // Set initial time to video offset when metadata is loaded
-      if (this.videoOffset > 0) {
-        this.video.currentTime = this.videoOffset / 1000
+    // Handle video load - initial time setting is now handled in loadVideo method
+  }
+
+  /**
+   * Sets up ResizeObserver to detect container size changes and update video cropping.
+   */
+  private setupResizeObserver(): void {
+    this.resizeObserver = new ResizeObserver(() => {
+      // Only update if the video is visible and has content
+      if (this.isVideoVisible && this.hasVideo()) {
+        this.applyCroppingStyles()
       }
     })
+
+    // Observe the video's parent container
+    const container = this.video.parentElement
+    if (container) {
+      this.resizeObserver.observe(container)
+    }
   }
 
   /**
@@ -108,23 +130,100 @@ class VideoRenderSurface {
     contentWidth: number,
     contentHeight: number,
   ): void {
-    // Only reload video if it's a different file or not already loaded
+    // Only reload a video if it's a different file or not already loaded
     const needsReload = this.currentFileName !== fileName || this.video.src === ''
 
     this.currentFileName = fileName
     this.startTimestamp = startTimestamp
     this.videoOffset = videoOffset
     this.videoLength = videoLength
+    this.contentWidth = contentWidth
+    this.contentHeight = contentHeight
 
     if (needsReload) {
       // Set video source only if needed
       this.video.src = `/${fileName}`
 
-      // Update video dimensions and initial time
-      this.video.style.width = `${contentWidth}px`
-      this.video.style.height = `${contentHeight}px`
+      // Apply cropping styles when metadata is loaded
+      this.video.addEventListener('loadedmetadata', () => {
+        this.applyCroppingStyles()
+        // Set initial time to video offset when metadata is loaded
+        if (this.videoOffset > 0) {
+          this.video.currentTime = this.videoOffset / 1000
+        }
+      }, { once: true })
+
       this.video.currentTime = this.videoOffset / 1000 // Convert ms to seconds
     }
+  }
+
+  /**
+   * Calculates the display dimensions for the video using object-fit: cover.
+   * 
+   * @param containerWidth - Available container width
+   * @param containerHeight - Available container height
+   * @returns Object with computed width and height
+   */
+  private calculateDisplayDimensions(containerWidth: number, containerHeight: number): {
+    width: number
+    height: number
+  } {
+    if (this.contentWidth === 0 || this.contentHeight === 0) {
+      return {
+        width: containerWidth,
+        height: containerHeight
+      }
+    }
+
+    // Calculate aspect ratios
+    const contentAspectRatio = this.contentWidth / this.contentHeight
+    const containerAspectRatio = containerWidth / containerHeight
+
+    let displayWidth: number
+    let displayHeight: number
+
+    if (contentAspectRatio > containerAspectRatio) {
+      // Content is wider - fit to width
+      displayWidth = containerWidth
+      displayHeight = containerWidth / contentAspectRatio
+    } else {
+      // Content is taller - fit to height
+      displayHeight = containerHeight
+      displayWidth = containerHeight * contentAspectRatio
+    }
+
+    return {
+      width: displayWidth,
+      height: displayHeight
+    }
+  }
+
+  /**
+   * Applies cropping styles to the video element to remove black borders.
+   */
+  private applyCroppingStyles(): void {
+    if (this.contentWidth === 0 || this.contentHeight === 0) {
+      return
+    }
+
+    // Get the container dimensions (parent element or viewport)
+    const container = this.video.parentElement
+    if (!container) {
+      return
+    }
+
+    const containerRect = container.getBoundingClientRect()
+    const containerWidth = containerRect.width
+    const containerHeight = containerRect.height
+
+    // Calculate display dimensions
+    const dimensions = this.calculateDisplayDimensions(containerWidth, containerHeight)
+
+    // Apply the CSS styles as specified
+    this.video.style.objectFit = 'cover'
+    this.video.style.width = `${dimensions.width}px`
+    this.video.style.height = `${dimensions.height}px`
+    this.video.style.display = 'block'
   }
 
   /**
@@ -282,6 +381,16 @@ class VideoRenderSurface {
   }
 
   /**
+   * Updates the cropping styles when the container size changes.
+   * This should be called when the window is resized or the container dimensions change.
+   */
+  updateCropping(): void {
+    if (this.hasVideo() && this.isVideoVisible) {
+      this.applyCroppingStyles()
+    }
+  }
+
+  /**
    * Hides the video element.
    */
   hide(): void {
@@ -324,6 +433,8 @@ class VideoRenderSurface {
     this.startTimestamp = 0
     this.videoOffset = 0
     this.videoLength = 0
+    this.contentWidth = 0
+    this.contentHeight = 0
     this.isPlaying = false
     this.isVideoVisible = false
     this.isSeeking = false
@@ -337,7 +448,12 @@ class VideoRenderSurface {
    */
   destroy(): void {
     this.clear()
-    // Remove event listeners if needed
+    
+    // Clean up ResizeObserver
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
   }
 }
 
