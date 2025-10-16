@@ -9,15 +9,8 @@ describe('SpeakerButton', () => {
   let wrapper: VueWrapper<InstanceType<typeof SpeakerButton>>
   let mediaStore: ReturnType<typeof useMediaControlsStore>
 
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    wrapper?.unmount()
-  })
-
-  const createWrapper = (props = {}) => {
+  // Helper function to create wrapper with custom store state
+  const createWrapper = (props = {}, storeState = {}) => {
     const pinia = createTestingPinia({
       createSpy: vi.fn,
       initialState: {
@@ -25,6 +18,7 @@ describe('SpeakerButton', () => {
           volume: 100,
           muted: false,
           prevVolume: 100,
+          ...storeState,
         },
       },
     })
@@ -42,6 +36,21 @@ describe('SpeakerButton', () => {
     mediaStore = useMediaControlsStore()
     return wrapper
   }
+
+  // Helper function to test volume states
+  const testVolumeState = (volume: number, muted: boolean) => {
+    createWrapper({}, { volume, muted })
+    const icon = wrapper.findComponent({ name: 'AppIcon' })
+    expect(icon.exists()).toBe(true)
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+  })
 
   describe('Rendering', () => {
     it('renders speaker button', () => {
@@ -61,40 +70,17 @@ describe('SpeakerButton', () => {
   })
 
   describe('Volume States', () => {
-    it('renders AppIcon component', () => {
-      mediaStore.volume = 80
-      mediaStore.muted = false
-      createWrapper()
-      
-      const icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
-    })
+    const volumeStates = [
+      { volume: 80, muted: false, description: 'high volume' },
+      { volume: 30, muted: false, description: 'low volume' },
+      { volume: 80, muted: true, description: 'muted' },
+      { volume: 0, muted: false, description: 'zero volume' }
+    ]
 
-    it('renders AppIcon component for low volume', () => {
-      mediaStore.volume = 30
-      mediaStore.muted = false
-      createWrapper()
-      
-      const icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
-    })
-
-    it('renders AppIcon component when muted', () => {
-      mediaStore.volume = 80
-      mediaStore.muted = true
-      createWrapper()
-      
-      const icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
-    })
-
-    it('renders AppIcon component when volume is 0', () => {
-      mediaStore.volume = 0
-      mediaStore.muted = false
-      createWrapper()
-      
-      const icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
+    volumeStates.forEach(({ volume, muted, description }) => {
+      it(`renders AppIcon component for ${description}`, () => {
+        testVolumeState(volume, muted)
+      })
     })
   })
 
@@ -204,39 +190,17 @@ describe('SpeakerButton', () => {
   })
 
   describe('Edge Cases', () => {
-    it('handles volume at boundary values', () => {
-      // Volume at 0
-      mediaStore.volume = 0
-      mediaStore.muted = false
-      createWrapper()
-      
-      let icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
-      
-      // Volume at 100
-      mediaStore.volume = 100
-      createWrapper()
-      
-      icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
-    })
+    const edgeCases = [
+      { volume: 0, description: 'zero volume' },
+      { volume: 100, description: 'maximum volume' },
+      { volume: -10, description: 'negative volume' },
+      { volume: 150, description: 'volume above 100' }
+    ]
 
-    it('handles negative volume values', () => {
-      mediaStore.volume = -10
-      mediaStore.muted = false
-      createWrapper()
-      
-      const icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
-    })
-
-    it('handles volume above 100', () => {
-      mediaStore.volume = 150
-      mediaStore.muted = false
-      createWrapper()
-      
-      const icon = wrapper.findComponent({ name: 'AppIcon' })
-      expect(icon.exists()).toBe(true)
+    edgeCases.forEach(({ volume, description }) => {
+      it(`handles ${description}`, () => {
+        testVolumeState(volume, false)
+      })
     })
   })
 

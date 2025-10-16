@@ -17,6 +17,27 @@ vi.mock('@/api/model/page', () => ({
 describe('stores/recording', () => {
   let store: ReturnType<typeof useRecordingStore>
 
+  // Helper function to create mock recording
+  const createMockRecording = (overrides = {}): Recording => ({
+    audio: new Blob(['audio data'], { type: 'audio/wav' }),
+    document: new Uint8Array([1, 2, 3, 4]),
+    actions: [
+      { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
+      { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
+    ],
+    duration: 100,
+    ...overrides,
+  })
+
+  // Helper function to create mock actions
+  const createMockActions = (count: number): RecordedPage[] => 
+    Array.from({ length: count }, (_, i) => ({
+      pageNumber: i,
+      staticActions: [],
+      playbackActions: [],
+      timestamp: 0,
+    }))
+
   beforeEach(() => {
     setActivePinia(createPinia())
     store = useRecordingStore()
@@ -24,7 +45,6 @@ describe('stores/recording', () => {
   })
 
   afterEach(() => {
-    // Reset store state
     store.$patch({
       audio: undefined,
       document: undefined,
@@ -44,41 +64,18 @@ describe('stores/recording', () => {
 
   describe('setRecording', () => {
     it('sets recording data correctly', () => {
-      const mockAudio = new Blob(['audio data'], { type: 'audio/wav' })
-      const mockDocument = new Uint8Array([1, 2, 3, 4])
-      const mockActions: RecordedPage[] = [
-        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
-        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
-      ]
-
-      const mockRecording: Recording = {
-        audio: mockAudio,
-        document: mockDocument,
-        actions: mockActions,
-        duration: 100,
-      }
-
+      const mockRecording = createMockRecording()
       store.setRecording(mockRecording)
 
-      expect(store.audio).toBe(mockAudio)
-      expect(store.document).toBe(mockDocument)
-      expect(store.actions).toStrictEqual(mockActions)
+      expect(store.audio).toBe(mockRecording.audio)
+      expect(store.document).toBe(mockRecording.document)
+      expect(store.actions).toStrictEqual(mockRecording.actions)
       expect(store.pages).toHaveLength(2)
     })
 
     it('creates Page instances for each action', () => {
-      const mockActions: RecordedPage[] = [
-        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
-        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
-        { pageNumber: 2, staticActions: [], playbackActions: [], timestamp: 0 },
-      ]
-
-      const mockRecording: Recording = {
-        audio: new Blob(),
-        document: new Uint8Array(),
-        actions: mockActions,
-        duration: 100,
-      }
+      const mockActions = createMockActions(3)
+      const mockRecording = createMockRecording({ actions: mockActions })
 
       store.setRecording(mockRecording)
 
@@ -89,34 +86,20 @@ describe('stores/recording', () => {
       expect(Page).toHaveBeenCalledWith(2)
     })
 
-    it('handles empty actions array', () => {
-      const mockRecording: Recording = {
-        audio: new Blob(),
-        document: new Uint8Array(),
-      actions: [],
-      duration: 100,
-    }
+    const emptyActionsCases = [
+      { actions: [], description: 'empty actions array' },
+      { actions: undefined as unknown as RecordedPage[], description: 'undefined actions' }
+    ]
 
-      store.setRecording(mockRecording)
+    emptyActionsCases.forEach(({ actions, description }) => {
+      it(`handles ${description}`, () => {
+        const mockRecording = createMockRecording({ actions })
+        store.setRecording(mockRecording)
 
-      expect(store.actions).toEqual([])
-      expect(store.pages).toEqual([])
-      expect(Page).not.toHaveBeenCalled()
-    })
-
-    it('handles undefined actions', () => {
-      const mockRecording: Recording = {
-        audio: new Blob(),
-        document: new Uint8Array(),
-        actions: undefined as unknown as RecordedPage[],
-        duration: 100,
-      }
-
-      store.setRecording(mockRecording)
-
-      expect(store.actions).toBeUndefined()
-      expect(store.pages).toEqual([])
-      expect(Page).not.toHaveBeenCalled()
+        expect(store.actions).toEqual(actions)
+        expect(store.pages).toEqual([])
+        expect(Page).not.toHaveBeenCalled()
+      })
     })
 
     it('overwrites previous recording data', () => {
@@ -177,44 +160,33 @@ describe('stores/recording', () => {
 
   describe('getPage', () => {
     beforeEach(() => {
-      const mockActions: RecordedPage[] = [
-        { pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 },
-        { pageNumber: 1, staticActions: [], playbackActions: [], timestamp: 0 },
-        { pageNumber: 2, staticActions: [], playbackActions: [], timestamp: 0 },
-      ]
+      const mockActions = createMockActions(3)
+      store.setRecording(createMockRecording({ actions: mockActions }))
+    })
 
-      store.setRecording({
-        audio: new Blob(),
-        document: new Uint8Array(),
-        actions: mockActions,
-        duration: 100,
+    const validPageTests = [
+      { pageNumber: 0, description: 'first page' },
+      { pageNumber: 1, description: 'middle page' },
+      { pageNumber: 2, description: 'last page' }
+    ]
+
+    validPageTests.forEach(({ pageNumber, description }) => {
+      it(`returns correct page for ${description}`, () => {
+        const page = store.getPage(pageNumber)
+        expect(page).toBeDefined()
+        expect(page.getPageNumber()).toBe(pageNumber)
       })
     })
 
-    it('returns correct page for valid page number', () => {
-      const page = store.getPage(1)
-      expect(page).toBeDefined()
-      expect(page.getPageNumber()).toBe(1)
-    })
+    const errorCases = [
+      { pageNumber: -1, expectedError: 'Page number -1 out of bounds.' },
+      { pageNumber: 3, expectedError: 'Page number 3 out of bounds.' }
+    ]
 
-    it('returns first page for page number 0', () => {
-      const page = store.getPage(0)
-      expect(page).toBeDefined()
-      expect(page.getPageNumber()).toBe(0)
-    })
-
-    it('returns last page for highest valid page number', () => {
-      const page = store.getPage(2)
-      expect(page).toBeDefined()
-      expect(page.getPageNumber()).toBe(2)
-    })
-
-    it('throws error for negative page number', () => {
-      expect(() => store.getPage(-1)).toThrow('Page number -1 out of bounds.')
-    })
-
-    it('throws error for page number greater than available pages', () => {
-      expect(() => store.getPage(3)).toThrow('Page number 3 out of bounds.')
+    errorCases.forEach(({ pageNumber, expectedError }) => {
+      it(`throws error for page number ${pageNumber}`, () => {
+        expect(() => store.getPage(pageNumber)).toThrow(expectedError)
+      })
     })
 
     it('throws error when pages are not loaded', () => {

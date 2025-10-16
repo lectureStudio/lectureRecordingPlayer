@@ -48,19 +48,8 @@ describe('MediaControlsBar.vue', () => {
   let mediaStore: ReturnType<typeof useMediaControlsStore>
   let recordingStore: ReturnType<typeof useRecordingStore>
 
-  beforeEach(() => {
-    // Reset all mocks
-    vi.clearAllMocks()
-    mockFullscreenControls.fullscreen.value = false
-    mockFullscreenControls.controlsVisible.value = true
-    mockTimeFormat.formatHHMMSS.mockImplementation((s: number) => `${Math.floor(s)}s`)
-  })
-
-  afterEach(() => {
-    wrapper?.unmount()
-  })
-
-  const createWrapper = (props = {}) => {
+  // Helper function to create wrapper with default state
+  const createWrapper = (props = {}, initialState: any = {}) => {
     const pinia = createTestingPinia({
       createSpy: vi.fn,
       initialState: {
@@ -72,9 +61,11 @@ describe('MediaControlsBar.vue', () => {
           totalTime: 0,
           playbackState: 'paused',
           seeking: false,
+          ...initialState.mediaControls,
         },
         recording: {
           audio: null,
+          ...initialState.recording,
         },
       },
     })
@@ -96,6 +87,17 @@ describe('MediaControlsBar.vue', () => {
     recordingStore = useRecordingStore()
     return wrapper
   }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFullscreenControls.fullscreen.value = false
+    mockFullscreenControls.controlsVisible.value = true
+    mockTimeFormat.formatHHMMSS.mockImplementation((s: number) => `${Math.floor(s)}s`)
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+  })
 
   describe('Rendering', () => {
     it('renders all control elements', () => {
@@ -135,43 +137,40 @@ describe('MediaControlsBar.vue', () => {
 
   describe('Progress Control', () => {
     it('computes progress percentage correctly', async () => {
-      createWrapper()
-      
-      mediaStore.totalTime = 200000 // 200 seconds in milliseconds
-      mediaStore.currentTime = 50000 // 50 seconds in milliseconds
+      createWrapper({}, {
+        mediaControls: { totalTime: 200000, currentTime: 50000 }
+      })
       
       await wrapper.vm.$nextTick()
-      
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
       expect(slider.props('modelValue')).toBeCloseTo(250, 1) // 50000/200000 * 1000
     })
 
     it('handles zero total time gracefully', () => {
-      mediaStore.totalTime = 0
-      mediaStore.currentTime = 50000 // 50 seconds in milliseconds
-      createWrapper()
+      createWrapper({}, {
+        mediaControls: { totalTime: 0, currentTime: 50000 }
+      })
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
       expect(slider.props('modelValue')).toBe(0)
     })
 
     it('updates current time on progress change', async () => {
-      createWrapper()
-      
-      mediaStore.totalTime = 200000 // 200 seconds in milliseconds
+      createWrapper({}, {
+        mediaControls: { totalTime: 200000 }
+      })
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
       await slider.vm.$emit('update:modelValue', 500) // 50%
       
-      // The handler calculates: (500 / 1000) * 200000 = 100000
-      expect(mediaStore.currentTime).toBe(100000)
+      expect(mediaStore.currentTime).toBe(100000) // (500 / 1000) * 200000
     })
 
     it('triggers user activity in fullscreen mode', async () => {
-      createWrapper()
-      
-      mediaStore.totalTime = 200000 // 200 seconds in milliseconds
       mockFullscreenControls.fullscreen.value = true
+      createWrapper({}, {
+        mediaControls: { totalTime: 200000 }
+      })
       
       const slider = wrapper.findComponent({ name: 'RangeSlider' })
       await slider.vm.$emit('user-interaction', 500)

@@ -48,35 +48,49 @@ describe('composables/usePlayerControls', () => {
     totalPages: number
   }
 
+  // Helper function to create mock action player
+  const createMockActionPlayer = () => ({
+    actionPlayer: {
+      value: {
+        selectPreviousPage: vi.fn(),
+        selectNextPage: vi.fn(),
+        seekByPage: vi.fn(),
+      },
+    },
+  })
+
+  // Helper function to test page navigation
+  const testPageNavigation = (action: string, mockMethod: ReturnType<typeof vi.fn>, expectedTime: number) => {
+    const composable = usePlayerControls()
+    mockMethod.mockReturnValue(expectedTime)
+    
+    const originalTime = mockMediaStore.currentTime
+    const actionFn = composable[action as keyof typeof composable] as () => void
+    actionFn()
+    
+    expect(mockMethod).toHaveBeenCalled()
+    if (expectedTime === -1) {
+      expect(mockMediaStore.currentTime).toBe(originalTime)
+    } else {
+      expect(mockMediaStore.currentTime).toBe(expectedTime)
+    }
+  }
+
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
 
-    // Create mock action player
-    mockFileActionPlayer = {
-      actionPlayer: {
-        value: {
-          selectPreviousPage: vi.fn(),
-          selectNextPage: vi.fn(),
-          seekByPage: vi.fn(),
-        },
-      },
-    }
-
-    // Create mock media store
+    mockFileActionPlayer = createMockActionPlayer()
     mockMediaStore = {
       currentTime: 0,
       playbackState: 'paused',
       seeking: false,
     }
-
-    // Create mock PDF store
     mockPdfStore = {
       currentPage: 1,
       totalPages: 10,
     }
 
-    // Setup mocks
     vi.mocked(useFileActionPlayer).mockReturnValue(mockFileActionPlayer as unknown as ReturnType<typeof useFileActionPlayer>)
     vi.mocked(useMediaControlsStore).mockReturnValue(mockMediaStore as unknown as ReturnType<typeof useMediaControlsStore>)
     vi.mocked(usePdfStore).mockReturnValue(mockPdfStore as unknown as ReturnType<typeof usePdfStore>)
@@ -88,83 +102,38 @@ describe('composables/usePlayerControls', () => {
 
   describe('selectPrevPage', () => {
     it('calls selectPreviousPage and updates media time', () => {
-      const { selectPrevPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value!.selectPreviousPage.mockReturnValue(5000) // 5 seconds in ms
-
-      selectPrevPage()
-
-      expect(mockFileActionPlayer.actionPlayer.value!.selectPreviousPage).toHaveBeenCalled()
-      expect(mockMediaStore.currentTime).toBe(5000) // 5000ms
+      testPageNavigation('selectPrevPage', mockFileActionPlayer.actionPlayer.value!.selectPreviousPage, 5000)
     })
 
     it('does not update media time when selectPreviousPage returns -1', () => {
-      const { selectPrevPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value!.selectPreviousPage.mockReturnValue(-1)
-      const originalTime = mockMediaStore.currentTime
-
-      selectPrevPage()
-
-      expect(mockFileActionPlayer.actionPlayer.value!.selectPreviousPage).toHaveBeenCalled()
-      expect(mockMediaStore.currentTime).toBe(originalTime)
+      testPageNavigation('selectPrevPage', mockFileActionPlayer.actionPlayer.value!.selectPreviousPage, -1)
     })
 
     it('handles case when action player is null', () => {
       const { selectPrevPage } = usePlayerControls()
-      
       mockFileActionPlayer.actionPlayer.value = null
       const originalTime = mockMediaStore.currentTime
 
       selectPrevPage()
-
-      expect(mockMediaStore.currentTime).toBe(originalTime)
-    })
-
-    it('handles case when action player is undefined', () => {
-      const { selectPrevPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value = null
-      const originalTime = mockMediaStore.currentTime
-
-      selectPrevPage()
-
       expect(mockMediaStore.currentTime).toBe(originalTime)
     })
   })
 
   describe('selectNextPage', () => {
     it('calls selectNextPage and updates media time', () => {
-      const { selectNextPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value!.selectNextPage.mockReturnValue(10000) // 10 seconds in ms
-
-      selectNextPage()
-
-      expect(mockFileActionPlayer.actionPlayer.value!.selectNextPage).toHaveBeenCalled()
-      expect(mockMediaStore.currentTime).toBe(10000) // 10000ms
+      testPageNavigation('selectNextPage', mockFileActionPlayer.actionPlayer.value!.selectNextPage, 10000)
     })
 
     it('does not update media time when selectNextPage returns -1', () => {
-      const { selectNextPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value!.selectNextPage.mockReturnValue(-1)
-      const originalTime = mockMediaStore.currentTime
-
-      selectNextPage()
-
-      expect(mockFileActionPlayer.actionPlayer.value!.selectNextPage).toHaveBeenCalled()
-      expect(mockMediaStore.currentTime).toBe(originalTime)
+      testPageNavigation('selectNextPage', mockFileActionPlayer.actionPlayer.value!.selectNextPage, -1)
     })
 
     it('handles case when action player is null', () => {
       const { selectNextPage } = usePlayerControls()
-      
       mockFileActionPlayer.actionPlayer.value = null
       const originalTime = mockMediaStore.currentTime
 
       selectNextPage()
-
       expect(mockMediaStore.currentTime).toBe(originalTime)
     })
   })
@@ -172,18 +141,16 @@ describe('composables/usePlayerControls', () => {
   describe('selectPage', () => {
     it('calls seekByPage with 0-based page number and updates media time', () => {
       const { selectPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(15000) // 15 seconds in ms
+      mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(15000)
 
       selectPage(3) // 1-based page number
 
       expect(mockFileActionPlayer.actionPlayer.value!.seekByPage).toHaveBeenCalledWith(2) // 0-based
-      expect(mockMediaStore.currentTime).toBe(15000) // 15000ms
+      expect(mockMediaStore.currentTime).toBe(15000)
     })
 
     it('does not update media time when seekByPage returns -1', () => {
       const { selectPage } = usePlayerControls()
-      
       mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(-1)
       const originalTime = mockMediaStore.currentTime
 
@@ -195,29 +162,27 @@ describe('composables/usePlayerControls', () => {
 
     it('handles case when action player is null', () => {
       const { selectPage } = usePlayerControls()
-      
       mockFileActionPlayer.actionPlayer.value = null
       const originalTime = mockMediaStore.currentTime
 
       selectPage(1)
-
       expect(mockMediaStore.currentTime).toBe(originalTime)
     })
 
     it('converts page numbers correctly', () => {
       const { selectPage } = usePlayerControls()
-      
       mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(0)
 
-      // Test various page numbers
-      selectPage(1)
-      expect(mockFileActionPlayer.actionPlayer.value!.seekByPage).toHaveBeenCalledWith(0)
+      const testCases = [
+        { input: 1, expected: 0 },
+        { input: 5, expected: 4 },
+        { input: 10, expected: 9 }
+      ]
 
-      selectPage(5)
-      expect(mockFileActionPlayer.actionPlayer.value!.seekByPage).toHaveBeenCalledWith(4)
-
-      selectPage(10)
-      expect(mockFileActionPlayer.actionPlayer.value!.seekByPage).toHaveBeenCalledWith(9)
+      testCases.forEach(({ input, expected }) => {
+        selectPage(input)
+        expect(mockFileActionPlayer.actionPlayer.value!.seekByPage).toHaveBeenCalledWith(expected)
+      })
     })
   })
 
@@ -281,58 +246,16 @@ describe('composables/usePlayerControls', () => {
   })
 
   describe('edge cases', () => {
-    it('handles zero time values', () => {
+    it('handles various time values', () => {
       const { selectPage } = usePlayerControls()
       
-      mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(0)
+      const testCases = [0, 3600000, 1500]
 
-      selectPage(1)
-
-      expect(mockMediaStore.currentTime).toBe(0)
-    })
-
-    it('handles very large time values', () => {
-      const { selectPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(3600000) // 1 hour in ms
-
-      selectPage(1)
-
-      expect(mockMediaStore.currentTime).toBe(3600000) // 1 hour in milliseconds
-    })
-
-    it('handles fractional time values', () => {
-      const { selectPage } = usePlayerControls()
-      
-      mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(1500) // 1.5 seconds in ms
-
-      selectPage(1)
-
-      expect(mockMediaStore.currentTime).toBe(1500) // 1.5 seconds in milliseconds
-    })
-  })
-
-  describe('integration', () => {
-    it('works with all functions together', () => {
-      const { selectPrevPage, selectNextPage, selectPage, setupPdfPageSync } = usePlayerControls()
-      
-      // Setup mocks
-      mockFileActionPlayer.actionPlayer.value!.selectPreviousPage.mockReturnValue(1000)
-      mockFileActionPlayer.actionPlayer.value!.selectNextPage.mockReturnValue(2000)
-      mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(3000)
-
-      // Test all functions
-      selectPrevPage()
-      expect(mockMediaStore.currentTime).toBe(1000) // 1 second in milliseconds
-
-      selectNextPage()
-      expect(mockMediaStore.currentTime).toBe(2000) // 2 seconds in milliseconds
-
-      selectPage(5)
-      expect(mockMediaStore.currentTime).toBe(3000) // 3 seconds in milliseconds
-
-      setupPdfPageSync()
-      expect(vi.mocked(watch)).toHaveBeenCalled()
+      testCases.forEach((time) => {
+        mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(time)
+        selectPage(1)
+        expect(mockMediaStore.currentTime).toBe(time)
+      })
     })
   })
 })
