@@ -96,7 +96,7 @@ describe('stores/settings', () => {
     it('returns false when data is invalid', () => {
       const invalidData = { sidebarPosition: 'invalid', theme: 'invalid' }
       const mockError = new Error('Invalid data')
-      
+
       setupFailedLoad(invalidData, mockError)
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -269,14 +269,15 @@ describe('stores/settings', () => {
     const edgeCases = [
       { data: null, expectedResult: false, description: 'null values' },
       { data: undefined, expectedResult: false, description: 'undefined values' },
-      { data: {}, expectedResult: true, description: 'empty object' }
+      { data: {}, expectedResult: true, description: 'empty object' },
     ]
 
     edgeCases.forEach(({ data, expectedResult, description }) => {
       it(`handles ${description} in storage`, () => {
         if (description === 'empty object') {
           setupSuccessfulLoad({ sidebarPosition: 'left', theme: 'light' })
-        } else {
+        }
+        else {
           vi.mocked(loadJSON).mockReturnValue(data)
         }
 
@@ -296,7 +297,7 @@ describe('stores/settings', () => {
     it('handles schema validation errors', () => {
       const invalidData = { sidebarPosition: 123, theme: true }
       const mockError = new Error('Schema validation failed')
-      
+
       setupFailedLoad(invalidData, mockError)
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

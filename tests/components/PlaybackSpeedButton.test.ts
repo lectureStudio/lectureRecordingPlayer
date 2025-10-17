@@ -79,7 +79,7 @@ describe('PlaybackSpeedButton', () => {
       { speed: 0.5, expectedText: '0.5x' },
       { speed: 2.0, expectedText: '2x' },
       { speed: 1.25, expectedText: '1.25x' },
-      { speed: 0.25, expectedText: '0.25x' }
+      { speed: 0.25, expectedText: '0.25x' },
     ]
 
     speedTests.forEach(({ speed, expectedText }) => {
@@ -202,7 +202,7 @@ describe('PlaybackSpeedButton', () => {
       { speed: 0.25, description: 'minimum value', shouldRender: true },
       { speed: 2.0, description: 'maximum value', shouldRender: true },
       { speed: 0.1, description: 'below minimum', shouldRender: true },
-      { speed: 3.0, description: 'above maximum', shouldRender: true }
+      { speed: 3.0, description: 'above maximum', shouldRender: true },
     ]
 
     edgeCases.forEach(({ speed, description, shouldRender }) => {

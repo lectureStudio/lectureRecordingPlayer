@@ -74,7 +74,7 @@ describe('SpeakerButton', () => {
       { volume: 80, muted: false, description: 'high volume' },
       { volume: 30, muted: false, description: 'low volume' },
       { volume: 80, muted: true, description: 'muted' },
-      { volume: 0, muted: false, description: 'zero volume' }
+      { volume: 0, muted: false, description: 'zero volume' },
     ]
 
     volumeStates.forEach(({ volume, muted, description }) => {
@@ -194,7 +194,7 @@ describe('SpeakerButton', () => {
       { volume: 0, description: 'zero volume' },
       { volume: 100, description: 'maximum volume' },
       { volume: -10, description: 'negative volume' },
-      { volume: 150, description: 'volume above 100' }
+      { volume: 150, description: 'volume above 100' },
     ]
 
     edgeCases.forEach(({ volume, description }) => {
