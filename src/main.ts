@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import App from './App.vue'
 import './style.css'
+import '../assets/fonts/fonts.css'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const app = createApp(App)
