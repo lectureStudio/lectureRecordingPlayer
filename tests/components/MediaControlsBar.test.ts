@@ -48,19 +48,14 @@ describe('MediaControlsBar.vue', () => {
   let mediaStore: ReturnType<typeof useMediaControlsStore>
   let recordingStore: ReturnType<typeof useRecordingStore>
 
-  beforeEach(() => {
-    // Reset all mocks
-    vi.clearAllMocks()
-    mockFullscreenControls.fullscreen.value = false
-    mockFullscreenControls.controlsVisible.value = true
-    mockTimeFormat.formatHHMMSS.mockImplementation((s: number) => `${Math.floor(s)}s`)
-  })
-
-  afterEach(() => {
-    wrapper?.unmount()
-  })
-
-  const createWrapper = (props = {}) => {
+  // Helper function to create wrapper with default state
+  const createWrapper = (
+    props: Record<string, unknown> = {},
+    initialState: {
+      mediaControls?: Partial<ReturnType<typeof useMediaControlsStore>['$state']>,
+      recording?: Partial<ReturnType<typeof useRecordingStore>['$state']>
+    } = {}
+  ) => {
     const pinia = createTestingPinia({
       createSpy: vi.fn,
       initialState: {
@@ -72,9 +67,11 @@ describe('MediaControlsBar.vue', () => {
           totalTime: 0,
           playbackState: 'paused',
           seeking: false,
+          ...initialState.mediaControls,
         },
         recording: {
           audio: null,
+          ...initialState.recording,
         },
       },
     })
@@ -96,6 +93,17 @@ describe('MediaControlsBar.vue', () => {
     recordingStore = useRecordingStore()
     return wrapper
   }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFullscreenControls.fullscreen.value = false
+    mockFullscreenControls.controlsVisible.value = true
+    mockTimeFormat.formatHHMMSS.mockImplementation((s: number) => `${Math.floor(s)}s`)
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+  })
 
   describe('Rendering', () => {
     it('renders all control elements', () => {

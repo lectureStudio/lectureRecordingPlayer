@@ -21,17 +21,32 @@ vi.mock('@/schemas/settings', () => ({
 describe('stores/settings', () => {
   let store: ReturnType<typeof useSettingsStore>
 
+  // Helper function to setup successful load mock
+  const setupSuccessfulLoad = (settings: AppSettings) => {
+    vi.mocked(loadJSON).mockReturnValue(settings)
+    vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
+      success: true,
+      data: settings,
+    })
+  }
+
+  // Helper function to setup failed load mock
+  const setupFailedLoad = (data: unknown | null | undefined, error: Error) => {
+    vi.mocked(loadJSON).mockReturnValue(data)
+    vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
+      success: false,
+      error: error as ZodError<AppSettings>,
+    })
+  }
+
   beforeEach(() => {
     setActivePinia(createPinia())
     store = useSettingsStore()
     vi.clearAllMocks()
-
-    // Reset saveJSON mock to not throw by default
     vi.mocked(saveJSON).mockImplementation(() => {})
   })
 
   afterEach(() => {
-    // Reset store state
     store.resetToDefaults()
   })
 
@@ -43,14 +58,13 @@ describe('stores/settings', () => {
   })
 
   describe('setTheme', () => {
-    it('sets theme to light', () => {
-      store.setTheme('light')
-      expect(store.theme).toBe('light')
-    })
+    const themes = ['light', 'dark'] as const
 
-    it('sets theme to dark', () => {
-      store.setTheme('dark')
-      expect(store.theme).toBe('dark')
+    themes.forEach(theme => {
+      it(`sets theme to ${theme}`, () => {
+        store.setTheme(theme)
+        expect(store.theme).toBe(theme)
+      })
     })
   })
 
@@ -61,12 +75,7 @@ describe('stores/settings', () => {
         theme: 'dark' as const,
       }
 
-      vi.mocked(loadJSON).mockReturnValue(mockSettings)
-      vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
-        success: true,
-        data: mockSettings,
-      })
-
+      setupSuccessfulLoad(mockSettings)
       const result = store.loadFromStorage()
 
       expect(result).toBe(true)
@@ -77,34 +86,25 @@ describe('stores/settings', () => {
 
     it('returns false when no data in storage', () => {
       vi.mocked(loadJSON).mockReturnValue(null)
-
       const result = store.loadFromStorage()
 
       expect(result).toBe(false)
-      expect(store.sidebarPosition).toBe('left') // Default value
-      expect(store.theme).toBe('light') // Default value
+      expect(store.sidebarPosition).toBe('left')
+      expect(store.theme).toBe('light')
     })
 
     it('returns false when data is invalid', () => {
-      const invalidData = {
-        sidebarPosition: 'invalid',
-        theme: 'invalid',
-      }
-
-      vi.mocked(loadJSON).mockReturnValue(invalidData)
+      const invalidData = { sidebarPosition: 'invalid', theme: 'invalid' }
       const mockError = new Error('Invalid data')
-      vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
-        success: false,
-        error: mockError as ZodError<AppSettings>,
-      })
-
+      
+      setupFailedLoad(invalidData, mockError)
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const result = store.loadFromStorage()
 
       expect(result).toBe(false)
-      expect(store.sidebarPosition).toBe('left') // Default value
-      expect(store.theme).toBe('light') // Default value
+      expect(store.sidebarPosition).toBe('left')
+      expect(store.theme).toBe('light')
       expect(consoleSpy).toHaveBeenCalledWith('Invalid settings in storage, ignoring', expect.any(Error))
 
       consoleSpy.mockRestore()
@@ -266,32 +266,23 @@ describe('stores/settings', () => {
   })
 
   describe('edge cases', () => {
-    it('handles null values in storage', () => {
-      vi.mocked(loadJSON).mockReturnValue(null)
+    const edgeCases = [
+      { data: null, expectedResult: false, description: 'null values' },
+      { data: undefined, expectedResult: false, description: 'undefined values' },
+      { data: {}, expectedResult: true, description: 'empty object' }
+    ]
 
-      const result = store.loadFromStorage()
-      expect(result).toBe(false)
-    })
+    edgeCases.forEach(({ data, expectedResult, description }) => {
+      it(`handles ${description} in storage`, () => {
+        if (description === 'empty object') {
+          setupSuccessfulLoad({ sidebarPosition: 'left', theme: 'light' })
+        } else {
+          vi.mocked(loadJSON).mockReturnValue(data)
+        }
 
-    it('handles undefined values in storage', () => {
-      vi.mocked(loadJSON).mockReturnValue(undefined)
-
-      const result = store.loadFromStorage()
-      expect(result).toBe(false)
-    })
-
-    it('handles empty object in storage', () => {
-      vi.mocked(loadJSON).mockReturnValue({})
-      vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
-        success: true,
-        data: {
-          sidebarPosition: 'left',
-          theme: 'light',
-        },
+        const result = store.loadFromStorage()
+        expect(result).toBe(expectedResult)
       })
-
-      const result = store.loadFromStorage()
-      expect(result).toBe(true)
     })
 
     it('handles malformed JSON in storage', () => {
@@ -303,18 +294,10 @@ describe('stores/settings', () => {
     })
 
     it('handles schema validation errors', () => {
-      const invalidData = {
-        sidebarPosition: 123, // Should be string
-        theme: true, // Should be string
-      }
-
-      vi.mocked(loadJSON).mockReturnValue(invalidData)
+      const invalidData = { sidebarPosition: 123, theme: true }
       const mockError = new Error('Schema validation failed')
-      vi.mocked(AppSettingsSchema.safeParse).mockReturnValue({
-        success: false,
-        error: mockError as ZodError<AppSettings>,
-      })
-
+      
+      setupFailedLoad(invalidData, mockError)
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const result = store.loadFromStorage()
@@ -326,23 +309,14 @@ describe('stores/settings', () => {
   })
 
   describe('type safety', () => {
-    it('accepts valid theme values', () => {
-      // Reset saveJSON mock to not throw
-      vi.mocked(saveJSON).mockImplementation(() => {})
-
+    it('accepts valid theme and sidebar position values', () => {
       const validThemes = ['light', 'dark'] as const
+      const validPositions = ['left', 'right'] as const
 
       validThemes.forEach(theme => {
         store.setTheme(theme)
         expect(store.theme).toBe(theme)
       })
-    })
-
-    it('accepts valid sidebar position values', () => {
-      // Reset saveJSON mock to not throw
-      vi.mocked(saveJSON).mockImplementation(() => {})
-
-      const validPositions = ['left', 'right'] as const
 
       validPositions.forEach(position => {
         store.sidebarPosition = position

@@ -18,6 +18,7 @@ export const usePdfStore = defineStore('pdf', {
     matchesTotal: 0 as number,
     matchesCurrent: 0 as number,
     pageTransform: new DOMMatrix() as DOMMatrix,
+    isVisible: true as boolean,
   }),
   getters: {
     /**
@@ -29,6 +30,16 @@ export const usePdfStore = defineStore('pdf', {
      */
     pageCount(state): number {
       return state.doc?.numPages ?? 0
+    },
+    /**
+     * Returns whether the PDF viewer is currently visible.
+     *
+     * @param state - The store state object.
+     *
+     * @returns True if the PDF viewer is visible, false otherwise.
+     */
+    isViewerVisible(state): boolean {
+      return state.isVisible
     },
   },
   actions: {
@@ -231,6 +242,14 @@ export const usePdfStore = defineStore('pdf', {
       this.pageTransform = markRaw(DOMMatrix.fromMatrix(transform))
     },
     /**
+     * Sets the visibility state of the PDF viewer.
+     *
+     * @param visible - Whether the PDF viewer should be visible.
+     */
+    setVisibility(visible: boolean) {
+      this.isVisible = visible
+    },
+    /**
      * Clears all PDF-related state in the store.
      * Resets the document, source, loading state, error state, current page,
      * and search-related properties to their initial values.
@@ -245,6 +264,7 @@ export const usePdfStore = defineStore('pdf', {
       this.lastQuery = ''
       this.matchesTotal = 0
       this.matchesCurrent = 0
+      this.isVisible = true
     },
     /**
      * Disposes of the PDF store and cleans up all resources.

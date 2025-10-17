@@ -3,6 +3,7 @@ import { SlideDocument } from '@/api/model/document'
 import type { Page } from '@/api/model/page'
 import { RenderController } from '@/api/render/render-controller'
 import { RenderSurface } from '@/api/render/render-surface'
+import { VideoRenderSurface } from '@/api/render/video-render-surface'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { useRecordingStore } from '@/stores/recording'
 import { storeToRefs } from 'pinia'
@@ -25,14 +26,16 @@ const documentAdapter = {
 export function useFileActionPlayer() {
   /**
    * Initializes the FileActionExecutor.
-   * This should be called from a component's onMounted hook with a canvas element.
+   * This should be called from a component's onMounted hook with canvas and video elements.
    *
    * @param actionCanvas The HTMLCanvasElement to render permanent annotations on.
    * @param volatileCanvas The HTMLCanvasElement to render temporary annotations on (e.g., during drawing).
+   * @param videoElement The HTMLVideoElement for video playback.
    */
   function initializePlayer(
     actionCanvas: HTMLCanvasElement,
     volatileCanvas: HTMLCanvasElement,
+    videoElement: HTMLVideoElement,
   ) {
     if (player.value) {
       return
@@ -44,10 +47,24 @@ export function useFileActionPlayer() {
 
     const renderSurface = markRaw(new RenderSurface(actionCanvas))
     const volatileRenderSurface = markRaw(new RenderSurface(volatileCanvas))
+    // Create video render surface with callbacks to show/hide slides when video should be shown/hidden
+    const videoRenderSurface = markRaw(
+      new VideoRenderSurface(
+        videoElement,
+        () => {
+          // Hide video, show slides
+          renderController?.showPdfAndCanvas()
+        },
+        () => {
+          // Show video, hide slides
+          renderController?.hidePdfAndCanvas()
+        },
+      ),
+    )
 
     let initialized = false
 
-    renderController = markRaw(new RenderController(renderSurface, volatileRenderSurface))
+    renderController = markRaw(new RenderController(renderSurface, volatileRenderSurface, videoRenderSurface))
 
     player.value = markRaw(new FileActionPlayer(documentAdapter, renderController))
 
@@ -80,8 +97,26 @@ export function useFileActionPlayer() {
             player.value.seekByTime(time)
           }
         }
+
+        // Update video synchronization during seeking and normal playback
+        // During seeking: full sync including time updates
+        // During normal playback: only visibility changes (show/hide video)
+        if (renderController) {
+          renderController.updateVideoSync()
+        }
       },
       { immediate: true },
+    )
+
+    // Handle video seeking when seeking stops
+    watch(
+      () => mediaStore.seeking,
+      (isSeeking) => {
+        if (!isSeeking && renderController) {
+          // Seeking has stopped, update video sync
+          renderController.updateVideoSync()
+        }
+      },
     )
 
     // React to media playback state: start/suspend/stop the action player
@@ -112,6 +147,11 @@ export function useFileActionPlayer() {
               p.suspend()
             }
             break
+        }
+
+        // Update video playback state
+        if (renderController) {
+          renderController.updateVideoPlaybackState()
         }
       },
       { immediate: true },

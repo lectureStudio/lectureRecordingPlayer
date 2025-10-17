@@ -102,6 +102,21 @@ class FileActionExecutor implements ActionExecutor {
     }
   }
 
+  playVideo(
+    startTimestamp: number,
+    videoOffset: number,
+    videoLength: number,
+    contentWidth: number,
+    contentHeight: number,
+    fileName: string,
+  ): void {
+    this.renderController.playVideo(startTimestamp, videoOffset, videoLength, contentWidth, contentHeight, fileName)
+  }
+
+  stopVideo(): void {
+    this.renderController.stopVideo()
+  }
+
   private executeAtomicTool(tool: AtomicTool): void {
     const point = PenPoint.createZero()
 

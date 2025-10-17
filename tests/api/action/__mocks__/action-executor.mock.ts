@@ -58,6 +58,21 @@ export class MockActionExecutor implements ActionExecutor {
     this.endToolPoint = point
   }
 
+  playVideo(
+    _startTimestamp: number,
+    _videoOffset: number,
+    _videoLength: number,
+    _contentWidth: number,
+    _contentHeight: number,
+    _fileName: string,
+  ): void {
+    // Mock implementation - could track these values if needed for testing
+  }
+
+  stopVideo(): void {
+    // Mock implementation
+  }
+
   reset(): void {
     this.onSelectPageIndexObserver = null
     this.seekValue = false

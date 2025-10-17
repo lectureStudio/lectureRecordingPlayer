@@ -69,6 +69,30 @@ interface ActionExecutor {
    * @param point - The pen point where the tool operation ends.
    */
   endTool(point: PenPoint): void
+
+  /**
+   * Plays a recorded video.
+   *
+   * @param startTimestamp - The timestamp when the video starts.
+   * @param videoOffset - The offset of the video in the recorded actions.
+   * @param videoLength - The length of the video in the recorded actions.
+   * @param contentWidth - The width of the content of the video.
+   * @param contentHeight - The height of the content of the video.
+   * @param fileName - The name of the video file.
+   */
+  playVideo(
+    startTimestamp: number,
+    videoOffset: number,
+    videoLength: number,
+    contentWidth: number,
+    contentHeight: number,
+    fileName: string,
+  ): void
+
+  /**
+   * Stops video playback and returns to normal PDF/canvas display.
+   */
+  stopVideo(): void
 }
 
 export type { ActionExecutor }

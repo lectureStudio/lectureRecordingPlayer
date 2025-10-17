@@ -25,6 +25,7 @@ import { RenderSurface } from './render-surface'
 import { SelectRenderer } from './select.renderer'
 import { TextHighlightRenderer } from './text-highlight.renderer'
 import { TextRenderer } from './text.renderer'
+import { VideoRenderSurface } from './video-render-surface'
 import { ZoomRenderer } from './zoom.renderer'
 
 class RenderController {
@@ -34,15 +35,21 @@ class RenderController {
 
   private readonly volatileRenderSurface: RenderSurface
 
+  private readonly videoRenderSurface: VideoRenderSurface
+
+  private readonly pdfStore: ReturnType<typeof usePdfStore>
+
   private page: Page | undefined
 
   private lastShape: Shape | null = null
 
   private seek: boolean = false
 
-  constructor(actionSurface: RenderSurface, volatileSurface: RenderSurface) {
+  constructor(actionSurface: RenderSurface, volatileSurface: RenderSurface, videoSurface: VideoRenderSurface) {
     this.actionRenderSurface = actionSurface
     this.volatileRenderSurface = volatileSurface
+    this.videoRenderSurface = videoSurface
+    this.pdfStore = usePdfStore()
 
     this.registerShapeRenderers(this.actionRenderSurface)
     this.registerShapeRenderers(this.volatileRenderSurface)
@@ -79,6 +86,97 @@ class RenderController {
     }
   }
 
+  playVideo(
+    startTimestamp: number,
+    videoOffset: number,
+    videoLength: number,
+    contentWidth: number,
+    contentHeight: number,
+    fileName: string,
+  ) {
+    // Load the video
+    this.videoRenderSurface.loadVideo(fileName, startTimestamp, videoOffset, videoLength, contentWidth, contentHeight)
+
+    // Sync video time with current media time (this will handle showing/hiding video and slides)
+    this.videoRenderSurface.seekToMediaTime()
+
+    // Update video playback state based on media store
+    this.videoRenderSurface.updatePlaybackState()
+  }
+
+  /**
+   * Stops video playback and shows PDF/canvas elements again.
+   */
+  stopVideo(): void {
+    this.videoRenderSurface.stop()
+    this.videoRenderSurface.hide()
+    this.showPdfAndCanvas()
+  }
+
+  /**
+   * Hides PDF and canvas elements when video is playing.
+   */
+  hidePdfAndCanvas(): void {
+    const pdfViewer = document.querySelector('.pdfViewer')
+    const actionCanvas = this.actionRenderSurface.getDrawableCanvas()
+    const volatileCanvas = this.volatileRenderSurface.getDrawableCanvas()
+
+    if (pdfViewer) {
+      ;(pdfViewer as HTMLElement).style.display = 'none'
+    }
+    if (actionCanvas) {
+      actionCanvas.style.display = 'none'
+    }
+    if (volatileCanvas) {
+      volatileCanvas.style.display = 'none'
+    }
+
+    // Update PDF store visibility state
+    this.pdfStore.setVisibility(false)
+  }
+
+  /**
+   * Shows PDF and canvas elements when video is not playing.
+   */
+  showPdfAndCanvas(): void {
+    const pdfViewer = document.querySelector('.pdfViewer')
+    const actionCanvas = this.actionRenderSurface.getDrawableCanvas()
+    const volatileCanvas = this.volatileRenderSurface.getDrawableCanvas()
+
+    if (pdfViewer) {
+      ;(pdfViewer as HTMLElement).style.display = 'block'
+    }
+    if (actionCanvas) {
+      actionCanvas.style.display = 'block'
+    }
+    if (volatileCanvas) {
+      volatileCanvas.style.display = 'block'
+    }
+
+    // Update PDF store visibility state
+    this.pdfStore.setVisibility(true)
+  }
+
+  /**
+   * Updates video synchronization when media time changes.
+   * This should be called from the media controls store watcher.
+   */
+  updateVideoSync(): void {
+    if (this.videoRenderSurface.hasVideo()) {
+      this.videoRenderSurface.seekToMediaTime()
+    }
+  }
+
+  /**
+   * Updates video playback state when media playback state changes.
+   * This should be called from the media controls store watcher.
+   */
+  updateVideoPlaybackState(): void {
+    if (this.videoRenderSurface.hasVideo()) {
+      this.videoRenderSurface.updatePlaybackState()
+    }
+  }
+
   beginBulkRender(): void {
     if (!this.seek) {
       this.disableRendering()
@@ -94,6 +192,7 @@ class RenderController {
 
   destroy(): void {
     this.disableRendering()
+    this.videoRenderSurface.destroy()
   }
 
   private enableRendering(): void {

@@ -3,6 +3,7 @@
  */
 
 import type { Recording } from '@/api/model/recording'
+import type { VideoMapping } from '@/types/video-mapping'
 import type { TypedArray } from 'pdfjs-dist/types/src/display/api'
 
 /**
@@ -119,11 +120,34 @@ export async function loadRecordingWithFallback(
 
     try {
       const fallbackResponse = await fetch(fallbackUrl)
-      await processRecordingWrapper(fallbackResponse, 'test.plr')
+      await processRecordingWrapper(fallbackResponse, 'dev.plr')
     }
     catch (fallbackError) {
       console.error(`Failed to load recording from both base64 and fallback:`, fallbackError)
       throw fallbackError
     }
+  }
+}
+
+/**
+ * Parses video mapping from JSON string.
+ *
+ * @param videoMappingJson - JSON string containing video mapping.
+ *
+ * @returns Parsed video mapping object or null if invalid.
+ */
+export function parseVideoMapping(videoMappingJson: string): VideoMapping | null {
+  try {
+    // Check if it's the placeholder (development mode)
+    if (videoMappingJson.startsWith('#') || videoMappingJson === '') {
+      return null
+    }
+
+    const parsed = JSON.parse(videoMappingJson)
+    return parsed as VideoMapping
+  }
+  catch (error) {
+    console.warn('Failed to parse video mapping:', error)
+    return null
   }
 }

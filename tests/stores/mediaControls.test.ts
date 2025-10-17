@@ -5,13 +5,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 describe('stores/mediaControls', () => {
   let store: ReturnType<typeof useMediaControlsStore>
 
-  beforeEach(() => {
-    setActivePinia(createPinia())
-    store = useMediaControlsStore()
-  })
-
-  afterEach(() => {
-    // Reset store state
+  // Helper function to reset store to default state
+  const resetStore = () => {
     store.$patch({
       volume: 100,
       playbackSpeed: 1.0,
@@ -22,6 +17,15 @@ describe('stores/mediaControls', () => {
       playbackState: 'paused',
       seeking: false,
     })
+  }
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    store = useMediaControlsStore()
+  })
+
+  afterEach(() => {
+    resetStore()
   })
 
   describe('Initial State', () => {
@@ -51,22 +55,28 @@ describe('stores/mediaControls', () => {
 
   describe('setVolume', () => {
     it('clamps volume to valid range [0, 100]', () => {
-      store.setVolume(150)
-      expect(store.volume).toBe(100)
+      const testCases = [
+        { input: 150, expected: 100 },
+        { input: -10, expected: 0 },
+        { input: 50, expected: 50 }
+      ]
 
-      store.setVolume(-10)
-      expect(store.volume).toBe(0)
-
-      store.setVolume(50)
-      expect(store.volume).toBe(50)
+      testCases.forEach(({ input, expected }) => {
+        store.setVolume(input)
+        expect(store.volume).toBe(expected)
+      })
     })
 
     it('rounds volume to nearest integer', () => {
-      store.setVolume(50.7)
-      expect(store.volume).toBe(51)
+      const testCases = [
+        { input: 50.7, expected: 51 },
+        { input: 50.3, expected: 50 }
+      ]
 
-      store.setVolume(50.3)
-      expect(store.volume).toBe(50)
+      testCases.forEach(({ input, expected }) => {
+        store.setVolume(input)
+        expect(store.volume).toBe(expected)
+      })
     })
 
     it('unmutes when volume is set', () => {
@@ -84,13 +94,17 @@ describe('stores/mediaControls', () => {
     })
 
     it('handles edge cases', () => {
-      store.setVolume(0)
-      expect(store.volume).toBe(0)
-      expect(store.muted).toBe(false)
+      const testCases = [
+        { volume: 0, muted: false, prevVolume: 100 },
+        { volume: 100, muted: false, prevVolume: 100 }
+      ]
 
-      store.setVolume(100)
-      expect(store.volume).toBe(100)
-      expect(store.prevVolume).toBe(100)
+      testCases.forEach(({ volume, muted, prevVolume }) => {
+        store.setVolume(volume)
+        expect(store.volume).toBe(volume)
+        expect(store.muted).toBe(muted)
+        expect(store.prevVolume).toBe(prevVolume)
+      })
     })
   })
 
@@ -147,35 +161,35 @@ describe('stores/mediaControls', () => {
 
   describe('setPlaybackSpeed', () => {
     it('clamps playback speed to valid range [0.25, 2]', () => {
-      store.setPlaybackSpeed(0.1)
-      expect(store.playbackSpeed).toBe(0.25)
+      const testCases = [
+        { input: 0.1, expected: 0.25 },
+        { input: 5, expected: 2 },
+        { input: 1.5, expected: 1.5 }
+      ]
 
-      store.setPlaybackSpeed(5)
-      expect(store.playbackSpeed).toBe(2)
-
-      store.setPlaybackSpeed(1.5)
-      expect(store.playbackSpeed).toBe(1.5)
+      testCases.forEach(({ input, expected }) => {
+        store.setPlaybackSpeed(input)
+        expect(store.playbackSpeed).toBe(expected)
+      })
     })
 
-    it('handles edge values', () => {
-      store.setPlaybackSpeed(0.25)
-      expect(store.playbackSpeed).toBe(0.25)
+    it('handles edge values and special cases', () => {
+      const testCases = [
+        { input: 0.25, expected: 0.25 },
+        { input: 2, expected: 2 },
+        { input: '1.5' as unknown as number, expected: 1.5 },
+        { input: NaN, expected: NaN },
+        { input: Infinity, expected: 2 }
+      ]
 
-      store.setPlaybackSpeed(2)
-      expect(store.playbackSpeed).toBe(2)
-    })
-
-    it('converts string values to numbers', () => {
-      store.setPlaybackSpeed('1.5' as unknown as number)
-      expect(store.playbackSpeed).toBe(1.5)
-    })
-
-    it('handles invalid values', () => {
-      store.setPlaybackSpeed(NaN)
-      expect(store.playbackSpeed).toBeNaN() // NaN is not clamped
-
-      store.setPlaybackSpeed(Infinity)
-      expect(store.playbackSpeed).toBe(2) // Infinity is clamped to maximum
+      testCases.forEach(({ input, expected }) => {
+        store.setPlaybackSpeed(input)
+        if (Number.isNaN(expected)) {
+          expect(store.playbackSpeed).toBeNaN()
+        } else {
+          expect(store.playbackSpeed).toBe(expected)
+        }
+      })
     })
   })
 

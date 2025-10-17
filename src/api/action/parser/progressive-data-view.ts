@@ -108,6 +108,17 @@ class ProgressiveDataView {
 
     return value
   }
+
+  getBytes(length: number): Uint8Array {
+    if (this.offset + length > this.dataView.byteLength) {
+      throw new Error(`Out of bounds ${this.offset + length} exceeds length ${this.dataView.byteLength}`)
+    }
+
+    const bytes = new Uint8Array(this.dataView.buffer, this.dataView.byteOffset + this.offset, length)
+    this.offset += length
+
+    return bytes
+  }
 }
 
 export { ProgressiveDataView }
