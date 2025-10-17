@@ -196,7 +196,7 @@ class RenderController {
   destroy(): void {
     this.disableRendering()
     this.videoRenderSurface.destroy()
-    
+
     // Clean up ResizeObserver
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
@@ -343,14 +343,14 @@ class RenderController {
 
   private setupResizeObserver(): void {
     const actionCanvas = this.actionRenderSurface.getDrawableCanvas()
-    
+
     this.resizeObserver = new ResizeObserver(() => {
       // Only re-render if we have a page and are not seeking
       if (this.page && !this.seek) {
         this.renderAllLayers()
       }
     })
-    
+
     // Observe the action canvas for size changes
     this.resizeObserver.observe(actionCanvas)
   }
