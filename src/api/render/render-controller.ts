@@ -45,6 +45,8 @@ class RenderController {
 
   private seek: boolean = false
 
+  private resizeObserver: ResizeObserver | null = null
+
   constructor(actionSurface: RenderSurface, volatileSurface: RenderSurface, videoSurface: VideoRenderSurface) {
     this.actionRenderSurface = actionSurface
     this.volatileRenderSurface = volatileSurface
@@ -55,6 +57,7 @@ class RenderController {
     this.registerShapeRenderers(this.volatileRenderSurface)
 
     this.pageChangeListener = this.pageChanged.bind(this)
+    this.setupResizeObserver()
   }
 
   setPage(page: Page): void {
@@ -193,6 +196,12 @@ class RenderController {
   destroy(): void {
     this.disableRendering()
     this.videoRenderSurface.destroy()
+    
+    // Clean up ResizeObserver
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
   }
 
   private enableRendering(): void {
@@ -330,6 +339,20 @@ class RenderController {
     pageTransform.scaleSelf(1.0 / pageBounds.width, 1.0 / pageBounds.height)
 
     return pageTransform
+  }
+
+  private setupResizeObserver(): void {
+    const actionCanvas = this.actionRenderSurface.getDrawableCanvas()
+    
+    this.resizeObserver = new ResizeObserver(() => {
+      // Only re-render if we have a page and are not seeking
+      if (this.page && !this.seek) {
+        this.renderAllLayers()
+      }
+    })
+    
+    // Observe the action canvas for size changes
+    this.resizeObserver.observe(actionCanvas)
   }
 
   private registerShapeRenderers(renderSurface: RenderSurface): void {
