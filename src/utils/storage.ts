@@ -139,7 +139,7 @@ export async function loadRecordingWithFallback(
 export function parseVideoMapping(videoMappingJson: string): VideoMapping | null {
   try {
     // Check if it's the placeholder (development mode)
-    if (videoMappingJson === '#{videoMapping}' || videoMappingJson === '') {
+    if (videoMappingJson.startsWith('#') || videoMappingJson === '') {
       return null
     }
 

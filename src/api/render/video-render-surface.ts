@@ -153,10 +153,10 @@ class VideoRenderSurface {
       const videoData = this.videoMappingStore.getVideoData(fileName)
       if (videoData) {
         // Production: use base64 data from video mapping
-        this.video.src = `data:video/mp4;base64,${videoData}`
+        this.video.src = videoData
       }
       else {
-        // Development: use file path
+        // Development: use the file path
         this.video.src = `/${fileName}`
       }
 
