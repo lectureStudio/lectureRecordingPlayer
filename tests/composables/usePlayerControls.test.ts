@@ -63,15 +63,16 @@ describe('composables/usePlayerControls', () => {
   const testPageNavigation = (action: string, mockMethod: ReturnType<typeof vi.fn>, expectedTime: number) => {
     const composable = usePlayerControls()
     mockMethod.mockReturnValue(expectedTime)
-    
+
     const originalTime = mockMediaStore.currentTime
     const actionFn = composable[action as keyof typeof composable] as () => void
     actionFn()
-    
+
     expect(mockMethod).toHaveBeenCalled()
     if (expectedTime === -1) {
       expect(mockMediaStore.currentTime).toBe(originalTime)
-    } else {
+    }
+    else {
       expect(mockMediaStore.currentTime).toBe(expectedTime)
     }
   }
@@ -91,8 +92,12 @@ describe('composables/usePlayerControls', () => {
       totalPages: 10,
     }
 
-    vi.mocked(useFileActionPlayer).mockReturnValue(mockFileActionPlayer as unknown as ReturnType<typeof useFileActionPlayer>)
-    vi.mocked(useMediaControlsStore).mockReturnValue(mockMediaStore as unknown as ReturnType<typeof useMediaControlsStore>)
+    vi.mocked(useFileActionPlayer).mockReturnValue(
+      mockFileActionPlayer as unknown as ReturnType<typeof useFileActionPlayer>,
+    )
+    vi.mocked(useMediaControlsStore).mockReturnValue(
+      mockMediaStore as unknown as ReturnType<typeof useMediaControlsStore>,
+    )
     vi.mocked(usePdfStore).mockReturnValue(mockPdfStore as unknown as ReturnType<typeof usePdfStore>)
   })
 
@@ -176,7 +181,7 @@ describe('composables/usePlayerControls', () => {
       const testCases = [
         { input: 1, expected: 0 },
         { input: 5, expected: 4 },
-        { input: 10, expected: 9 }
+        { input: 10, expected: 9 },
       ]
 
       testCases.forEach(({ input, expected }) => {
@@ -252,7 +257,7 @@ describe('composables/usePlayerControls', () => {
   describe('edge cases', () => {
     it('handles various time values', () => {
       const { selectPage } = usePlayerControls()
-      
+
       const testCases = [0, 3600000, 1500]
 
       testCases.forEach((time) => {

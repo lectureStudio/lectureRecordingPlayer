@@ -6,6 +6,7 @@ import { TestDataFactory } from './__mocks__/test-data-factory'
 import type { PenTool } from '@/api/tool/pen.tool'
 
 // Import action classes
+import type { Action } from '@/api/action/action'
 import { ArrowAction } from '@/api/action/arrow.action'
 import { ClearShapesAction } from '@/api/action/clear-shapes.action'
 import { CloneAction } from '@/api/action/clone.action'
@@ -30,27 +31,30 @@ import { TextChangeAction } from '@/api/action/text-change.action'
 import { TextFontAction } from '@/api/action/text-font.action'
 import { TextHighlightAction } from '@/api/action/text-highlight.action'
 import { TextHighlightActionExt } from '@/api/action/text-highlight.action-ext'
-import { TextFontAction } from '@/api/action/text-font.action'
-import { LatexFontAction } from '@/api/action/latex-font.action'
-import { ExtendViewAction } from '@/api/action/extend-view.action'
-import { RubberActionExt } from '@/api/action/rubber.action-ext'
-import { ScreenAction } from '@/api/action/screen.action'
-import type { Action } from '@/api/action/action'
+import { TextMoveAction } from '@/api/action/text-move.action'
+import { TextRemoveAction } from '@/api/action/text-remove.action'
+import { TextAction } from '@/api/action/text.action'
+import { ToolBeginAction } from '@/api/action/tool-begin.action'
+import { ToolEndAction } from '@/api/action/tool-end.action'
+import { ToolExecuteAction } from '@/api/action/tool-execute.action'
+import { UndoAction } from '@/api/action/undo.action'
+import { ZoomOutAction } from '@/api/action/zoom-out.action'
+import { ZoomAction } from '@/api/action/zoom.action'
 
 describe('Action Classes', () => {
   let mockExecutor: MockActionExecutor
 
   // Helper function to test atomic action execution
-  const testAtomicAction = (ActionClass: new () => Action, expectedToolName: string) => {
+  const testAtomicAction = (ActionClass: new() => Action, expectedToolName: string) => {
     const action = new ActionClass()
     action.execute(mockExecutor)
-    
+
     expect(mockExecutor.executedAtomicTool).toBeDefined()
     expect(mockExecutor.executedAtomicTool?.constructor.name).toBe(expectedToolName)
   }
 
   // Helper function to test action default properties
-  const testActionDefaults = (ActionClass: new () => Action) => {
+  const testActionDefaults = (ActionClass: new() => Action) => {
     const action = new ActionClass()
     expect(action.keyEvent).toBeNull()
     expect(action.timestamp).toBe(0)
@@ -64,7 +68,7 @@ describe('Action Classes', () => {
     const atomicActions = [
       { ActionClass: ClearShapesAction, toolName: 'ClearShapesTool' },
       { ActionClass: UndoAction, toolName: 'UndoTool' },
-      { ActionClass: RedoAction, toolName: 'RedoTool' }
+      { ActionClass: RedoAction, toolName: 'RedoTool' },
     ]
 
     atomicActions.forEach(({ ActionClass, toolName }) => {
@@ -562,7 +566,7 @@ describe('Action Classes', () => {
     describe('ScreenAction', () => {
       it('should call playVideo with correct parameters', () => {
         const action = new ScreenAction(100, 200, 1920, 1080, 'test-video.mp4')
-        
+
         action.execute(mockExecutor)
 
         expect(mockExecutor.setToolCalled).toBe(false)
@@ -572,7 +576,7 @@ describe('Action Classes', () => {
 
       it('should store video parameters', () => {
         const action = new ScreenAction(150, 300, 1280, 720, 'sample.mp4')
-        
+
         expect(action.videoOffset).toBe(150)
         expect(action.videoLength).toBe(300)
         expect(action.contentWidth).toBe(1280)

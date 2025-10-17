@@ -30,7 +30,7 @@ describe('stores/recording', () => {
   })
 
   // Helper function to create mock actions
-  const createMockActions = (count: number): RecordedPage[] => 
+  const createMockActions = (count: number): RecordedPage[] =>
     Array.from({ length: count }, (_, i) => ({
       pageNumber: i,
       staticActions: [],
@@ -88,7 +88,7 @@ describe('stores/recording', () => {
 
     const emptyActionsCases = [
       { actions: [], description: 'empty actions array' },
-      { actions: undefined as unknown as RecordedPage[], description: 'undefined actions' }
+      { actions: undefined as unknown as RecordedPage[], description: 'undefined actions' },
     ]
 
     emptyActionsCases.forEach(({ actions, description }) => {
@@ -167,7 +167,7 @@ describe('stores/recording', () => {
     const validPageTests = [
       { pageNumber: 0, description: 'first page' },
       { pageNumber: 1, description: 'middle page' },
-      { pageNumber: 2, description: 'last page' }
+      { pageNumber: 2, description: 'last page' },
     ]
 
     validPageTests.forEach(({ pageNumber, description }) => {
@@ -180,7 +180,7 @@ describe('stores/recording', () => {
 
     const errorCases = [
       { pageNumber: -1, expectedError: 'Page number -1 out of bounds.' },
-      { pageNumber: 3, expectedError: 'Page number 3 out of bounds.' }
+      { pageNumber: 3, expectedError: 'Page number 3 out of bounds.' },
     ]
 
     errorCases.forEach(({ pageNumber, expectedError }) => {

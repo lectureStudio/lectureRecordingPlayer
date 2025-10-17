@@ -58,7 +58,7 @@ describe('stores/mediaControls', () => {
       const testCases = [
         { input: 150, expected: 100 },
         { input: -10, expected: 0 },
-        { input: 50, expected: 50 }
+        { input: 50, expected: 50 },
       ]
 
       testCases.forEach(({ input, expected }) => {
@@ -70,7 +70,7 @@ describe('stores/mediaControls', () => {
     it('rounds volume to nearest integer', () => {
       const testCases = [
         { input: 50.7, expected: 51 },
-        { input: 50.3, expected: 50 }
+        { input: 50.3, expected: 50 },
       ]
 
       testCases.forEach(({ input, expected }) => {
@@ -96,7 +96,7 @@ describe('stores/mediaControls', () => {
     it('handles edge cases', () => {
       const testCases = [
         { volume: 0, muted: false, prevVolume: 100 },
-        { volume: 100, muted: false, prevVolume: 100 }
+        { volume: 100, muted: false, prevVolume: 100 },
       ]
 
       testCases.forEach(({ volume, muted, prevVolume }) => {
@@ -164,7 +164,7 @@ describe('stores/mediaControls', () => {
       const testCases = [
         { input: 0.1, expected: 0.25 },
         { input: 5, expected: 2 },
-        { input: 1.5, expected: 1.5 }
+        { input: 1.5, expected: 1.5 },
       ]
 
       testCases.forEach(({ input, expected }) => {
@@ -179,14 +179,15 @@ describe('stores/mediaControls', () => {
         { input: 2, expected: 2 },
         { input: '1.5' as unknown as number, expected: 1.5 },
         { input: NaN, expected: NaN },
-        { input: Infinity, expected: 2 }
+        { input: Infinity, expected: 2 },
       ]
 
       testCases.forEach(({ input, expected }) => {
         store.setPlaybackSpeed(input)
         if (Number.isNaN(expected)) {
           expect(store.playbackSpeed).toBeNaN()
-        } else {
+        }
+        else {
           expect(store.playbackSpeed).toBe(expected)
         }
       })

@@ -52,9 +52,9 @@ describe('MediaControlsBar.vue', () => {
   const createWrapper = (
     props: Record<string, unknown> = {},
     initialState: {
-      mediaControls?: Partial<ReturnType<typeof useMediaControlsStore>['$state']>,
+      mediaControls?: Partial<ReturnType<typeof useMediaControlsStore>['$state']>
       recording?: Partial<ReturnType<typeof useRecordingStore>['$state']>
-    } = {}
+    } = {},
   ) => {
     const pinia = createTestingPinia({
       createSpy: vi.fn,

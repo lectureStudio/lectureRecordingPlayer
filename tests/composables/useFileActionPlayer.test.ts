@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import type { RecordedPage } from '@/api/model/recorded-page'
 import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { useRecordingStore } from '@/stores/recording'
-import type { RecordedPage } from '@/api/model/recorded-page'
-import { ref, nextTick } from 'vue'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick, ref } from 'vue'
 
 // Define mock interfaces
 interface MockFileActionPlayer {
@@ -110,14 +110,14 @@ describe('composables/useFileActionPlayer', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    
+
     // Create mock stores
     mockRecordingStore = {
       getPage: vi.fn(),
       actions: ref([]),
       pages: ref([]),
     }
-    
+
     mockMediaStore = {
       currentTime: 0,
       playbackState: 'paused',
@@ -135,7 +135,7 @@ describe('composables/useFileActionPlayer', () => {
       suspend: vi.fn(),
       stop: vi.fn(),
     }
-    
+
     mockFileActionPlayerInstance = mockFileActionPlayer
 
     // Create mock render controller
@@ -146,12 +146,14 @@ describe('composables/useFileActionPlayer', () => {
       showPdfAndCanvas: vi.fn(),
       hidePdfAndCanvas: vi.fn(),
     }
-    
+
     mockRenderControllerInstance = mockRenderController
 
     // Setup mocks
     vi.mocked(useRecordingStore).mockReturnValue(mockRecordingStore as unknown as ReturnType<typeof useRecordingStore>)
-    vi.mocked(useMediaControlsStore).mockReturnValue(mockMediaStore as unknown as ReturnType<typeof useMediaControlsStore>)
+    vi.mocked(useMediaControlsStore).mockReturnValue(
+      mockMediaStore as unknown as ReturnType<typeof useMediaControlsStore>,
+    )
   })
 
   afterEach(() => {
@@ -168,11 +170,11 @@ describe('composables/useFileActionPlayer', () => {
     it('does not reinitialize if player already exists', async () => {
       const composable = useFileActionPlayer()
       await initializePlayerWithMocks(composable)
-      
+
       // Second initialization should not create new player
       const { actionCanvas, volatileCanvas, videoElement } = createMockElements()
       composable.initializePlayer(actionCanvas, volatileCanvas, videoElement)
-      
+
       expect(mockFileActionPlayer).toBeDefined()
     })
 
@@ -187,10 +189,10 @@ describe('composables/useFileActionPlayer', () => {
     it('stops player and cleans up resources', async () => {
       const composable = useFileActionPlayer()
       await initializePlayerWithMocks(composable)
-      
+
       const actualPlayer = composable.actionPlayer.value
       expect(actualPlayer).toBeDefined()
-      
+
       // Mock player state
       if (actualPlayer) {
         vi.mocked(actualPlayer.started).mockReturnValue(true)
@@ -212,10 +214,10 @@ describe('composables/useFileActionPlayer', () => {
     it('handles case when player is suspended', async () => {
       const composable = useFileActionPlayer()
       await initializePlayerWithMocks(composable)
-      
+
       const actualPlayer = composable.actionPlayer.value
       expect(actualPlayer).toBeDefined()
-      
+
       // Mock player state
       if (actualPlayer) {
         vi.mocked(actualPlayer.started).mockReturnValue(false)
@@ -233,7 +235,7 @@ describe('composables/useFileActionPlayer', () => {
   describe('actionPlayer ref', () => {
     it('returns readonly ref to player', async () => {
       const composable = useFileActionPlayer()
-      
+
       // Initially should be null
       expect(composable.actionPlayer.value).toBeNull()
 
@@ -248,7 +250,7 @@ describe('composables/useFileActionPlayer', () => {
 
     it('prevents direct assignment to actionPlayer', () => {
       const { actionPlayer, destroyPlayer } = useFileActionPlayer()
-      
+
       destroyPlayer()
 
       expect(actionPlayer).toBeDefined()
