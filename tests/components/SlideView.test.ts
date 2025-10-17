@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
-import { createTestingPinia } from '@pinia/testing'
-import { nextTick } from 'vue'
-import SlideView from '@/components/SlideView.vue'
 import PDFPageView from '@/components/PDFPageView.vue'
-import { useRecordingStore } from '@/stores/recording'
+import SlideView from '@/components/SlideView.vue'
 import { usePdfStore } from '@/stores/pdf'
+import { useRecordingStore } from '@/stores/recording'
+import { createTestingPinia } from '@pinia/testing'
+import { mount, VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 // Mock the complex composables
 vi.mock('@/composables/useFileActionPlayer.ts', () => ({
@@ -78,20 +78,20 @@ describe('SlideView', () => {
   describe('Rendering', () => {
     it('renders the main slide view container', () => {
       createWrapper()
-      
+
       expect(wrapper.find('.viewer-wrapper').exists()).toBe(true)
     })
 
     it('renders PDF page view component', () => {
       createWrapper()
-      
+
       const pdfPageView = wrapper.findComponent(PDFPageView)
       expect(pdfPageView.exists()).toBe(true)
     })
 
     it('renders action canvas for drawing overlays', () => {
       createWrapper()
-      
+
       const actionCanvas = wrapper.find('canvas.action-canvas')
       expect(actionCanvas.exists()).toBe(true)
       expect(actionCanvas.attributes('class')).toContain('action-canvas')
@@ -99,7 +99,7 @@ describe('SlideView', () => {
 
     it('renders volatile canvas for temporary drawings', () => {
       createWrapper()
-      
+
       const volatileCanvas = wrapper.find('canvas.volatile-canvas')
       expect(volatileCanvas.exists()).toBe(true)
       expect(volatileCanvas.attributes('class')).toContain('volatile-canvas')
@@ -109,10 +109,10 @@ describe('SlideView', () => {
   describe('Canvas Setup', () => {
     it('sets up canvas elements correctly', () => {
       createWrapper()
-      
+
       const actionCanvas = wrapper.find('canvas.action-canvas')
       const volatileCanvas = wrapper.find('canvas.volatile-canvas')
-      
+
       expect(actionCanvas.exists()).toBe(true)
       expect(volatileCanvas.exists()).toBe(true)
       expect(actionCanvas.element.tagName).toBe('CANVAS')
@@ -121,10 +121,10 @@ describe('SlideView', () => {
 
     it('applies correct CSS classes to canvases', () => {
       createWrapper()
-      
+
       const actionCanvas = wrapper.find('canvas.action-canvas')
       const volatileCanvas = wrapper.find('canvas.volatile-canvas')
-      
+
       expect(actionCanvas.classes()).toContain('action-canvas')
       expect(volatileCanvas.classes()).toContain('volatile-canvas')
     })
@@ -133,7 +133,7 @@ describe('SlideView', () => {
   describe('Store Integration', () => {
     it('integrates with recording store', () => {
       createWrapper()
-      
+
       expect(recordingStore).toBeDefined()
       expect(recordingStore.audio).toBeNull()
       expect(recordingStore.actions).toEqual([])
@@ -141,7 +141,7 @@ describe('SlideView', () => {
 
     it('integrates with PDF store', () => {
       createWrapper()
-      
+
       expect(pdfStore).toBeDefined()
       expect(pdfStore.currentPage).toBe(1)
       expect(pdfStore.loading).toBe(false)
@@ -151,11 +151,11 @@ describe('SlideView', () => {
   describe('Responsive Behavior', () => {
     it('handles container resize events', async () => {
       createWrapper()
-      
+
       // Simulate a resize event
       const container = wrapper.find('.viewer-wrapper')
       expect(container.exists()).toBe(true)
-      
+
       // The component should handle resize internally
       await nextTick()
       expect(wrapper.exists()).toBe(true)

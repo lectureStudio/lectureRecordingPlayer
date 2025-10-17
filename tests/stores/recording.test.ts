@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, afterEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-import { useRecordingStore } from '@/stores/recording'
-import type { Recording } from '@/api/model/recording'
-import type { RecordedPage } from '@/api/model/recorded-page'
 import { Page } from '@/api/model/page'
+import type { RecordedPage } from '@/api/model/recorded-page'
+import type { Recording } from '@/api/model/recording'
+import { useRecordingStore } from '@/stores/recording'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the Page class
 vi.mock('@/api/model/page', () => ({
@@ -208,7 +208,7 @@ describe('stores/recording', () => {
         duration: 100,
       }
       store.setRecording(mockRecording)
-      
+
       // The store doesn't specifically validate for integers, just bounds
       // 1.5 is within bounds (0 to 2), but array access with non-integer index returns undefined
       const page = store.getPage(1.5)

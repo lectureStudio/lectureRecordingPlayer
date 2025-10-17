@@ -1,12 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { reactive } from 'vue'
 import App from '@/App.vue'
+import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { reactive } from 'vue'
 
 // Mock child components to focus on mount only
 vi.mock('@/components/NavigationBar.vue', () => ({ default: { name: 'NavigationBar', template: '<div />' } }))
 vi.mock('@/components/SlideView.vue', () => ({ default: { name: 'SlideView', template: '<div />' } }))
-vi.mock('@/components/AppLayout.vue', () => ({ default: { name: 'AppLayout', template: '<div><slot name="top"/><slot name="sidebar"/><slot name="bottom"/><slot/></div>' } }))
+vi.mock(
+  '@/components/AppLayout.vue',
+  () => ({
+    default: {
+      name: 'AppLayout',
+      template: '<div><slot name="top"/><slot name="sidebar"/><slot name="bottom"/><slot/></div>',
+    },
+  }),
+)
 vi.mock('@/components/MediaControlsBar.vue', () => ({ default: { name: 'MediaControlsBar', template: '<div />' } }))
 vi.mock('@/components/PDFThumbnailBar.vue', () => ({ default: { name: 'PDFThumbnailBar', template: '<div />' } }))
 

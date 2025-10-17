@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-import { usePlayerControls } from '@/composables/usePlayerControls'
 import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
+import { usePlayerControls } from '@/composables/usePlayerControls'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { usePdfStore } from '@/stores/pdf'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { watch } from 'vue'
 
 // Mock the dependencies
@@ -194,19 +194,23 @@ describe('composables/usePlayerControls', () => {
 
       expect(vi.mocked(watch)).toHaveBeenCalledWith(
         expect.any(Function),
-        expect.any(Function)
+        expect.any(Function),
       )
     })
 
     it('watcher calls selectPage when PDF page changes', () => {
       const { setupPdfPageSync } = usePlayerControls()
-      
+
       mockFileActionPlayer.actionPlayer.value!.seekByPage.mockReturnValue(20000) // 20 seconds in ms
 
       setupPdfPageSync()
 
       // Get the watcher callback
-      const watchCallback = vi.mocked(watch).mock.calls[0]?.[1] as unknown as (newValue: number, oldValue: number, onCleanup: () => void) => void
+      const watchCallback = vi.mocked(watch).mock.calls[0]?.[1] as unknown as (
+        newValue: number,
+        oldValue: number,
+        onCleanup: () => void,
+      ) => void
 
       // Simulate page change
       watchCallback?.(3, 2, () => {})

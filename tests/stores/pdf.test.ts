@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, afterEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import { loadPdf, terminateWorker } from '@/services/pdfLoader'
 import { usePdfStore } from '@/stores/pdf'
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
 import type { EventBus } from 'pdfjs-dist/web/pdf_viewer.mjs'
-import { loadPdf, terminateWorker } from '@/services/pdfLoader'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the PDF loader service
 vi.mock('@/services/pdfLoader', () => ({
@@ -37,7 +37,7 @@ Object.defineProperty(global, 'DOMMatrix', {
     d = 1
     e = 0
     f = 0
-    
+
     constructor(matrix?: Partial<DOMMatrix>) {
       if (matrix) {
         Object.assign(this, matrix)
@@ -277,7 +277,7 @@ describe('stores/pdf', () => {
       // Set up document with enough pages
       vi.mocked(loadPdf).mockResolvedValue(mockPdfDocument)
       await store.load('test.pdf')
-      
+
       store.setEventBus(mockEventBus)
       store.currentPage = 1
 

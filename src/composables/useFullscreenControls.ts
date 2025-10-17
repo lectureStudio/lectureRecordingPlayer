@@ -7,6 +7,7 @@ const controlsVisible = ref<boolean>(true)
 let hideControlsTimer: number | null = null
 let consumers = 0
 let listenersAttached = false
+let timeoutPaused = false
 
 function clearHideTimer() {
   if (hideControlsTimer !== null) {
@@ -17,7 +18,7 @@ function clearHideTimer() {
 
 function scheduleHideControls() {
   clearHideTimer()
-  if (fullscreen.value) {
+  if (fullscreen.value && !timeoutPaused) {
     hideControlsTimer = window.setTimeout(() => {
       controlsVisible.value = false
     }, 2500)
@@ -28,6 +29,18 @@ function onUserActivity() {
   if (!fullscreen.value) { return }
   controlsVisible.value = true
   scheduleHideControls()
+}
+
+function pauseTimeout() {
+  timeoutPaused = true
+  clearHideTimer()
+}
+
+function resumeTimeout() {
+  timeoutPaused = false
+  if (fullscreen.value) {
+    scheduleHideControls()
+  }
 }
 
 async function toggleFullscreen() {
@@ -126,5 +139,7 @@ export function useFullscreenControls() {
     controlsVisible,
     toggleFullscreen,
     onUserActivity,
+    pauseTimeout,
+    resumeTimeout,
   }
 }
