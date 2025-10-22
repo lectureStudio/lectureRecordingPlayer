@@ -2,6 +2,8 @@
 import AppIcon from '@/components/AppIcon.vue'
 import { useSettingsStore } from '@/stores/settings'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { Splitpanes, Pane } from 'splitpanes'
+import 'splitpanes/dist/splitpanes.css'
 
 // Settings store: preferred source of sidebar position
 const settings = useSettingsStore()
@@ -48,26 +50,38 @@ onMounted(() => {
 
     <!-- Main area: sidebar + content on md+; on mobile only content -->
     <div class="flex-1 min-h-0 flex">
-      <!-- Desktop sidebar (md and up) -->
-      <aside
-        v-if="showSidebar"
-        class="hidden lg:block w-64 shrink-0 border-base-300 bg-base-100"
-        :class="[
-          isLeft ? 'order-1 border-r' : 'order-3 border-l',
-        ]"
-        aria-label="Sidebar"
-      >
-        <div class="flex h-full overflow-auto">
-          <slot name="sidebar"></slot>
-        </div>
-      </aside>
-
-      <!-- Main content -->
-      <main class="flex-1 min-w-0 min-h-0 overflow-auto order-2">
-        <section class="h-full">
-          <slot></slot>
-        </section>
-      </main>
+      <splitpanes class="default-theme h-full">
+        <pane v-if="isLeft && showSidebar" min-size="5" max-size="30" class="hidden lg:block shrink-0">
+          <!-- Desktop sidebar (md and up) -->
+          <aside
+              class="hidden lg:block w-full h-full shrink-0 border-r border-base-300 bg-base-100"
+              aria-label="Sidebar"
+          >
+            <div class="flex h-full overflow-auto">
+              <slot name="sidebar"></slot>
+            </div>
+          </aside>
+        </pane>
+        <pane class="flex-1">
+          <!-- Main content -->
+          <main class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
+            <section class="h-full">
+              <slot></slot>
+            </section>
+          </main>
+        </pane>
+        <pane v-if="!isLeft && showSidebar" min-size="5" max-size="30" class="hidden lg:block shrink-0">
+          <!-- Desktop sidebar (md and up) -->
+          <aside
+              class="hidden lg:block w-full h-full shrink-0 border-l border-base-300 bg-base-100"
+              aria-label="Sidebar"
+          >
+            <div class="flex h-full overflow-auto">
+              <slot name="sidebar"></slot>
+            </div>
+          </aside>
+        </pane>
+      </splitpanes>
     </div>
 
     <!-- Bottom bar -->
