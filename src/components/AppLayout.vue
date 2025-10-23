@@ -133,7 +133,7 @@ onMounted(() => {
           </aside>
           <main v-else class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
             <section class="h-full">
-              <slot></slot>
+              <slot name="main"></slot>
             </section>
           </main>
         </template>
@@ -145,7 +145,7 @@ onMounted(() => {
             class="flex-1 h-full min-w-0 min-h-0 overflow-auto"
           >
             <section class="h-full">
-              <slot></slot>
+              <slot name="main"></slot>
             </section>
           </main>
           <aside
@@ -163,7 +163,7 @@ onMounted(() => {
       <!-- Mobile/Small screens: Just main content (no split pane) -->
       <main v-else class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
         <section class="h-full">
-          <slot></slot>
+          <slot name="main"></slot>
         </section>
       </main>
     </div>

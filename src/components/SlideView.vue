@@ -6,7 +6,7 @@ import type { EventBus } from 'pdfjs-dist/web/pdf_viewer.mjs'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 const pdfStore = usePdfStore()
-const { initializePlayer } = useFileActionPlayer()
+const { initializePlayer, destroyPlayer } = useFileActionPlayer()
 
 const wrapperRef = ref<HTMLDivElement | null>(null)
 const actionCanvasRef = ref<HTMLCanvasElement | null>(null)
@@ -105,6 +105,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   detachBus()
+  destroyPlayer()
 })
 </script>
 

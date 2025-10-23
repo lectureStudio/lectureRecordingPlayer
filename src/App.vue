@@ -117,7 +117,9 @@ onBeforeUnmount(() => {
     <template #bottom>
       <MediaControlsBar />
     </template>
-    <SlideView />
+    <template #main>
+      <SlideView />
+    </template>
   </AppLayout>
 
   <!-- Global keyboard shortcuts dialog - always accessible -->
