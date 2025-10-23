@@ -54,6 +54,10 @@ describe('stores/settings', () => {
     it('has correct default values', () => {
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
     })
   })
 
@@ -68,11 +72,23 @@ describe('stores/settings', () => {
     })
   })
 
+  describe('setSplitPaneSizes', () => {
+    it('sets split pane sizes', () => {
+      const newSizes = { sidebar: 20, main: 80 }
+      store.setSplitPaneSizes(newSizes)
+      expect(store.splitPaneSizes).toEqual(newSizes)
+    })
+  })
+
   describe('loadFromStorage', () => {
     it('loads valid settings from storage', () => {
       const mockSettings = {
         sidebarPosition: 'right' as const,
         theme: 'dark' as const,
+        splitPaneSizes: {
+          sidebar: 20,
+          main: 80,
+        },
       }
 
       setupSuccessfulLoad(mockSettings)
@@ -81,6 +97,10 @@ describe('stores/settings', () => {
       expect(result).toBe(true)
       expect(store.sidebarPosition).toBe('right')
       expect(store.theme).toBe('dark')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 20,
+        main: 80,
+      })
       expect(loadJSON).toHaveBeenCalledWith('app:settings')
     })
 
@@ -91,6 +111,10 @@ describe('stores/settings', () => {
       expect(result).toBe(false)
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
     })
 
     it('returns false when data is invalid', () => {
@@ -105,6 +129,10 @@ describe('stores/settings', () => {
       expect(result).toBe(false)
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
       expect(consoleSpy).toHaveBeenCalledWith('Invalid settings in storage, ignoring', expect.any(Error))
 
       consoleSpy.mockRestore()
@@ -122,6 +150,10 @@ describe('stores/settings', () => {
         data: {
           sidebarPosition: 'left', // Default value
           theme: 'dark',
+          splitPaneSizes: {
+            sidebar: 15,
+            main: 85,
+          },
         },
       })
 
@@ -130,6 +162,10 @@ describe('stores/settings', () => {
       expect(result).toBe(true)
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('dark')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
     })
 
     it('handles storage errors gracefully', () => {
@@ -151,6 +187,10 @@ describe('stores/settings', () => {
       expect(saveJSON).toHaveBeenCalledWith('app:settings', {
         sidebarPosition: 'right',
         theme: 'dark',
+        splitPaneSizes: {
+          sidebar: 15,
+          main: 85,
+        },
       })
     })
 
@@ -160,6 +200,10 @@ describe('stores/settings', () => {
       expect(saveJSON).toHaveBeenCalledWith('app:settings', {
         sidebarPosition: 'left',
         theme: 'light',
+        splitPaneSizes: {
+          sidebar: 15,
+          main: 85,
+        },
       })
     })
 
@@ -187,9 +231,17 @@ describe('stores/settings', () => {
 
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
       expect(saveJSON).toHaveBeenCalledWith('app:settings', {
         sidebarPosition: 'left',
         theme: 'light',
+        splitPaneSizes: {
+          sidebar: 15,
+          main: 85,
+        },
       })
     })
 
@@ -201,6 +253,10 @@ describe('stores/settings', () => {
 
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
       expect(saveJSON).toHaveBeenCalled()
     })
   })
@@ -213,6 +269,10 @@ describe('stores/settings', () => {
       const mockSettings = {
         sidebarPosition: 'right' as const,
         theme: 'dark' as const,
+        splitPaneSizes: {
+          sidebar: 20,
+          main: 80,
+        },
       }
 
       // Mock successful load
@@ -227,6 +287,10 @@ describe('stores/settings', () => {
       expect(loadResult).toBe(true)
       expect(store.sidebarPosition).toBe('right')
       expect(store.theme).toBe('dark')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 20,
+        main: 80,
+      })
 
       // Modify settings
       store.setTheme('dark')
@@ -236,6 +300,10 @@ describe('stores/settings', () => {
       expect(saveJSON).toHaveBeenCalledWith('app:settings', {
         sidebarPosition: 'right',
         theme: 'dark',
+        splitPaneSizes: {
+          sidebar: 20,
+          main: 80,
+        },
       })
     })
 
@@ -246,6 +314,10 @@ describe('stores/settings', () => {
       // Start with defaults
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
 
       // Change theme
       store.setTheme('dark')
@@ -256,12 +328,20 @@ describe('stores/settings', () => {
       expect(saveJSON).toHaveBeenCalledWith('app:settings', {
         sidebarPosition: 'left',
         theme: 'dark',
+        splitPaneSizes: {
+          sidebar: 15,
+          main: 85,
+        },
       })
 
       // Reset to defaults
       store.resetToDefaults()
       expect(store.sidebarPosition).toBe('left')
       expect(store.theme).toBe('light')
+      expect(store.splitPaneSizes).toEqual({
+        sidebar: 15,
+        main: 85,
+      })
     })
   })
 
@@ -275,7 +355,14 @@ describe('stores/settings', () => {
     edgeCases.forEach(({ data, expectedResult, description }) => {
       it(`handles ${description} in storage`, () => {
         if (description === 'empty object') {
-          setupSuccessfulLoad({ sidebarPosition: 'left', theme: 'light' })
+          setupSuccessfulLoad({
+            sidebarPosition: 'left',
+            theme: 'light',
+            splitPaneSizes: {
+              sidebar: 15,
+              main: 85,
+            },
+          })
         }
         else {
           vi.mocked(loadJSON).mockReturnValue(data)
@@ -312,7 +399,7 @@ describe('stores/settings', () => {
   describe('type safety', () => {
     it('accepts valid theme and sidebar position values', () => {
       const validThemes = ['light', 'dark'] as const
-      const validPositions = ['left', 'right'] as const
+      const validPositions = ['left', 'right', 'none'] as const
 
       validThemes.forEach(theme => {
         store.setTheme(theme)
@@ -323,6 +410,12 @@ describe('stores/settings', () => {
         store.sidebarPosition = position
         expect(store.sidebarPosition).toBe(position)
       })
+    })
+
+    it('accepts valid split pane sizes', () => {
+      const validSizes = { sidebar: 10, main: 90 }
+      store.setSplitPaneSizes(validSizes)
+      expect(store.splitPaneSizes).toEqual(validSizes)
     })
   })
 })

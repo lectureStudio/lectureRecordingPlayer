@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import AppIcon from '@/components/AppIcon.vue'
+import SplitPane from '@/components/SplitPane.vue'
 import { useSettingsStore } from '@/stores/settings'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { Splitpanes, Pane } from 'splitpanes'
-import 'splitpanes/dist/splitpanes.css'
 
 // Settings store: preferred source of sidebar position
 const settings = useSettingsStore()
@@ -12,6 +11,56 @@ const settings = useSettingsStore()
 const position = computed(() => settings.sidebarPosition ?? 'right')
 const isLeft = computed(() => position.value === 'left')
 const showSidebar = computed(() => position.value !== 'none')
+
+// Responsive state
+const isLargeScreen = ref(false)
+
+// Check if the screen is large enough for the sidebar
+const checkScreenSize = () => {
+  isLargeScreen.value = window.innerWidth >= 1024 // lg breakpoint
+}
+
+// Show sidebar only on large screens AND when sidebar is enabled
+const shouldShowSidebar = computed(() =>
+  showSidebar.value && isLargeScreen.value
+)
+
+// Use computed properties to get/set split pane sizes from settings
+const sidePaneSize = computed({
+  get: () => settings.splitPaneSizes.sidebar,
+  set: (value: number) => {
+    settings.setSplitPaneSizes({
+      ...settings.splitPaneSizes,
+      sidebar: value,
+    })
+  },
+})
+
+const mainPaneSize = computed({
+  get: () => settings.splitPaneSizes.main,
+  set: (value: number) => {
+    settings.setSplitPaneSizes({
+      ...settings.splitPaneSizes,
+      main: value,
+    })
+  },
+})
+
+function onPaneResize({ first, second }: { first: number; second: number }) {
+  // Correctly identify which pane is sidebar vs. main based on the current position
+  const [sidebarSize, mainSize] = isLeft.value
+    ? [first, second]
+    : [second, first]
+
+  // Update settings store with new sizes
+  settings.setSplitPaneSizes({
+    sidebar: sidebarSize,
+    main: mainSize,
+  })
+
+  // Persist the changes
+  settings.persist()
+}
 
 // Fullscreen awareness for layout adjustments
 const fullscreenActive = ref<boolean>(false)
@@ -24,6 +73,12 @@ onMounted(() => {
   document.addEventListener('fullscreenchange', onFsChange)
   onFsChange()
 
+  // Check the initial screen size
+  checkScreenSize()
+
+  // Listen for window resize
+  window.addEventListener('resize', checkScreenSize)
+
   const observer = new MutationObserver(onFsChange)
   observer.observe(document.documentElement, {
     attributes: true,
@@ -32,6 +87,7 @@ onMounted(() => {
 
   onUnmounted(() => {
     document.removeEventListener('fullscreenchange', onFsChange)
+    window.removeEventListener('resize', checkScreenSize)
     observer.disconnect()
   })
 })
@@ -48,40 +104,68 @@ onMounted(() => {
       <slot name="top"></slot>
     </header>
 
-    <!-- Main area: sidebar + content on md+; on mobile only content -->
+    <!-- Main area: responsive sidebar + content -->
     <div class="flex-1 min-h-0 flex">
-      <splitpanes class="default-theme h-full">
-        <pane v-if="isLeft && showSidebar" min-size="5" max-size="30" class="hidden lg:block shrink-0">
-          <!-- Desktop sidebar (md and up) -->
+      <!-- Desktop: SplitPane with sidebar (only on large screens) -->
+      <SplitPane
+        v-if="shouldShowSidebar"
+        @resize="onPaneResize"
+        class="h-full"
+        :first-pane-size="isLeft ? sidePaneSize : mainPaneSize"
+        :first-pane-min-size="isLeft ? 5 : 70"
+        :first-pane-max-size="isLeft ? 30 : 95"
+        :second-pane-size="isLeft ? mainPaneSize : sidePaneSize"
+        :second-pane-min-size="isLeft ? 70 : 5"
+        :second-pane-max-size="isLeft ? 95 : 30"
+        :vertical="true"
+        :resizable="true"
+      >
+        <!-- First pane: sidebar when left, main when right -->
+        <template #first>
           <aside
-              class="hidden lg:block w-full h-full shrink-0 border-r border-base-300 bg-base-100"
-              aria-label="Sidebar"
+            v-if="isLeft"
+            class="w-full h-full shrink-0 border-r border-base-300 bg-base-100"
+            aria-label="Sidebar"
           >
             <div class="flex h-full overflow-auto">
               <slot name="sidebar"></slot>
             </div>
           </aside>
-        </pane>
-        <pane class="flex-1">
-          <!-- Main content -->
-          <main class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
+          <main v-else class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
             <section class="h-full">
               <slot></slot>
             </section>
           </main>
-        </pane>
-        <pane v-if="!isLeft && showSidebar" min-size="5" max-size="30" class="hidden lg:block shrink-0">
-          <!-- Desktop sidebar (md and up) -->
+        </template>
+
+        <!-- Second pane: main when left, sidebar when right -->
+        <template #second>
+          <main
+            v-if="isLeft"
+            class="flex-1 h-full min-w-0 min-h-0 overflow-auto"
+          >
+            <section class="h-full">
+              <slot></slot>
+            </section>
+          </main>
           <aside
-              class="hidden lg:block w-full h-full shrink-0 border-l border-base-300 bg-base-100"
-              aria-label="Sidebar"
+            v-else
+            class="w-full h-full shrink-0 border-l border-base-300 bg-base-100"
+            aria-label="Sidebar"
           >
             <div class="flex h-full overflow-auto">
               <slot name="sidebar"></slot>
             </div>
           </aside>
-        </pane>
-      </splitpanes>
+        </template>
+      </SplitPane>
+
+      <!-- Mobile/Small screens: Just main content (no split pane) -->
+      <main v-else class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
+        <section class="h-full">
+          <slot></slot>
+        </section>
+      </main>
     </div>
 
     <!-- Bottom bar -->
@@ -94,7 +178,7 @@ onMounted(() => {
   </div>
 
   <!-- Mobile drawer for sidebar (DaisyUI) -->
-  <div v-if="showSidebar" class="drawer lg:hidden">
+  <div v-if="showSidebar && !isLargeScreen" class="drawer">
     <input id="app-drawer" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content"></div>
     <div class="drawer-side" :class="isLeft ? 'drawer-start' : 'drawer-end'">

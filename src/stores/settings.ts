@@ -8,6 +8,10 @@ const STORAGE_KEY = 'app:settings'
 const defaults: AppSettings = {
   sidebarPosition: 'left',
   theme: 'light',
+  splitPaneSizes: {
+    sidebar: 15,
+    main: 85,
+  },
 }
 
 export const useSettingsStore = defineStore('settings', {
@@ -15,6 +19,10 @@ export const useSettingsStore = defineStore('settings', {
   actions: {
     setTheme(theme: AppSettings['theme']) {
       this.theme = theme
+    },
+
+    setSplitPaneSizes(sizes: AppSettings['splitPaneSizes']) {
+      this.splitPaneSizes = sizes
     },
 
     // Returns true if valid settings were loaded from storage, false otherwise
