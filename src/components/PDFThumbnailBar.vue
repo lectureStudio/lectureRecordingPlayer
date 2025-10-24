@@ -252,8 +252,31 @@ function sizeCanvasForPage(canvas: HTMLCanvasElement, page: PDFPageProxy) {
   const targetH = Math.floor(viewport.height * dpr)
 
   if (canvas.width !== targetW || canvas.height !== targetH) {
-    canvas.width = targetW
-    canvas.height = targetH
+    // Create a temporary canvas to preserve content during resize
+    const tempCanvas = document.createElement('canvas')
+    const tempCtx = tempCanvas.getContext('2d')
+    const mainCtx = canvas.getContext('2d')
+
+    if (tempCtx && mainCtx && canvas.width > 0 && canvas.height > 0) {
+      // Set temp canvas size to current canvas size
+      tempCanvas.width = canvas.width
+      tempCanvas.height = canvas.height
+
+      // Copy current content to temp canvas using drawImage (much faster than ImageData)
+      tempCtx.drawImage(canvas, 0, 0)
+
+      // Resize main canvas
+      canvas.width = targetW
+      canvas.height = targetH
+
+      // Restore content from temp canvas
+      mainCtx.drawImage(tempCanvas, 0, 0, targetW, targetH)
+    }
+    else {
+      // No existing content, just resize
+      canvas.width = targetW
+      canvas.height = targetH
+    }
   }
 
   return { targetW, targetH }
@@ -617,6 +640,8 @@ onBeforeUnmount(() => {
   width: 100%;
   height: auto;
   display: block;
+  transition: transform 0.1s ease-out;
+  background-color: #f8f9fa;
 }
 .label {
   font-size: 12px;
