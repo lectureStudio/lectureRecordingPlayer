@@ -152,8 +152,14 @@ const handleMove = (clientX: number, clientY: number) => {
     : containerRect.height
 
   const deltaPercent = (delta / containerSize) * 100
-  const newFirstSize = startFirstSize.value + deltaPercent
-  const newSecondSize = startSecondSize.value - deltaPercent
+
+  // When order is 'second-first', the visual order is reversed, so we need to invert the delta
+  const adjustedDelta = props.order === 'second-first'
+    ? -deltaPercent
+    : deltaPercent
+
+  const newFirstSize = startFirstSize.value + adjustedDelta
+  const newSecondSize = startSecondSize.value - adjustedDelta
 
   updateSizes(newFirstSize, newSecondSize)
 }

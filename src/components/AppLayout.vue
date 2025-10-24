@@ -47,10 +47,10 @@ const mainPaneSize = computed({
 })
 
 function onPaneResize({ first, second }: { first: number; second: number }) {
-  // Correctly identify which pane is sidebar vs. main based on the current position
-  const [sidebarSize, mainSize] = isLeft.value
-    ? [first, second]
-    : [second, first]
+  // The SplitPane is always configured with first pane as sidebar and second pane as main
+  // regardless of the visual order (which is handled by the order prop)
+  const sidebarSize = first
+  const mainSize = second
 
   // Update settings store with new sizes
   settings.setSplitPaneSizes({

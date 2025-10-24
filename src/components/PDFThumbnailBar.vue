@@ -488,6 +488,10 @@ watch(measuredWidth, async () => {
   canvasMap.value.forEach((_c, pageNum) => {
     void renderPage(pageNum)
   })
+
+  if (pdfStore.currentPage > 0) {
+    scroller.value?.scrollToItem(pdfStore.currentPage - 1)
+  }
 })
 
 onMounted(async () => {
