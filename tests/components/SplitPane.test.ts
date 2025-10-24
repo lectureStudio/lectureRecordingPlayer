@@ -56,6 +56,30 @@ describe('SplitPane', () => {
       expect(wrapper.find('.split-pane-splitter').exists()).toBe(true)
     })
 
+    it('renders with default order (first-second)', () => {
+      createWrapper()
+
+      const firstPane = wrapper.find('.split-pane-first')
+      const secondPane = wrapper.find('.split-pane-second')
+      const splitter = wrapper.find('.split-pane-splitter')
+
+      expect(firstPane.attributes('style')).toContain('order: 1')
+      expect(secondPane.attributes('style')).toContain('order: 3')
+      expect(splitter.attributes('style')).toContain('order: 2')
+    })
+
+    it('renders with second-first order', () => {
+      createWrapper({ order: 'second-first' })
+
+      const firstPane = wrapper.find('.split-pane-first')
+      const secondPane = wrapper.find('.split-pane-second')
+      const splitter = wrapper.find('.split-pane-splitter')
+
+      expect(firstPane.attributes('style')).toContain('order: 3')
+      expect(secondPane.attributes('style')).toContain('order: 1')
+      expect(splitter.attributes('style')).toContain('order: 2')
+    })
+
     it('renders with custom props', () => {
       createWrapper({
         firstPaneSize: 30,

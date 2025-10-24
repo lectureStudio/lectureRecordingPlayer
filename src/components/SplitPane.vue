@@ -20,6 +20,8 @@ interface Props {
   resizable?: boolean
   /** Size of the splitter handle in pixels */
   splitterSize?: number
+  /** Order of panes: 'first-second' (default) or 'second-first' */
+  order?: 'first-second' | 'second-first'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -32,6 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
   vertical: true,
   resizable: true,
   splitterSize: 8,
+  order: 'first-second',
 })
 
 interface Emits {
@@ -118,6 +121,11 @@ const splitterStyle = computed(() => ({
     ? (props.vertical ? 'col-resize' : 'row-resize')
     : 'default',
 }))
+
+// Computed order values for flex layout
+const firstPaneOrder = computed(() => props.order === 'first-second' ? 1 : 3)
+const secondPaneOrder = computed(() => props.order === 'first-second' ? 3 : 1)
+const splitterOrder = computed(() => props.order === 'first-second' ? 2 : 2)
 
 // Unified event handlers
 const startDrag = (clientX: number, clientY: number) => {
@@ -231,7 +239,7 @@ defineExpose({
     <div
       ref="firstPaneRef"
       class="split-pane-pane split-pane-first"
-      :style="firstPaneStyle"
+      :style="{ ...firstPaneStyle, order: firstPaneOrder }"
     >
       <slot name="first"></slot>
     </div>
@@ -240,7 +248,7 @@ defineExpose({
       v-if="resizable"
       ref="splitterRef"
       class="split-pane-splitter"
-      :style="splitterStyle"
+      :style="{ ...splitterStyle, order: splitterOrder }"
       @mousedown="handleMouseDown"
       @touchstart="handleTouchStart"
     >
@@ -250,7 +258,7 @@ defineExpose({
     <div
       ref="secondPaneRef"
       class="split-pane-pane split-pane-second"
-      :style="secondPaneStyle"
+      :style="{ ...secondPaneStyle, order: secondPaneOrder }"
     >
       <slot name="second"></slot>
     </div>

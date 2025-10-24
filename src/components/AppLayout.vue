@@ -111,52 +111,36 @@ onMounted(() => {
         v-if="shouldShowSidebar"
         @resize="onPaneResize"
         class="h-full"
-        :first-pane-size="isLeft ? sidePaneSize : mainPaneSize"
-        :first-pane-min-size="isLeft ? 5 : 70"
-        :first-pane-max-size="isLeft ? 30 : 95"
-        :second-pane-size="isLeft ? mainPaneSize : sidePaneSize"
-        :second-pane-min-size="isLeft ? 70 : 5"
-        :second-pane-max-size="isLeft ? 95 : 30"
+        :first-pane-size="sidePaneSize"
+        :first-pane-min-size="5"
+        :first-pane-max-size="30"
+        :second-pane-size="mainPaneSize"
+        :second-pane-min-size="70"
+        :second-pane-max-size="95"
         :vertical="true"
         :resizable="true"
+        :order="isLeft ? 'first-second' : 'second-first'"
       >
-        <!-- First pane: sidebar when left, main when right -->
+        <!-- First pane: always sidebar -->
         <template #first>
           <aside
-            v-if="isLeft"
-            class="w-full h-full shrink-0 border-r border-base-300 bg-base-100"
+            class="w-full h-full shrink-0 border-base-300 bg-base-100"
+            :class="isLeft ? 'border-r' : 'border-l'"
             aria-label="Sidebar"
           >
             <div class="flex h-full overflow-auto">
               <slot name="sidebar"></slot>
             </div>
           </aside>
-          <main v-else class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
-            <section class="h-full">
-              <slot name="main"></slot>
-            </section>
-          </main>
         </template>
 
-        <!-- Second pane: main when left, sidebar when right -->
+        <!-- Second pane: always main content -->
         <template #second>
-          <main
-            v-if="isLeft"
-            class="flex-1 h-full min-w-0 min-h-0 overflow-auto"
-          >
+          <main class="flex-1 h-full min-w-0 min-h-0 overflow-auto">
             <section class="h-full">
               <slot name="main"></slot>
             </section>
           </main>
-          <aside
-            v-else
-            class="w-full h-full shrink-0 border-l border-base-300 bg-base-100"
-            aria-label="Sidebar"
-          >
-            <div class="flex h-full overflow-auto">
-              <slot name="sidebar"></slot>
-            </div>
-          </aside>
         </template>
       </SplitPane>
 
