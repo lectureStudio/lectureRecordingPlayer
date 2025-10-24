@@ -7,12 +7,19 @@
     "dev": "vite --host",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
+    "prepare": "husky",
     "lint": "eslint . --fix",
     "format": "dprint fmt",
     "format:check": "dprint check",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
+  },
+  "lint-staged": {
+    "**/*.{ts,vue,css,md}": [
+      "eslint --fix",
+      "dprint fmt"
+    ]
   },
   "dependencies": {
     "@fluentui/svg-icons": "^1.1.312",
@@ -36,7 +43,9 @@
     "dprint": "^0.50.2",
     "eslint": "^9.38.0",
     "eslint-plugin-vue": "^10.5.1",
+    "husky": "^9.1.7",
     "jsdom": "^27.0.1",
+    "lint-staged": "^16.2.6",
     "typescript": "^5.9.3",
     "vite": "^7.1.11",
     "vite-plugin-singlefile": "^2.3.0",
