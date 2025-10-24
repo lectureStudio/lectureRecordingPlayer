@@ -11,7 +11,7 @@ import type { ShapeRenderer } from './shape.renderer'
  */
 class RenderSurface {
   /** The HTML canvas element used for rendering */
-  protected readonly canvas: HTMLCanvasElement
+  protected canvas: HTMLCanvasElement
 
   /** The 2D rendering context for the canvas */
   protected canvasContext: CanvasRenderingContext2D | null
@@ -56,6 +56,30 @@ class RenderSurface {
    */
   getDrawableCanvas(): HTMLCanvasElement {
     return this.canvas
+  }
+
+  /**
+   * Updates the canvas element used for rendering.
+   * This is useful when the canvas element changes (e.g., component remounting).
+   *
+   * @param newCanvas - The new HTML canvas element to use for rendering.
+   */
+  setCanvas(newCanvas: HTMLCanvasElement): void {
+    // Cancel any ongoing render task
+    if (this.renderTask) {
+      this.renderTask.cancel()
+      this.renderTask = null
+    }
+
+    // Update the canvas and context
+    this.canvas = newCanvas
+    this.canvasContext = newCanvas.getContext('2d')
+
+    // Reset rendering state since we have a new canvas
+    this.lastRenderedPage = undefined
+    this.lastRenderedScale = undefined
+    this.lastRenderedX = undefined
+    this.lastRenderedY = undefined
   }
 
   /**

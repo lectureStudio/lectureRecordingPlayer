@@ -2,6 +2,7 @@
 import KeyboardShortcutsDialog from '@/components/KeyboardShortcutsDialog.vue'
 import NavigationBar from '@/components/NavigationBar.vue'
 import SlideView from '@/components/SlideView.vue'
+import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts.ts'
 import { loadRecording } from '@/services/recordingLoader'
 import { useMediaControlsStore } from '@/stores/mediaControls'
@@ -19,10 +20,11 @@ const mediaStore = useMediaControlsStore()
 const pdfStore = usePdfStore()
 const recordingStore = useRecordingStore()
 const videoMappingStore = useVideoMappingStore()
+const { initializePlayer, destroyPlayer } = useFileActionPlayer()
 
 // base64 encoded recording used in production
 const recording = '#{recording}'
-// json string of video mapping (string to base64 encoded video) used in production
+// JSON string of video mapping (string to base64 encoded video) used in production
 const videoMapping = '#{videoMapping}'
 
 // Initialize screen wake lock
@@ -61,6 +63,10 @@ onMounted(async () => {
       recordingStore,
       pdfStore,
     })
+
+    // Initialize the player after recording is loaded
+    // The player will be initialized when canvas elements are registered by SlideView
+    initializePlayer()
   }
   catch (error) {
     console.error('Failed to load recording:', error)
@@ -93,7 +99,7 @@ onMounted(async () => {
   document.addEventListener('visibilitychange', handleVisibilityChangeEvent)
 })
 
-// Cleanup visibility change listener on unmount
+// Cleanup visibility change listener on unmounting
 onBeforeUnmount(() => {
   if (handleVisibilityChangeEvent) {
     document.removeEventListener(
@@ -103,6 +109,7 @@ onBeforeUnmount(() => {
   }
   // Dispose resources
   pdfStore.dispose()
+  destroyPlayer()
 })
 </script>
 
@@ -117,7 +124,9 @@ onBeforeUnmount(() => {
     <template #bottom>
       <MediaControlsBar />
     </template>
-    <SlideView />
+    <template #main>
+      <SlideView />
+    </template>
   </AppLayout>
 
   <!-- Global keyboard shortcuts dialog - always accessible -->

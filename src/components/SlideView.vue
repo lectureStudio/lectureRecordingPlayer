@@ -6,7 +6,7 @@ import type { EventBus } from 'pdfjs-dist/web/pdf_viewer.mjs'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 const pdfStore = usePdfStore()
-const { initializePlayer } = useFileActionPlayer()
+const { registerCanvasElements } = useFileActionPlayer()
 
 const wrapperRef = ref<HTMLDivElement | null>(null)
 const actionCanvasRef = ref<HTMLCanvasElement | null>(null)
@@ -99,7 +99,7 @@ onMounted(() => {
   const video = videoRef.value
 
   if (action && volatile && video) {
-    initializePlayer(action, volatile, video)
+    registerCanvasElements(action, volatile, video)
   }
 })
 

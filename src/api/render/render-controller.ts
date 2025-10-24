@@ -180,6 +180,36 @@ class RenderController {
     }
   }
 
+  /**
+   * Updates the canvas elements used by the render controller.
+   * This allows updating the canvas elements without recreating the entire controller.
+   *
+   * @param actionCanvas - The new HTMLCanvasElement for permanent annotations.
+   * @param volatileCanvas - The new HTMLCanvasElement for temporary annotations.
+   * @param videoElement - The new HTMLVideoElement for video playback.
+   */
+  updateCanvasElements(
+    actionCanvas: HTMLCanvasElement,
+    volatileCanvas: HTMLCanvasElement,
+    videoElement: HTMLVideoElement,
+  ): void {
+    // Update the render surfaces with new canvas elements
+    this.actionRenderSurface.setCanvas(actionCanvas)
+    this.volatileRenderSurface.setCanvas(volatileCanvas)
+    this.videoRenderSurface.setVideoElement(videoElement)
+
+    // Update the resize observer to observe the new action canvas
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+    }
+    this.setupResizeObserver()
+
+    // Re-render all layers if we have a page and are not seeking
+    if (this.page && !this.seek) {
+      this.renderAllLayers()
+    }
+  }
+
   beginBulkRender(): void {
     if (!this.seek) {
       this.disableRendering()

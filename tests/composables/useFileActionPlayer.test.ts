@@ -24,6 +24,7 @@ interface MockRenderController {
   updateVideoPlaybackState: ReturnType<typeof vi.fn>
   showPdfAndCanvas: ReturnType<typeof vi.fn>
   hidePdfAndCanvas: ReturnType<typeof vi.fn>
+  updateCanvasElements: ReturnType<typeof vi.fn>
 }
 
 interface MockRecordingStore {
@@ -103,7 +104,8 @@ describe('composables/useFileActionPlayer', () => {
   // Helper function to initialize player with mock elements
   const initializePlayerWithMocks = async (composable: ReturnType<typeof useFileActionPlayer>) => {
     const { actionCanvas, volatileCanvas, videoElement } = createMockElements()
-    composable.initializePlayer(actionCanvas, volatileCanvas, videoElement)
+    composable.registerCanvasElements(actionCanvas, volatileCanvas, videoElement)
+    composable.initializePlayer()
     await nextTick()
     return { actionCanvas, volatileCanvas, videoElement }
   }
@@ -145,6 +147,7 @@ describe('composables/useFileActionPlayer', () => {
       updateVideoPlaybackState: vi.fn(),
       showPdfAndCanvas: vi.fn(),
       hidePdfAndCanvas: vi.fn(),
+      updateCanvasElements: vi.fn(),
     }
 
     mockRenderControllerInstance = mockRenderController
@@ -160,6 +163,23 @@ describe('composables/useFileActionPlayer', () => {
     vi.clearAllMocks()
   })
 
+  describe('registerCanvasElements', () => {
+    it('registers canvas elements for the player', () => {
+      const composable = useFileActionPlayer()
+      const { actionCanvas, volatileCanvas, videoElement } = createMockElements()
+
+      expect(() => composable.registerCanvasElements(actionCanvas, volatileCanvas, videoElement)).not.toThrow()
+    })
+
+    it('updates render controller when player is already initialized', async () => {
+      const composable = useFileActionPlayer()
+      await initializePlayerWithMocks(composable)
+
+      const { actionCanvas, volatileCanvas, videoElement } = createMockElements()
+      expect(() => composable.registerCanvasElements(actionCanvas, volatileCanvas, videoElement)).not.toThrow()
+    })
+  })
+
   describe('initializePlayer', () => {
     it('initializes player with canvas elements', async () => {
       const composable = useFileActionPlayer()
@@ -172,8 +192,7 @@ describe('composables/useFileActionPlayer', () => {
       await initializePlayerWithMocks(composable)
 
       // Second initialization should not create new player
-      const { actionCanvas, volatileCanvas, videoElement } = createMockElements()
-      composable.initializePlayer(actionCanvas, volatileCanvas, videoElement)
+      composable.initializePlayer()
 
       expect(mockFileActionPlayer).toBeDefined()
     })
@@ -307,7 +326,8 @@ describe('composables/useFileActionPlayer', () => {
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      expect(() => composable.initializePlayer(actionCanvas, volatileCanvas, videoElement)).not.toThrow()
+      composable.registerCanvasElements(actionCanvas, volatileCanvas, videoElement)
+      expect(() => composable.initializePlayer()).not.toThrow()
 
       consoleSpy.mockRestore()
     })

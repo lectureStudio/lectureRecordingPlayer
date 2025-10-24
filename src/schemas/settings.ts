@@ -6,10 +6,18 @@ import { z } from 'zod'
  *
  * @property {('light'|'dark')} theme - The visual theme of the application.
  * @property {('left'|'right'|'none')} sidebarPosition - Position of the sidebar in the UI.
+ * @property {object} splitPaneSizes - Sizes of the split panes as percentages.
  */
 export const AppSettingsSchema = z.object({
   theme: z.enum(['light', 'dark']),
   sidebarPosition: z.enum(['left', 'right', 'none']),
+  splitPaneSizes: z.object({
+    sidebar: z.number().min(5).max(30).default(15),
+    main: z.number().min(70).max(95).default(85),
+  }).default({
+    sidebar: 15,
+    main: 85,
+  }),
 })
 
 /**
