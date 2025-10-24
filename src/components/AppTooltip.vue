@@ -1,0 +1,166 @@
+<script setup lang="ts">
+import {
+  arrow,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useFloating,
+} from '@floating-ui/vue'
+import { computed, ref, watch } from 'vue'
+
+interface Props {
+  content: string
+  placement?: 'top' | 'bottom' | 'left' | 'right'
+  delay?: number
+  disabled?: boolean
+  hideOnClick?: boolean
+  dropdownOpen?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  placement: 'top',
+  delay: 0,
+  disabled: false,
+  hideOnClick: false,
+  dropdownOpen: false,
+})
+
+const reference = ref<HTMLElement>()
+const floating = ref<HTMLElement>()
+const arrowRef = ref<HTMLElement>()
+const isOpen = ref(false)
+let showTimeout: number | null = null
+
+const { floatingStyles, middlewareData } = useFloating(reference, floating, {
+  placement: props.placement,
+  whileElementsMounted: autoUpdate,
+  middleware: [
+    offset(8),
+    flip(),
+    shift({ padding: 8 }),
+    arrow({ element: arrowRef }),
+  ],
+})
+
+const arrowStyles = computed(() => {
+  const { x, y } = middlewareData.value.arrow || { x: 0, y: 0 }
+
+  return {
+    position: 'absolute' as const,
+    left: x != null ? `${x}px` : '',
+    top: y != null ? `${y}px` : '',
+  }
+})
+
+const showTooltip = () => {
+  if (props.disabled || !props.content || props.dropdownOpen) { return }
+
+  if (props.delay > 0) {
+    showTimeout = window.setTimeout(() => {
+      isOpen.value = true
+    }, props.delay)
+  }
+  else {
+    isOpen.value = true
+  }
+}
+
+const hideTooltip = () => {
+  if (showTimeout) {
+    clearTimeout(showTimeout)
+    showTimeout = null
+  }
+
+  isOpen.value = false
+}
+
+const handleClick = (event: Event) => {
+  // Prevent event propagation to avoid triggering parent tooltips
+  event.stopPropagation()
+
+  if (props.hideOnClick) {
+    hideTooltip()
+  }
+}
+
+// Clean up timeouts on unmount
+const cleanup = () => {
+  if (showTimeout) { clearTimeout(showTimeout) }
+}
+
+// Watch for disabled prop changes
+watch(() => props.disabled, (disabled) => {
+  if (disabled) {
+    cleanup()
+    isOpen.value = false
+  }
+})
+
+// Watch for dropdown state changes
+watch(() => props.dropdownOpen, (dropdownOpen) => {
+  if (dropdownOpen) {
+    cleanup()
+    isOpen.value = false
+  }
+})
+
+// Cleanup on unmount
+import { onUnmounted } from 'vue'
+onUnmounted(cleanup)
+</script>
+
+<template>
+  <div
+    ref="reference"
+    @mouseenter="showTooltip"
+    @mouseleave="hideTooltip"
+    @focus="showTooltip"
+    @blur="hideTooltip"
+    @click="handleClick"
+    class="inline"
+  >
+    <slot />
+
+    <Teleport to="body">
+      <Transition
+        name="tooltip"
+        @enter="(el: Element) => (el as HTMLElement).offsetHeight"
+        @after-leave="() => {}"
+      >
+        <div
+          v-if="isOpen && content"
+          ref="floating"
+          :style="floatingStyles"
+          class="z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded shadow-lg pointer-events-none"
+          role="tooltip"
+        >
+          {{ content }}
+          <div
+            ref="arrowRef"
+            :style="arrowStyles"
+            class="absolute w-2 h-2 bg-gray-900 transform rotate-45"
+          />
+        </div>
+      </Transition>
+    </Teleport>
+  </div>
+</template>
+
+<style scoped>
+/* Tooltip transition animations - using only opacity to avoid positioning conflicts */
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.15s ease-in-out;
+}
+
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+}
+
+.tooltip-enter-to,
+.tooltip-leave-from {
+  opacity: 1;
+}
+</style>

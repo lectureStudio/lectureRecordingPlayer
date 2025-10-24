@@ -1,8 +1,15 @@
 <script setup lang="ts">
+import { useDropdownState } from '@/composables/useDropdownState'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { computed } from 'vue'
 
 const media = useMediaControlsStore()
+
+// Dropdown state management
+const { dropdownRef, handleDropdownToggle, exposedState } = useDropdownState()
+
+// Expose dropdown state to parent
+defineExpose(exposedState)
 
 const speeds = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0] as const
 const step = 0.25 as const
@@ -20,22 +27,22 @@ const currentIndex = computed(() => {
   return Math.round((clamped - minSpeed) / step)
 })
 
-const currentLabel = computed(() => {
-  return `${currentSpeed.value}x`
-})
-
 function setSpeed(speed: number) {
   media.setPlaybackSpeed(speed)
 }
 </script>
 
 <template>
-  <div class="inline-block dropdown dropdown-top dropdown-end">
+  <div
+    ref="dropdownRef"
+    class="inline-block dropdown dropdown-top dropdown-end"
+  >
     <div
       tabindex="0"
       role="button"
-      class="btn btn-ghost m-1 w-10 h-10 p-0"
-      :title="`Playback speed: ${currentLabel}`"
+      class="btn btn-ghost w-10 h-10 p-0"
+      @focus="handleDropdownToggle(true)"
+      @blur="handleDropdownToggle(false)"
     >
       <button class="btn btn-ghost w-10 h-10 p-0">
         <AppIcon name="playback-speed" class="w-6" />
@@ -44,6 +51,8 @@ function setSpeed(speed: number) {
     <div
       tabindex="0"
       class="dropdown-content bg-slate-50/30 dark:bg-slate-700/30 backdrop-blur-sm dark:backdrop-blur-lg rounded-box z-1 p-2 shadow-sm w-30"
+      @focus="handleDropdownToggle(true)"
+      @blur="handleDropdownToggle(false)"
     >
       <span class="text-sm">Playback Speed</span>
       <ul class="steps steps-vertical">

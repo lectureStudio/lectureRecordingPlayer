@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppIcon from '@/components/AppIcon.vue'
+import AppTooltip from '@/components/AppTooltip.vue'
 import PlaybackSpeedButton from '@/components/PlaybackSpeedButton.vue'
 import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { useFullscreenControls } from '@/composables/useFullscreenControls'
@@ -24,6 +25,11 @@ const { fullscreen, controlsVisible, toggleFullscreen, onUserActivity } =
   useFullscreenControls()
 
 const { formatHHMMSS } = useTimeFormat()
+
+// References to dropdown components
+const speakerButtonRef = ref()
+const playbackSpeedButtonRef = ref()
+const sidebarPositionChooserRef = ref()
 
 const currentTime = computed(() => formatHHMMSS(media.currentTime))
 const totalTime = computed(() => formatHHMMSS(media.totalTime))
@@ -262,53 +268,89 @@ onMounted(() => {
     <!-- Second row -->
     <div class="flex items-center justify-between gap-2 m-1">
       <div class="flex items-center gap-2">
-        <SpeakerButton />
+        <AppTooltip
+          content="Volume"
+          :hide-on-click="true"
+          :dropdown-open="speakerButtonRef?.isDropdownOpen ?? false"
+        >
+          <SpeakerButton ref="speakerButtonRef" />
+        </AppTooltip>
       </div>
       <div class="flex items-center gap-2">
-        <button
-          @click="selectPrevPage"
-          class="btn btn-ghost w-10 h-10 p-0"
-          aria-label="Previous track"
-          type="button"
+        <AppTooltip content="Previous slide" :hide-on-click="true">
+          <button
+            @click="selectPrevPage"
+            class="btn btn-ghost w-10 h-10 p-0"
+            aria-label="Previous track"
+            type="button"
+          >
+            <AppIcon name="previous" class="w-6" />
+          </button>
+        </AppTooltip>
+        <AppTooltip
+          :content="media.playbackState === 'playing' ? 'Pause' : 'Play'"
         >
-          <AppIcon name="previous" class="w-6" />
-        </button>
-        <button
-          @click="togglePlayPause"
-          class="btn btn-ghost w-10 h-10 p-0"
-          :aria-label="media.playbackState === 'playing' ? 'Pause' : 'Play'"
-          type="button"
-        >
-          <AppIcon
-            :name="media.playbackState === 'playing' ? 'pause' : 'play'"
-            class="w-6"
-          />
-        </button>
-        <button
-          @click="selectNextPage"
-          class="btn btn-ghost w-10 h-10 p-0"
-          aria-label="Next track"
-          type="button"
-        >
-          <AppIcon name="next" class="w-6" />
-        </button>
+          <button
+            @click="togglePlayPause"
+            class="btn btn-ghost w-10 h-10 p-0"
+            :aria-label="media.playbackState === 'playing' ? 'Pause' : 'Play'"
+            type="button"
+          >
+            <AppIcon
+              :name="media.playbackState === 'playing'
+              ? 'pause'
+              : 'play'"
+              class="w-6"
+            />
+          </button>
+        </AppTooltip>
+        <AppTooltip content="Next slide" :hide-on-click="true">
+          <button
+            @click="selectNextPage"
+            class="btn btn-ghost w-10 h-10 p-0"
+            aria-label="Next track"
+            type="button"
+          >
+            <AppIcon name="next" class="w-6" />
+          </button>
+        </AppTooltip>
       </div>
       <div class="flex items-center gap-2">
-        <SidebarPositionChooser class="hidden lg:inline-block" />
-        <PlaybackSpeedButton />
-        <button
-          class="btn btn-ghost w-10 h-10 p-0"
-          :aria-label="fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
-          type="button"
-          @click="toggleFullscreen"
+        <AppTooltip
+          content="Preview position"
+          :hide-on-click="true"
+          :dropdown-open="sidebarPositionChooserRef?.isDropdownOpen ?? false"
         >
-          <AppIcon
-            :name="fullscreen
-            ? 'fullscreen-minimize'
-            : 'fullscreen-maximize'"
-            class="w-6"
+          <SidebarPositionChooser
+            ref="sidebarPositionChooserRef"
+            class="hidden lg:inline-block"
           />
-        </button>
+        </AppTooltip>
+        <AppTooltip
+          content="Playback speed"
+          :hide-on-click="true"
+          :dropdown-open="playbackSpeedButtonRef?.isDropdownOpen ?? false"
+        >
+          <PlaybackSpeedButton ref="playbackSpeedButtonRef" />
+        </AppTooltip>
+        <AppTooltip
+          :content="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+          :hide-on-click="true"
+        >
+          <button
+            class="btn btn-ghost w-10 h-10 p-0"
+            :aria-label="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+            type="button"
+            @click="toggleFullscreen"
+          >
+            <AppIcon
+              :name="fullscreen
+              ? 'fullscreen-minimize'
+              : 'fullscreen-maximize'"
+              class="w-6"
+            />
+          </button>
+        </AppTooltip>
       </div>
     </div>
     <audio
