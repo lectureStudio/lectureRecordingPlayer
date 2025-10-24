@@ -9,7 +9,7 @@ import { useRecordingStore } from '@/stores/recording.ts'
 import { type PDFPageProxy, RenderingCancelledException } from 'pdfjs-dist'
 import type { RenderTask } from 'pdfjs-dist/types/src/display/api'
 import type { ComponentPublicInstance } from 'vue'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { RecycleScroller } from 'vue-virtual-scroller'
 import { parsePx, sumParentsBoxModel } from '../composables/dom'
 import { usePdfStore } from '../stores/pdf'
@@ -490,7 +490,7 @@ watch(measuredWidth, async () => {
   })
 })
 
-onMounted(() => {
+onMounted(async () => {
   // Observe size changes to recompute width
   if (thumbBarRef.value) {
     ro = new ResizeObserver(() => scheduleUpdateWidth())
@@ -502,6 +502,19 @@ onMounted(() => {
   ensureInitializedFromDoc()
 
   updateComputedWidth()
+
+  // Wait for the next tick to ensure DOM is fully rendered
+  await nextTick()
+
+  // Compute thumbnail size after DOM is ready
+  await computeThumbSize()
+
+  // Wait another tick to ensure RecycleScroller has processed the item-size change
+  await nextTick()
+
+  if (pdfStore.currentPage > 0) {
+    scroller.value?.scrollToItem(pdfStore.currentPage - 1)
+  }
 })
 
 onBeforeUnmount(() => {

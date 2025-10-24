@@ -12,6 +12,7 @@ vi.mock('@/composables/useFileActionPlayer.ts', () => ({
   useFileActionPlayer: () => ({
     actionPlayer: { value: { setCanvas: vi.fn(), setAudioElement: vi.fn() } },
     initializePlayer: vi.fn(),
+    registerCanvasElements: vi.fn(),
   }),
 }))
 

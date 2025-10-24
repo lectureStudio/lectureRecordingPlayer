@@ -7,7 +7,7 @@ import { useVideoMappingStore } from '@/stores/videoMapping'
  */
 class VideoRenderSurface {
   /** The HTML video element used for playback */
-  private readonly video: HTMLVideoElement
+  private video: HTMLVideoElement
 
   /** Callback to notify when the video should be hidden */
   private readonly onVideoShouldHide?: () => void
@@ -423,6 +423,29 @@ class VideoRenderSurface {
    */
   getVideoElement(): HTMLVideoElement {
     return this.video
+  }
+
+  /**
+   * Updates the video element used for playback.
+   * This is useful when the video element changes (e.g., component remounting).
+   *
+   * @param newVideo - The new HTML video element to use for playback.
+   */
+  setVideoElement(newVideo: HTMLVideoElement): void {
+    // Clean up old video element
+    this.clear()
+
+    // Update the video element
+    this.video = newVideo
+
+    // Set up event listeners for the new video element
+    this.setupVideoEventListeners()
+
+    // Set up resize observer for the new video element
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+    }
+    this.setupResizeObserver()
   }
 
   /**
