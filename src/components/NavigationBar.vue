@@ -64,7 +64,12 @@ const props = withDefaults(
     <div class="flex-1" />
 
     <SearchField class="sm:w-[18rem] order-last sm:order-none" />
-    <KeyboardShortcutsButton :on-click="handleShowShortcuts" />
-    <ThemeSwitch class="opacity-70" />
+
+    <AppTooltip content="Keyboard shortcuts">
+      <KeyboardShortcutsButton :on-click="handleShowShortcuts" />
+    </AppTooltip>
+    <AppTooltip content="Toggle theme" placement="bottom">
+      <ThemeSwitch class="opacity-70" />
+    </AppTooltip>
   </div>
 </template>

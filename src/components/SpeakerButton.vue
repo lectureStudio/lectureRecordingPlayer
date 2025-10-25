@@ -9,8 +9,11 @@ const media = useMediaControlsStore()
 // Dropdown state management
 const { dropdownRef, handleDropdownToggle, exposedState } = useDropdownState()
 
-// Expose dropdown state to parent
-defineExpose(exposedState)
+// Expose dropdown state and functions to the parent
+defineExpose({
+  ...exposedState,
+  toggleMute,
+})
 
 const volume = computed<number>({
   get: () => media.volume,

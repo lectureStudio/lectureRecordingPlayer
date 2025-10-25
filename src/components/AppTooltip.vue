@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   placement: 'top',
   delay: 0,
   disabled: false,
-  hideOnClick: false,
+  hideOnClick: true,
   dropdownOpen: false,
 })
 

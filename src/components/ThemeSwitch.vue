@@ -51,7 +51,6 @@ watch(theme, (t) => {
     class="btn btn-ghost btn-circle"
     :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
     @click="toggleTheme"
-    title="Toggle theme"
   >
     <AppIcon v-if="theme === 'dark'" name="dark-mode" class="w-6" />
     <AppIcon v-else name="light-mode" class="w-6" />

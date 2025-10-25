@@ -270,14 +270,13 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <AppTooltip
           content="Volume"
-          :hide-on-click="true"
           :dropdown-open="speakerButtonRef?.isDropdownOpen ?? false"
         >
           <SpeakerButton ref="speakerButtonRef" />
         </AppTooltip>
       </div>
       <div class="flex items-center gap-2">
-        <AppTooltip content="Previous slide" :hide-on-click="true">
+        <AppTooltip content="Previous slide">
           <button
             @click="selectPrevPage"
             class="btn btn-ghost w-10 h-10 p-0"
@@ -304,7 +303,7 @@ onMounted(() => {
             />
           </button>
         </AppTooltip>
-        <AppTooltip content="Next slide" :hide-on-click="true">
+        <AppTooltip content="Next slide">
           <button
             @click="selectNextPage"
             class="btn btn-ghost w-10 h-10 p-0"
@@ -318,7 +317,6 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <AppTooltip
           content="Preview position"
-          :hide-on-click="true"
           :dropdown-open="sidebarPositionChooserRef?.isDropdownOpen ?? false"
         >
           <SidebarPositionChooser
@@ -328,15 +326,11 @@ onMounted(() => {
         </AppTooltip>
         <AppTooltip
           content="Playback speed"
-          :hide-on-click="true"
           :dropdown-open="playbackSpeedButtonRef?.isDropdownOpen ?? false"
         >
           <PlaybackSpeedButton ref="playbackSpeedButtonRef" />
         </AppTooltip>
-        <AppTooltip
-          :content="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
-          :hide-on-click="true"
-        >
+        <AppTooltip :content="fullscreen ? 'Exit fullscreen' : 'Fullscreen'">
           <button
             class="btn btn-ghost w-10 h-10 p-0"
             :aria-label="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
