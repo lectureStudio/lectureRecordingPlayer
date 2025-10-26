@@ -3,7 +3,7 @@ import {
   arrow,
   autoUpdate,
   flip,
-  offset,
+  offset as offsetMiddleware,
   shift,
   useFloating,
 } from '@floating-ui/vue'
@@ -16,6 +16,8 @@ interface Props {
   disabled?: boolean
   hideOnClick?: boolean
   dropdownOpen?: boolean
+  showArrow?: boolean
+  offset?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -24,6 +26,8 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   hideOnClick: true,
   dropdownOpen: false,
+  showArrow: true,
+  offset: 8,
 })
 
 const reference = ref<HTMLElement>()
@@ -39,10 +43,10 @@ const { floatingStyles, middlewareData, placement } = useFloating(
     placement: props.placement === 'auto' ? undefined : props.placement,
     whileElementsMounted: autoUpdate,
     middleware: [
-      offset(8),
+      offsetMiddleware(props.offset),
       flip(),
       shift({ padding: 8 }),
-      arrow({ element: arrowRef }),
+      ...(props.showArrow ? [arrow({ element: arrowRef })] : []),
     ],
   },
 )
@@ -153,6 +157,7 @@ onUnmounted(cleanup)
         >
           {{ content }}
           <div
+            v-if="showArrow"
             ref="arrowRef"
             :style="arrowStyles"
             class="absolute w-2 h-2 bg-gray-900 transform rotate-45"

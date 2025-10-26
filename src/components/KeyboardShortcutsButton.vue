@@ -18,7 +18,7 @@ const props = defineProps<{
       @click="props.onClick"
       aria-label="Show keyboard shortcuts"
     >
-      <AppIcon name="keyboard" class="w-5" />
+      <AppIcon name="keyboard" class="w-6" />
     </button>
   </div>
 </template>

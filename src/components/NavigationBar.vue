@@ -65,10 +65,10 @@ const props = withDefaults(
 
     <SearchField class="sm:w-[18rem] order-last sm:order-none" />
 
-    <AppTooltip content="Keyboard shortcuts">
+    <AppTooltip content="Keyboard shortcuts" :show-arrow="false" :offset="16">
       <KeyboardShortcutsButton :on-click="handleShowShortcuts" />
     </AppTooltip>
-    <AppTooltip content="Toggle theme">
+    <AppTooltip content="Toggle theme" :show-arrow="false" :offset="16">
       <ThemeSwitch class="opacity-70" />
     </AppTooltip>
   </div>

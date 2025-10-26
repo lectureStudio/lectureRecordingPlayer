@@ -609,7 +609,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 8px;
+  padding: 1px 8px;
   width: 100%;
 }
 .thumb-item {

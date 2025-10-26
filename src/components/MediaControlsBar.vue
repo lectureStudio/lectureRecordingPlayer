@@ -270,13 +270,21 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <AppTooltip
           content="Volume"
+          placement="top"
+          :show-arrow="false"
+          :offset="36"
           :dropdown-open="speakerButtonRef?.isDropdownOpen ?? false"
         >
           <SpeakerButton ref="speakerButtonRef" />
         </AppTooltip>
       </div>
       <div class="flex items-center gap-2">
-        <AppTooltip content="Previous slide">
+        <AppTooltip
+          content="Previous slide"
+          placement="top"
+          :show-arrow="false"
+          :offset="36"
+        >
           <button
             @click="selectPrevPage"
             class="btn btn-ghost w-10 h-10 p-0"
@@ -288,6 +296,10 @@ onMounted(() => {
         </AppTooltip>
         <AppTooltip
           :content="media.playbackState === 'playing' ? 'Pause' : 'Play'"
+          placement="top"
+          :hide-on-click="false"
+          :show-arrow="false"
+          :offset="36"
         >
           <button
             @click="togglePlayPause"
@@ -303,7 +315,12 @@ onMounted(() => {
             />
           </button>
         </AppTooltip>
-        <AppTooltip content="Next slide">
+        <AppTooltip
+          content="Next slide"
+          placement="top"
+          :show-arrow="false"
+          :offset="36"
+        >
           <button
             @click="selectNextPage"
             class="btn btn-ghost w-10 h-10 p-0"
@@ -317,6 +334,9 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <AppTooltip
           content="Preview position"
+          placement="top"
+          :show-arrow="false"
+          :offset="36"
           :dropdown-open="sidebarPositionChooserRef?.isDropdownOpen ?? false"
         >
           <SidebarPositionChooser
@@ -326,11 +346,19 @@ onMounted(() => {
         </AppTooltip>
         <AppTooltip
           content="Playback speed"
+          placement="top"
+          :show-arrow="false"
+          :offset="36"
           :dropdown-open="playbackSpeedButtonRef?.isDropdownOpen ?? false"
         >
           <PlaybackSpeedButton ref="playbackSpeedButtonRef" />
         </AppTooltip>
-        <AppTooltip :content="fullscreen ? 'Exit fullscreen' : 'Fullscreen'">
+        <AppTooltip
+          :content="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+          placement="top"
+          :show-arrow="false"
+          :offset="36"
+        >
           <button
             class="btn btn-ghost w-10 h-10 p-0"
             :aria-label="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
