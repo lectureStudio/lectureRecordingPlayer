@@ -11,7 +11,7 @@ import { computed, ref, watch } from 'vue'
 
 interface Props {
   content: string
-  placement?: 'top' | 'bottom' | 'left' | 'right'
+  placement?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
   delay?: number
   disabled?: boolean
   hideOnClick?: boolean
@@ -19,7 +19,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placement: 'top',
+  placement: 'auto',
   delay: 0,
   disabled: false,
   hideOnClick: true,
@@ -32,24 +32,40 @@ const arrowRef = ref<HTMLElement>()
 const isOpen = ref(false)
 let showTimeout: number | null = null
 
-const { floatingStyles, middlewareData } = useFloating(reference, floating, {
-  placement: props.placement,
-  whileElementsMounted: autoUpdate,
-  middleware: [
-    offset(8),
-    flip(),
-    shift({ padding: 8 }),
-    arrow({ element: arrowRef }),
-  ],
-})
+const { floatingStyles, middlewareData, placement } = useFloating(
+  reference,
+  floating,
+  {
+    placement: props.placement === 'auto' ? undefined : props.placement,
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(8),
+      flip(),
+      shift({ padding: 8 }),
+      arrow({ element: arrowRef }),
+    ],
+  },
+)
 
 const arrowStyles = computed(() => {
   const { x, y } = middlewareData.value.arrow || { x: 0, y: 0 }
+
+  // Determine the static side based on actual computed placement
+  const getStaticSide = (placement: string) => {
+    if (placement.startsWith('top')) { return 'bottom' }
+    if (placement.startsWith('bottom')) { return 'top' }
+    if (placement.startsWith('left')) { return 'right' }
+    if (placement.startsWith('right')) { return 'left' }
+    return 'bottom'
+  }
+
+  const staticSide = getStaticSide(placement.value)
 
   return {
     position: 'absolute' as const,
     left: x != null ? `${x}px` : '',
     top: y != null ? `${y}px` : '',
+    [staticSide]: '-4px',
   }
 })
 

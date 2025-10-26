@@ -81,7 +81,7 @@ function handleContentBlur() {
         class="px-1 py-2 flex items-center justify-center gap-3"
         @mouseenter="handleContentFocus"
       >
-        <AppTooltip :content="media.muted ? 'Unmute' : 'Mute'">
+        <AppTooltip :content="media.muted ? 'Unmute' : 'Mute'" placement="top">
           <button
             class="btn btn-ghost w-8 h-8 p-0"
             @click.stop="toggleMute"
