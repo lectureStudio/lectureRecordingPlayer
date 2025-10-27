@@ -106,7 +106,7 @@ const handleClick = (event: Event) => {
   }
 }
 
-// Clean up timeouts on unmount
+// Clean up timeouts
 const cleanup = () => {
   if (showTimeout) { clearTimeout(showTimeout) }
 }
@@ -127,7 +127,7 @@ watch(() => props.dropdownOpen, (dropdownOpen) => {
   }
 })
 
-// Cleanup on unmount
+// Cleanup on unmounting
 import { onUnmounted } from 'vue'
 onUnmounted(cleanup)
 </script>

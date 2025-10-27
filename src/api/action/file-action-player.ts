@@ -191,13 +191,11 @@ class FileActionPlayer extends ActionPlayer {
       if (state === ExecutableState.Starting || state === ExecutableState.Started) {
         const time = this.audioElement ? this.audioElement.currentTime * 1000 : 0
         let actionCount = this.actions.length
-
         if (actionCount > 0) {
           // Get the next action for execution.
           const action = this.actions[actionCount - 1]
 
           if (action && time >= action.timestamp) {
-            // console.log("execute", Math.ceil(Math.abs(time - action.timestamp)), action.constructor.name,);
             action.execute(this.executor)
 
             // Remove the executed action.
@@ -236,7 +234,6 @@ class FileActionPlayer extends ActionPlayer {
 
   private getPlaybackActions(pageNumber: number): void {
     const recPage = this.recordedPages[pageNumber]
-
     if (!recPage) {
       throw new Error('Recorded page not found')
     }

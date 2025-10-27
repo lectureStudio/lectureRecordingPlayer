@@ -35,6 +35,9 @@ const fullscreenTooltip = mediaPlayerTooltips.fullscreen()
 const audioEl = ref<HTMLAudioElement | null>(null)
 const objectUrl = ref<string | null>(null)
 
+// Track watcher for action player initialization
+let stopWatchActionPlayer: (() => void) | null = null
+
 const { fullscreen, controlsVisible, toggleFullscreen, onUserActivity } =
   useFullscreenControls()
 
@@ -119,7 +122,27 @@ onMounted(() => {
   media.setTogglePlayPauseCallback(togglePlayPause)
 
   // Provide the audio element directly to the action player
-  actionPlayer.value?.setAudioElement(el)
+  // If the player is not yet initialized, set it up when it becomes available
+  if (actionPlayer.value) {
+    actionPlayer.value.setAudioElement(el)
+  }
+  else {
+    // Watch for the action player to become available
+    stopWatchActionPlayer = watch(
+      actionPlayer,
+      (player) => {
+        if (player && el) {
+          player.setAudioElement(el)
+
+          if (stopWatchActionPlayer) {
+            stopWatchActionPlayer() // Stop watching once set
+            stopWatchActionPlayer = null
+          }
+        }
+      },
+      { immediate: true },
+    )
+  }
 
   // Initialize audio properties from the store (one-way binding: store -> element)
   el.volume = Math.max(0, Math.min(1, (media.volume ?? 100) / 100))
@@ -231,6 +254,11 @@ onMounted(() => {
     // stop watchers
     stopWatchMediaControls()
     stopWatchSrc()
+
+    if (stopWatchActionPlayer) {
+      stopWatchActionPlayer()
+      stopWatchActionPlayer = null
+    }
 
     // Revoke any remaining Object URL
     if (objectUrl.value) {
