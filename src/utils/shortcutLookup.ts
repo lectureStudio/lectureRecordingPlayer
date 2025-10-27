@@ -131,10 +131,10 @@ export function formatShortcutWithKbd(shortcut: KeyboardShortcut): string {
       if (key.includes(' + ')) {
         // Handle compound keys like "Ctrl + K"
         return key.split(' + ')
-          .map(part => `<kbd class="kbd kbd-xs">${escapeHtml(part.trim())}</kbd>`)
+          .map(part => `<kbd class="kbd kbd-sm border-b">${escapeHtml(part.trim())}</kbd>`)
           .join(' + ')
       }
-      return `<kbd class="kbd kbd-xs">${escapeHtml(key)}</kbd>`
+      return `<kbd class="kbd kbd-sm border-b">${escapeHtml(key)}</kbd>`
     })
     .join(' or ')
 }

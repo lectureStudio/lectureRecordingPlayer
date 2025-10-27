@@ -154,11 +154,11 @@ onUnmounted(cleanup)
           v-if="isOpen && content"
           ref="floating"
           :style="floatingStyles"
-          class="z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded shadow-lg pointer-events-none"
+          class="flex items-start content-start z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded shadow-lg pointer-events-none"
           role="tooltip"
           data-theme="dark"
         >
-          <div v-if="richContent" v-html="content" />
+          <div v-if="richContent" v-html="content" class="flex gap-2" />
           <span v-else>{{ content }}</span>
           <div
             v-if="showArrow"
