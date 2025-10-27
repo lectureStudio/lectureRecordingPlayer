@@ -7,11 +7,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the Page class
 vi.mock('@/api/model/page', () => ({
-  Page: vi.fn().mockImplementation((pageNumber: number) => ({
-    pageNumber,
-    getPageNumber: vi.fn().mockReturnValue(pageNumber),
-    // Add other properties as needed for testing
-  })),
+  Page: vi.fn().mockImplementation(function(pageNumber: number) {
+    return {
+      pageNumber,
+      getPageNumber: vi.fn().mockReturnValue(pageNumber),
+      // Add other properties as needed for testing
+    }
+  }),
 }))
 
 describe('stores/recording', () => {

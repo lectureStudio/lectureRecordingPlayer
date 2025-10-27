@@ -44,21 +44,29 @@ let mockFileActionPlayerInstance: MockFileActionPlayer
 let mockRecordingStore: MockRecordingStore
 
 vi.mock('@/api/action/file-action-player', () => ({
-  FileActionPlayer: vi.fn().mockImplementation(() => mockFileActionPlayerInstance),
+  FileActionPlayer: vi.fn().mockImplementation(function() {
+    return mockFileActionPlayerInstance
+  }),
 }))
 
 let mockRenderControllerInstance: MockRenderController
 
 vi.mock('@/api/render/render-controller', () => ({
-  RenderController: vi.fn().mockImplementation(() => mockRenderControllerInstance),
+  RenderController: vi.fn().mockImplementation(function() {
+    return mockRenderControllerInstance
+  }),
 }))
 
 vi.mock('@/api/render/render-surface', () => ({
-  RenderSurface: vi.fn().mockImplementation(() => ({})),
+  RenderSurface: vi.fn().mockImplementation(function() {
+    return {}
+  }),
 }))
 
 vi.mock('@/api/render/video-render-surface', () => ({
-  VideoRenderSurface: vi.fn().mockImplementation(() => ({})),
+  VideoRenderSurface: vi.fn().mockImplementation(function() {
+    return {}
+  }),
 }))
 
 vi.mock('@/stores/recording', () => ({
