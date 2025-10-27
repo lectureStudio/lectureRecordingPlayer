@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import AppIcon from '@/components/AppIcon.vue'
+import AppTooltip from '@/components/AppTooltip.vue'
 import KeyboardShortcutsButton from '@/components/KeyboardShortcutsButton.vue'
 import SearchField from '@/components/SearchField.vue'
 import ThemeSwitch from '@/components/ThemeSwitch.vue'
 import { useFullscreenControls } from '@/composables/useFullscreenControls'
+import { mediaPlayerTooltips } from '@/composables/useShortcutTooltip'
 import { useSettingsStore } from '@/stores/settings'
 import { computed } from 'vue'
 
 const settings = useSettingsStore()
+
+// Tooltip composable for help/shortcuts
+const helpTooltip = mediaPlayerTooltips.help()
 
 /**
  * Determines whether the sidebar should be shown based on settings.
@@ -64,7 +69,17 @@ const props = withDefaults(
     <div class="flex-1" />
 
     <SearchField class="sm:w-[18rem] order-last sm:order-none" />
-    <KeyboardShortcutsButton :on-click="handleShowShortcuts" />
-    <ThemeSwitch class="opacity-70" />
+
+    <AppTooltip
+      :content="helpTooltip.tooltipContent.value"
+      :rich-content="true"
+      :show-arrow="false"
+      :offset="16"
+    >
+      <KeyboardShortcutsButton :on-click="handleShowShortcuts" />
+    </AppTooltip>
+    <AppTooltip content="Toggle theme" :show-arrow="false" :offset="16">
+      <ThemeSwitch class="opacity-70" />
+    </AppTooltip>
   </div>
 </template>

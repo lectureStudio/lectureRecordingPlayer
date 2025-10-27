@@ -19,7 +19,7 @@ export const keyboardShortcuts: ShortcutCategory[] = [
   {
     category: 'Playback',
     items: [
-      { keys: ['Space', 'K'], description: 'Play/Pause video' },
+      { keys: ['Space', 'K'], description: 'Play/Pause' },
       { keys: ['F'], description: 'Toggle fullscreen' },
     ],
   },

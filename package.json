@@ -22,6 +22,7 @@
     ]
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.1.9",
     "@fluentui/svg-icons": "^1.1.312",
     "daisyui": "^5.3.7",
     "pdfjs-dist": "^5.4.296",
