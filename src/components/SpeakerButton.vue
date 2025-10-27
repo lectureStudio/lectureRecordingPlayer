@@ -1,10 +1,20 @@
 <script setup lang="ts">
+import AppIcon from '@/components/AppIcon.vue'
+import AppTooltip from '@/components/AppTooltip.vue'
 import RangeSlider from '@/components/RangeSlider.vue'
 import { useDropdownState } from '@/composables/useDropdownState'
+import { useShortcutTooltip } from '@/composables/useShortcutTooltip'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { computed } from 'vue'
 
 const media = useMediaControlsStore()
+
+// Tooltip composable for mute/unmute
+const muteTooltip = computed(() =>
+  useShortcutTooltip('mute', {
+    conditionalText: media.muted ? 'Unmute' : 'Mute',
+  })
+)
 
 // Dropdown state management
 const { dropdownRef, handleDropdownToggle, exposedState } = useDropdownState()
@@ -81,7 +91,12 @@ function handleContentBlur() {
         class="px-1 py-2 flex items-center justify-center gap-3"
         @mouseenter="handleContentFocus"
       >
-        <AppTooltip :content="media.muted ? 'Unmute' : 'Mute'" placement="top">
+        <AppTooltip
+          :content="muteTooltip.tooltipContent.value"
+          :rich-content="true"
+          :show-arrow="false"
+          placement="top"
+        >
           <button
             class="btn btn-ghost w-8 h-8 p-0"
             @click.stop="toggleMute"

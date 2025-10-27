@@ -11,6 +11,7 @@ import { computed, ref, watch } from 'vue'
 
 interface Props {
   content: string
+  richContent?: boolean
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
   delay?: number
   disabled?: boolean
@@ -28,6 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
   dropdownOpen: false,
   showArrow: true,
   offset: 8,
+  richContent: false,
 })
 
 const reference = ref<HTMLElement>()
@@ -154,8 +156,10 @@ onUnmounted(cleanup)
           :style="floatingStyles"
           class="z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded shadow-lg pointer-events-none"
           role="tooltip"
+          data-theme="dark"
         >
-          {{ content }}
+          <div v-if="richContent" v-html="content" />
+          <span v-else>{{ content }}</span>
           <div
             v-if="showArrow"
             ref="arrowRef"

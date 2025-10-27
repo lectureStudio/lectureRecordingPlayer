@@ -5,6 +5,10 @@ import PlaybackSpeedButton from '@/components/PlaybackSpeedButton.vue'
 import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { useFullscreenControls } from '@/composables/useFullscreenControls'
 import { usePlayerControls } from '@/composables/usePlayerControls'
+import {
+  mediaPlayerTooltips,
+  useShortcutTooltip,
+} from '@/composables/useShortcutTooltip'
 import { useTimeFormat } from '@/composables/useTimeFormat'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { useRecordingStore } from '@/stores/recording'
@@ -17,6 +21,16 @@ const { actionPlayer } = useFileActionPlayer()
 const { selectPrevPage, selectNextPage } = usePlayerControls()
 const media = useMediaControlsStore()
 const recording = useRecordingStore()
+
+// Tooltip composables
+const previousPageTooltip = mediaPlayerTooltips.previous()
+const playPauseTooltip = computed(() =>
+  useShortcutTooltip('play/pause', {
+    conditionalText: media.playbackState === 'playing' ? 'Pause' : 'Play',
+  })
+)
+const nextPageTooltip = mediaPlayerTooltips.next()
+const fullscreenTooltip = mediaPlayerTooltips.fullscreen()
 
 const audioEl = ref<HTMLAudioElement | null>(null)
 const objectUrl = ref<string | null>(null)
@@ -270,7 +284,6 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <AppTooltip
           content="Volume"
-          placement="top"
           :show-arrow="false"
           :offset="36"
           :dropdown-open="speakerButtonRef?.isDropdownOpen ?? false"
@@ -280,8 +293,8 @@ onMounted(() => {
       </div>
       <div class="flex items-center gap-2">
         <AppTooltip
-          content="Previous slide"
-          placement="top"
+          :content="previousPageTooltip.tooltipContent.value"
+          :rich-content="true"
           :show-arrow="false"
           :offset="36"
         >
@@ -295,9 +308,8 @@ onMounted(() => {
           </button>
         </AppTooltip>
         <AppTooltip
-          :content="media.playbackState === 'playing' ? 'Pause' : 'Play'"
-          placement="top"
-          :hide-on-click="false"
+          :content="playPauseTooltip.tooltipContent.value"
+          :rich-content="true"
           :show-arrow="false"
           :offset="36"
         >
@@ -316,8 +328,8 @@ onMounted(() => {
           </button>
         </AppTooltip>
         <AppTooltip
-          content="Next slide"
-          placement="top"
+          :content="nextPageTooltip.tooltipContent.value"
+          :rich-content="true"
           :show-arrow="false"
           :offset="36"
         >
@@ -334,7 +346,6 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <AppTooltip
           content="Preview position"
-          placement="top"
           :show-arrow="false"
           :offset="36"
           :dropdown-open="sidebarPositionChooserRef?.isDropdownOpen ?? false"
@@ -346,7 +357,6 @@ onMounted(() => {
         </AppTooltip>
         <AppTooltip
           content="Playback speed"
-          placement="top"
           :show-arrow="false"
           :offset="36"
           :dropdown-open="playbackSpeedButtonRef?.isDropdownOpen ?? false"
@@ -354,8 +364,8 @@ onMounted(() => {
           <PlaybackSpeedButton ref="playbackSpeedButtonRef" />
         </AppTooltip>
         <AppTooltip
-          :content="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
-          placement="top"
+          :content="fullscreenTooltip.tooltipContent.value"
+          :rich-content="true"
           :show-arrow="false"
           :offset="36"
         >
