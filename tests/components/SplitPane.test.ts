@@ -284,8 +284,8 @@ describe('SplitPane', () => {
       expect(wrapper.emitted('resize')).toBeTruthy()
       const resizeEvents = wrapper.emitted('resize') as Array<Array<{ first: number; second: number }>>
       // With a 100px move in a 800px container, that's 12.5% change
-      expect(resizeEvents[0][0].first).toBeGreaterThan(50)
-      expect(resizeEvents[0][0].second).toBeLessThan(50)
+      expect(resizeEvents[0]![0]!.first).toBeGreaterThan(50)
+      expect(resizeEvents[0]![0]!.second).toBeLessThan(50)
     })
 
     it('ends drag on mouse up', async () => {
@@ -459,8 +459,8 @@ describe('SplitPane', () => {
       expect(wrapper.emitted('resize')).toBeTruthy()
       const resizeEvents = wrapper.emitted('resize') as Array<Array<{ first: number; second: number }>>
       // The component normalizes sizes, so we expect the values to add up to 100
-      expect(resizeEvents[0][0].first + resizeEvents[0][0].second).toBeCloseTo(100, 1)
-      expect(resizeEvents[0][0].first).toBeCloseTo(30, 1)
+      expect(resizeEvents[0]![0]!.first + resizeEvents[0]![0]!.second).toBeCloseTo(100, 1)
+      expect(resizeEvents[0]![0]!.first).toBeCloseTo(30, 1)
     })
 
     it('exposes setSecondPaneSize method', async () => {
@@ -477,8 +477,8 @@ describe('SplitPane', () => {
       expect(wrapper.emitted('resize')).toBeTruthy()
       const resizeEvents = wrapper.emitted('resize') as Array<Array<{ first: number; second: number }>>
       // The component normalizes sizes, so we expect the values to add up to 100
-      expect(resizeEvents[0][0].first + resizeEvents[0][0].second).toBeCloseTo(100, 1)
-      expect(resizeEvents[0][0].second).toBeCloseTo(40, 1)
+      expect(resizeEvents[0]![0]!.first + resizeEvents[0]![0]!.second).toBeCloseTo(100, 1)
+      expect(resizeEvents[0]![0]!.second).toBeCloseTo(40, 1)
     })
 
     it('exposes getSizes method', () => {
@@ -547,11 +547,11 @@ describe('SplitPane', () => {
 
       const resizeEvents = wrapper.emitted('resize') as Array<Array<{ first: number; second: number }>>
       // The component normalizes sizes, so we expect the values to add up to 100
-      expect(resizeEvents[0][0].first + resizeEvents[0][0].second).toBeCloseTo(100, 1)
-      expect(resizeEvents[0][0]).toHaveProperty('first')
-      expect(resizeEvents[0][0]).toHaveProperty('second')
-      expect(typeof resizeEvents[0][0].first).toBe('number')
-      expect(typeof resizeEvents[0][0].second).toBe('number')
+      expect(resizeEvents[0]![0]!.first + resizeEvents[0]![0]!.second).toBeCloseTo(100, 1)
+      expect(resizeEvents[0]![0]!).toHaveProperty('first')
+      expect(resizeEvents[0]![0]!).toHaveProperty('second')
+      expect(typeof resizeEvents[0]![0]!.first).toBe('number')
+      expect(typeof resizeEvents[0]![0]!.second).toBe('number')
     })
   })
 

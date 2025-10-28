@@ -1,4 +1,3 @@
-import type { RecordedPage } from '@/api/model/recorded-page'
 import { useFileActionPlayer } from '@/composables/useFileActionPlayer'
 import { useMediaControlsStore } from '@/stores/mediaControls'
 import { useRecordingStore } from '@/stores/recording'
@@ -292,8 +291,7 @@ describe('composables/useFileActionPlayer', () => {
       await initializePlayerWithMocks(composable)
 
       // Simulate actions being loaded
-      const mockActions: RecordedPage[] = [{ pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 }]
-      mockRecordingStore.actions.value = mockActions
+      mockRecordingStore.actions.value = [{ pageNumber: 0, staticActions: [], playbackActions: [], timestamp: 0 }]
       await nextTick()
 
       expect(mockFileActionPlayer).toBeDefined()
