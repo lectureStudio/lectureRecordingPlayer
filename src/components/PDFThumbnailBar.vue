@@ -329,6 +329,11 @@ async function renderPage(pageNum: number) {
 
     const { targetW, targetH } = sizeCanvasForPage(canvas, page)
 
+    // Skip rendering if canvas has invalid dimensions (can happen during resize)
+    if (targetW <= 0 || targetH <= 0) {
+      return
+    }
+
     // Skip if this canvas already has the same page rendered at the same size
     const sig = canvasRenderSignature.get(canvas)
     if (
@@ -398,30 +403,52 @@ async function computeThumbSize() {
 
   const initialViewport = page.getViewport({ scale: 1 })
 
-  // Determine available CSS width from the canvas parent (fallback to computed width)
+  // Determine available CSS width - prefer canvas parent if available, otherwise use measuredWidth
+  let availableWidth = measuredWidth.value || 1
   const canvas = canvasMap.value.get(1)
-  if (!canvas) {
-    console.warn('No canvas found')
-    return
+  if (canvas) {
+    const parent = canvas.parentElement as HTMLElement | null
+    availableWidth = Math.max(1, parent?.offsetWidth || availableWidth)
   }
-  const parent = canvas.parentElement as HTMLElement | null
-  const availableWidth = Math.max(
-    1,
-    parent?.offsetWidth || measuredWidth.value || 1,
-  )
+  availableWidth = Math.max(1, availableWidth)
 
   // Compute viewport scaled to the available CSS width
   const scale = availableWidth / initialViewport.width
   const viewport = page.getViewport({ scale })
 
+  // Get label height - try to find it from the DOM structure
+  let labelHeight = 0
   const label = thumbBar.querySelector('.label') as HTMLElement | null
-  if (!label) {
-    console.warn('No label found')
-    return
+  if (label) {
+    labelHeight = label.offsetHeight
   }
-  const labelHeight = label.offsetHeight
+  else {
+    // Fallback: estimate label height if not found (typical label height)
+    labelHeight = 20
+  }
 
-  const offset = sumParentsBoxModel(canvas, 3)
+  // Calculate box model offsets - use canvas if available, otherwise try thumb-item structure
+  let offset = { totalWidth: 0, totalHeight: 0 }
+  if (canvas) {
+    offset = sumParentsBoxModel(canvas, 3)
+  }
+  else {
+    // Fallback: try to get offsets from thumb-item structure
+    const thumbItem = thumbBar.querySelector('.thumb-item') as
+      | HTMLElement
+      | null
+    const thumbItemContent = thumbBar.querySelector('.thumb-item-content') as
+      | HTMLElement
+      | null
+    if (thumbItemContent) {
+      offset = sumParentsBoxModel(thumbItemContent, 3)
+    }
+    else if (thumbItem) {
+      // Use a reasonable estimate based on typical padding/margin values
+      // thumb-item has padding: 0.5rem 0.5rem 0, margin-bottom: 0.5rem
+      offset = { totalWidth: 16, totalHeight: 16 }
+    }
+  }
 
   // thumbSize.value = {
   //   width: viewport.width + offset.totalWidth,
