@@ -77,7 +77,7 @@ class BufferedRenderSurface extends RenderSurface {
    */
   override present(): void {
     const mainCtx = this.canvas.getContext('2d')
-    if (mainCtx) {
+    if (mainCtx && this.bufferCanvas.width > 0 && this.bufferCanvas.height > 0) {
       mainCtx.clearRect(0, 0, this.canvas.width, this.canvas.height)
       mainCtx.drawImage(this.bufferCanvas, 0, 0)
     }
